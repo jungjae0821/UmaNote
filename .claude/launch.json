@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5640
+    },
+    {
+      "name": "mocks",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5641", "--directory", ".claude/screendoro-mocks"],
+      "port": 5641
+    }
+  ]
+}

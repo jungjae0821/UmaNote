@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>우마노트 시안 C · 캐릭터 굿즈 카탈로그</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#fdf1f7;--ink:#2a1e33;--mute:#6f6178;--line:#efd6e6;--pink:#F078C5;--leaf:#54AE1B;--plum:#5b2a86}
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:"Pretendard Variable",sans-serif;color:var(--ink);background:var(--ground)}
+.r{font-family:"M PLUS Rounded 1c","Pretendard Variable",sans-serif;font-variant-numeric:tabular-nums}
+nav{display:flex;align-items:center;gap:4px;padding:18px 40px}
+.logo{font-family:"M PLUS Rounded 1c",sans-serif;font-weight:800;font-size:24px;color:var(--plum);margin-right:24px}
+nav a{text-decoration:none;color:var(--mute);font-size:15px;font-weight:600;padding:9px 16px;border-radius:999px}
+nav a.on{background:var(--plum);color:#fff}
+nav .login{margin-left:auto;background:#fff;color:var(--plum);border:2px solid var(--plum)}
+.top{display:grid;grid-template-columns:1fr 400px;gap:24px;padding:8px 40px 0}
+.stage{background:#fff;border-radius:28px;padding:28px 32px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;border:3px solid #fff;box-shadow:0 0 0 2px var(--line)}
+.portrait{width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 50% 60%,#fde3f3 0 62%,var(--pink) 62% 66%,#fff 66% 70%,var(--leaf) 70%);display:grid;place-items:center;overflow:hidden}
+.portrait img{width:170px}
+.ribbon{display:inline-block;background:var(--pink);color:#fff;font-weight:800;font-size:13px;padding:5px 14px;border-radius:999px}
+.stage h1{font-size:40px;font-weight:800;margin:10px 0 2px;letter-spacing:-.02em}
+.stage .t{color:var(--mute);font-size:15px}
+.stage .when{display:flex;gap:22px;margin-top:18px;align-items:flex-end}
+.stage .when b{font-size:34px;color:var(--plum)}
+.stage .when small{display:block;font-size:12px;color:var(--mute)}
+.stage .with{display:flex;gap:10px;margin-top:18px}
+.chip{display:flex;align-items:center;gap:8px;background:var(--ground);border-radius:999px;padding:4px 14px 4px 4px;font-size:13px;font-weight:600}
+.chip img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#fff;border:2px solid var(--c)}
+.feed{background:var(--plum);color:#fff;border-radius:28px;padding:26px 28px;display:flex;flex-direction:column;gap:12px}
+.feed .lbl{font-size:13px;opacity:.85;display:flex;justify-content:space-between}
+.feed .lbl span{background:#fff;color:var(--plum);font-weight:800;border-radius:999px;padding:1px 9px;font-size:11px}
+.feed .big{font-size:58px;font-weight:800;line-height:1}
+.bar{height:14px;border-radius:999px;background:#ffffff33;overflow:hidden}.bar i{display:block;height:100%;width:61%;background:#fbd872;border-radius:999px}
+.feed ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feed li{background:#ffffff1f;border-radius:14px;padding:10px 12px;font-size:12px}
+.feed li b{display:block;font-size:20px}
+.feed a{margin-top:auto;background:#fff;color:var(--plum);text-align:center;font-weight:800;padding:13px;border-radius:999px;text-decoration:none}
+h2{font-size:19px;font-weight:800;padding:26px 40px 12px;display:flex;justify-content:space-between}
+h2 a{font-size:14px;color:var(--plum);font-weight:700}
+.roster{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:0 40px}
+.cell{background:#fff;border-radius:22px;padding:16px;display:flex;gap:14px;align-items:center;border-top:8px solid var(--c)}
+.cell img{width:74px;height:74px;border-radius:50%;background:var(--ground);object-fit:cover;border:3px solid var(--c)}
+.cell b{display:block;font-size:16px}.cell em{font-style:normal;font-size:12px;color:var(--mute);display:block}
+.cell .d{margin-top:6px;font-size:13px;font-weight:700;color:var(--plum)}
+.cell .bd{font-size:11px;color:var(--mute);margin-top:2px}
+</style></head><body>
+<nav><span class="logo">우마노트</span><a class="on" href="#">홈</a><a href="#">가챠 일정</a><a href="#">뽑기 시뮬레이터</a><a href="#">사료계산기</a><a href="#">생일달력</a><a href="#">패키지</a><a class="login" href="#">구글로 로그인</a></nav>
+<div class="top">
+  <section class="stage">
+    <div class="portrait"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/aa6edad3e72244a08b0299e5435f35b8/inesfujin_list.png" alt="아이네스 후진"></div>
+    <div>
+      <span class="ribbon">지금 픽업 중 · 육성</span>
+      <h1>아이네스 후진</h1>
+      <div class="t">[Hello Hello Island]</div>
+      <div class="when"><div><small>한국서버 예상</small><b class="r">10.30 – 11.10</b></div><div><small>일본서버</small><span class="r" style="font-size:18px;color:var(--mute)">2025.07.11 – 07.22</span></div><div><small>종료까지</small><b class="r">D-7</b></div></div>
+      <div class="with">
+        <span class="chip" style="--c:#14BAAE"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/48ba7bf78f364f819e141d8e54594a8e/mejiroryan_list.png" alt="">메지로 라이언 SSR</span>
+        <span class="chip" style="--c:#E146A7"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e4e38a1329b94e4391cb1be2455ad120/kawakamiprincess_list.png" alt="">카와카미 프린세스 SR</span>
+      </div>
+    </div>
+  </section>
+  <aside class="feed">
+    <div class="lbl">サトノクラウン 픽업(11.19)까지 내 쥬얼 <span>예시 입력</span></div>
+    <div class="big r">18,250</div>
+    <div class="bar"><i></i></div>
+    <div style="font-size:12px;opacity:.85">천장 30,000쥬얼 중 61%</div>
+    <ul><li>보유 쥬얼<b class="r">12,400</b></li><li>더 모이는 양<b class="r">+5,850</b></li><li>티켓 육성 / 서포트<b class="r">4 / 7</b></li><li>월정액<b>구매 중</b></li></ul>
+    <a href="#">사료계산기에서 내 값 넣기</a>
+  </aside>
+</div>
+<h2>다가오는 픽업 <a href="#">전체 일정 보기</a></h2>
+<div class="roster">
+  <div class="cell" style="--c:#fd637f"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/be5f9ba589d34592bc05a22e347c7a77/fusaichipandora_list.png" alt=""><div><b>フサイチパンドラ</b><em>[Assorted Cuteness♡] · 육성</em><div class="d r">11.10 시작 · D-7</div><div class="bd">일본서버 2025.07.22 · 생일 2월 27일</div></div></div>
+  <div class="cell" style="--c:#21713A"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/749b7b5716904f79bb16749de4bdaff6/satonocrown_list.png" alt=""><div><b>サトノクラウン</b><em>[晴島花麗] · 육성</em><div class="d r">11.19 시작 · D-16</div><div class="bd">일본서버 2025.07.31 · 생일 3월 10일</div></div></div>
+  <div class="cell" style="--c:#64C3C1"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5cf740ed13c64829a4f7b73487d180ff/chevalgrand_list.png" alt=""><div><b>シュヴァルグラン</b><em>[夏凪ネイビードロップ] · 육성</em><div class="d r">11.19 시작 · D-16</div><div class="bd">일본서버 2025.07.31 · 생일 3월 14일</div></div></div>
+  <div class="cell" style="--c:#14BAAE"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/48ba7bf78f364f819e141d8e54594a8e/mejiroryan_list.png" alt=""><div><b>메지로 라이언</b><em>SSR 서포트 · 진행 중</em><div class="d r">11.10 종료 · D-7</div><div class="bd">일본서버 2025.07.11 · 생일 4월 11일</div></div></div>
+</div>
+</body></html>

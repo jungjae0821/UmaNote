@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>우마노트 시안 F · 식권 발매기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--steel:#dfe3e6;--steel-2:#c7cdd2;--body:#eef1f3;--ink:#1d2328;--mute:#5d666e;--lcd:#2b3a1f;--lcdtxt:#c8f06a;--red:#e8382f;--yellow:#ffc928;--blue:#2a6fdb;--green:#24a35a}
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:"Pretendard Variable",sans-serif;color:var(--ink);background:var(--steel)}
+.m{font-family:"Azeret Mono",monospace;font-variant-numeric:tabular-nums}
+nav{display:flex;align-items:center;gap:4px;height:58px;padding:0 36px;background:var(--red);color:#fff}
+.logo{font-weight:900;font-size:20px;margin-right:26px}
+nav a{color:#ffe0dd;text-decoration:none;font-size:14px;font-weight:600;padding:7px 12px;border-radius:6px}
+nav a.on{background:#fff;color:var(--red)}
+nav .login{margin-left:auto;border:2px solid #fff;color:#fff}
+.machine{display:grid;grid-template-columns:1fr 420px;gap:22px;padding:22px 36px}
+.panel{background:var(--body);border:2px solid var(--steel-2);border-radius:16px;padding:20px;box-shadow:inset 0 -4px 0 var(--steel-2)}
+.lcd{background:var(--lcd);color:var(--lcdtxt);border-radius:10px;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-end;border:4px solid #11180c}
+.lcd small{display:block;font-family:"Pretendard Variable";font-size:12px;opacity:.8;margin-bottom:4px}
+.lcd b{font-size:30px}
+.hd{display:flex;justify-content:space-between;align-items:baseline;margin:18px 2px 10px}
+.hd h2{font-size:16px;font-weight:800}.hd span{font-size:12px;color:var(--mute)}
+.btns{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.btn{position:relative;background:#fff;border:2px solid var(--steel-2);border-radius:12px;overflow:hidden;box-shadow:0 4px 0 var(--steel-2)}
+.btn .face{background:var(--c);color:#fff;padding:10px 12px;display:flex;gap:10px;align-items:center;min-height:86px}
+.btn .face img{width:58px;height:58px;border-radius:8px;background:#ffffff40;object-fit:cover}
+.btn .face b{font-size:16px;display:block}.btn .face em{font-style:normal;font-size:12px;opacity:.9}
+.btn .price{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:13px}
+.btn .price .m{font-size:15px;font-weight:700}
+.lamp{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700}
+.lamp i{width:10px;height:10px;border-radius:50%;background:var(--l)}
+.btn.sold .face{filter:grayscale(1);opacity:.55}
+.slot{display:flex;flex-direction:column;gap:14px}
+.coin{background:var(--lcd);color:var(--lcdtxt);border-radius:10px;padding:18px 20px;border:4px solid #11180c}
+.coin .lb{display:flex;justify-content:space-between;font-size:12px;opacity:.85}
+.sample{background:var(--lcdtxt);color:var(--lcd);font-weight:800;padding:0 6px;border-radius:3px}
+.coin .big{font-size:58px;font-weight:700;line-height:1.1;margin-top:6px}
+.keys{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.key{background:#fff;border:2px solid var(--steel-2);border-radius:10px;padding:10px 12px;box-shadow:0 3px 0 var(--steel-2)}
+.key small{display:block;font-size:12px;color:var(--mute)}.key b{font-size:20px}
+.go{display:block;text-align:center;background:var(--yellow);color:var(--ink);font-weight:800;padding:16px;border-radius:12px;text-decoration:none;box-shadow:0 4px 0 #c99a10;font-size:16px}
+.ticket{background:#fff;border:2px dashed var(--steel-2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--mute)}
+</style></head><body>
+<nav><span class="logo">우마노트</span><a class="on" href="#">홈</a><a href="#">가챠 일정</a><a href="#">뽑기 시뮬레이터</a><a href="#">사료계산기</a><a href="#">생일달력</a><a href="#">패키지</a><a class="login" href="#">구글로 로그인</a></nav>
+<div class="machine">
+  <section class="panel">
+    <div class="lcd"><div><small>오늘 · 한국서버 예상일</small><b class="m">2026.11.03</b></div><div><small>일본서버</small><b class="m">2025.07.15</b></div><div><small>진행 중 픽업 종료</small><b class="m">D-7</b></div></div>
+    <div class="hd"><h2>픽업 메뉴</h2><span>버튼 아래 = 한국서버 예상일 · 램프 = 그날 내 쥬얼로 천장 가능 여부 (예시 입력)</span></div>
+    <div class="btns">
+      <div class="btn" style="--c:var(--blue)"><div class="face"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/aa6edad3e72244a08b0299e5435f35b8/inesfujin_list.png" alt=""><div><b>아이네스 후진</b><em>육성 · [Hello Hello Island]</em></div></div><div class="price"><span class="m">~11.10</span><span class="lamp" style="--l:var(--green)"><i></i>판매 중</span></div></div>
+      <div class="btn" style="--c:var(--green)"><div class="face"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/48ba7bf78f364f819e141d8e54594a8e/mejiroryan_list.png" alt=""><div><b>메지로 라이언</b><em>서포트 SSR</em></div></div><div class="price"><span class="m">~11.10</span><span class="lamp" style="--l:var(--green)"><i></i>판매 중</span></div></div>
+      <div class="btn" style="--c:var(--green)"><div class="face"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e4e38a1329b94e4391cb1be2455ad120/kawakamiprincess_list.png" alt=""><div><b>카와카미 프린세스</b><em>서포트 SR</em></div></div><div class="price"><span class="m">~11.10</span><span class="lamp" style="--l:var(--green)"><i></i>판매 중</span></div></div>
+      <div class="btn" style="--c:var(--blue)"><div class="face"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/be5f9ba589d34592bc05a22e347c7a77/fusaichipandora_list.png" alt=""><div><b>フサイチパンドラ</b><em>육성 · [Assorted Cuteness♡]</em></div></div><div class="price"><span class="m">11.10~ · JP 07.22</span><span class="lamp" style="--l:var(--yellow)"><i></i>천장 부족</span></div></div>
+      <div class="btn" style="--c:var(--red)"><div class="face"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/749b7b5716904f79bb16749de4bdaff6/satonocrown_list.png" alt=""><div><b>サトノクラウン ★</b><em>육성 · [晴島花麗] · 목표</em></div></div><div class="price"><span class="m">11.19~ · JP 07.31</span><span class="lamp" style="--l:var(--green)"><i></i>천장 가능</span></div></div>
+      <div class="btn" style="--c:var(--blue)"><div class="face"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5cf740ed13c64829a4f7b73487d180ff/chevalgrand_list.png" alt=""><div><b>シュヴァルグラン</b><em>육성 · [夏凪ネイビードロップ]</em></div></div><div class="price"><span class="m">11.19~ · JP 07.31</span><span class="lamp" style="--l:var(--steel-2)"><i></i>동시 픽업</span></div></div>
+    </div>
+  </section>
+  <aside class="slot">
+    <div class="coin"><div class="lb"><span>11.19 サトノクラウン까지 투입될 쥬얼</span><span class="sample">예시 입력</span></div><div class="big m">18,250</div><div class="lb"><span>천장 200회 = 30,000쥬얼</span><span class="m">121회분</span></div></div>
+    <div class="keys"><div class="key"><small>보유 쥬얼</small><b class="m">12,400</b></div><div class="key"><small>더 모이는 양</small><b class="m">+5,850</b></div><div class="key"><small>티켓 육성 / 서포트</small><b class="m">4 / 7</b></div><div class="key"><small>월정액</small><b>구매 중</b></div></div>
+    <a class="go" href="#">사료계산기에서 내 값 넣기</a>
+    <div class="ticket">로그인하면 입력값이 저장되어 다른 기기에서도 그대로 보입니다. 조회만 할 때는 로그인 없이 쓸 수 있어요.</div>
+  </aside>
+</div>
+</body></html>

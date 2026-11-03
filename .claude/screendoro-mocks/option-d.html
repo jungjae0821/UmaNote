@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>우마노트 시안 D · 학생수첩 시간표</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+:root{--paper:#f3f7fb;--grid:#d9e3ee;--navy:#1f2f57;--mute:#5d6a80;--t1:#4c7cf0;--t2:#f0a830;--t3:#e2557a;--t4:#2fb3a0;--t5:#8a63d2;--today:#ffe45c}
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:"Pretendard Variable",sans-serif;color:var(--navy);background:var(--navy);display:grid;grid-template-columns:1fr 64px;padding:20px 0 20px 28px}
+.book{background:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:20px 20px;border-radius:14px 0 0 14px;display:grid;grid-template-columns:1fr 360px;gap:24px;padding:26px 28px}
+.tabs{display:flex;flex-direction:column;gap:6px;padding-top:30px}
+.tabs a{writing-mode:vertical-rl;text-decoration:none;color:#fff;font-size:14px;font-weight:700;padding:14px 10px;border-radius:0 10px 10px 0;background:var(--c);opacity:.75}
+.tabs a.on{opacity:1;padding-right:18px;margin-left:-8px;background:var(--paper);color:var(--navy);box-shadow:inset 6px 0 0 var(--c)}
+.tabs a.login{margin-top:auto;background:#fff;color:var(--navy);opacity:1}
+.n{font-variant-numeric:tabular-nums}
+.top{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.top h1{font-size:26px;font-weight:800}
+.top p{font-size:13px;color:var(--mute)}
+.cal{background:#fff;border:1.5px solid var(--navy);border-radius:10px;overflow:hidden}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);background:var(--navy);color:#fff;font-size:12px;font-weight:700}
+.dow span{padding:6px 10px}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:min-content;border-top:1px solid var(--grid);min-height:104px;position:relative;padding-bottom:6px}
+.wk .d{font-size:13px;font-weight:700;padding:6px 10px 4px;border-right:1px solid var(--grid)}
+.wk .d small{font-size:10px;color:var(--mute);font-weight:500;margin-left:4px}
+.wk .d.today{background:var(--today)}
+.bar{margin:3px 4px 0;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:700;color:#fff;background:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar.cont{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
+.bar.open{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
+.side{display:flex;flex-direction:column;gap:16px}
+.memo{background:#fff;border:1.5px solid var(--navy);border-radius:10px;padding:18px 20px}
+.memo h2{font-size:15px;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sample{font-size:11px;font-weight:800;color:var(--t3);border:1.5px solid var(--t3);border-radius:4px;padding:0 5px}
+.big{font-size:52px;font-weight:800;line-height:1}
+.sub{font-size:13px;color:var(--mute);margin-top:4px}
+.rows div{display:flex;justify-content:space-between;padding:8px 0;border-top:1px dashed var(--grid);font-size:14px}
+.rows b{font-size:16px}
+.cta{display:block;text-align:center;background:var(--navy);color:#fff;font-weight:700;padding:12px;border-radius:8px;text-decoration:none;margin-top:12px}
+.now{display:flex;gap:12px;align-items:center}
+.now img{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--paper);border:3px solid var(--t1)}
+.now b{font-size:18px;display:block}.now em{font-style:normal;font-size:12px;color:var(--mute)}
+.dd{margin-left:auto;font-size:30px;font-weight:800;color:var(--t3)}
+</style></head><body>
+<div class="book">
+  <section>
+    <div class="top"><h1>11월 픽업 시간표</h1><p>한국서버 예상일 · 칸 아래 작은 숫자는 일본서버 날짜 (2025년)</p></div>
+    <div class="cal">
+      <div class="dow"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div>
+      <div class="wk">
+        <div class="d">2<small>7.14</small></div><div class="d today">3<small>7.15 · 오늘</small></div><div class="d">4<small>7.16</small></div><div class="d">5<small>7.17</small></div><div class="d">6<small>7.18</small></div><div class="d">7<small>7.19</small></div><div class="d">8<small>7.20</small></div>
+        <div class="bar cont" style="--c:var(--t1);grid-column:1/8">육성 · 아이네스 후진 [Hello Hello Island] ← 10.30부터</div>
+        <div class="bar cont" style="--c:var(--t4);grid-column:1/8">서포트 · 메지로 라이언 SSR · 카와카미 프린세스 SR</div>
+      </div>
+      <div class="wk">
+        <div class="d">9<small>7.21</small></div><div class="d">10<small>7.22</small></div><div class="d">11<small>7.23</small></div><div class="d">12<small>7.24</small></div><div class="d">13<small>7.25</small></div><div class="d">14<small>7.26</small></div><div class="d">15<small>7.27</small></div>
+        <div class="bar" style="--c:var(--t1);grid-column:1/3;margin-left:0;border-radius:0 6px 6px 0">아이네스 후진 종료</div>
+        <div class="bar open" style="--c:var(--t2);grid-column:2/8">육성 · フサイチパンドラ [Assorted Cuteness♡]</div>
+        <div class="bar" style="--c:var(--t4);grid-column:1/3;margin-left:0;border-radius:0 6px 6px 0">서포트 종료</div>
+      </div>
+      <div class="wk">
+        <div class="d">16<small>7.28</small></div><div class="d">17<small>7.29</small></div><div class="d">18<small>7.30</small></div><div class="d">19<small>7.31</small></div><div class="d">20<small>8.01</small></div><div class="d">21<small>8.02</small></div><div class="d">22<small>8.03</small></div>
+        <div class="bar cont" style="--c:var(--t2);grid-column:1/5">フサイチパンドラ</div>
+        <div class="bar open" style="--c:var(--t3);grid-column:4/8">★ 목표 · サトノクラウン · シュヴァルグラン</div>
+      </div>
+      <div class="wk">
+        <div class="d">23<small>8.04</small></div><div class="d">24<small>8.05</small></div><div class="d">25<small>8.06</small></div><div class="d">26<small>8.07</small></div><div class="d">27<small>8.08</small></div><div class="d">28<small>8.09</small></div><div class="d">29<small>8.10</small></div>
+        <div class="bar cont open" style="--c:var(--t3);grid-column:1/8">サトノクラウン [晴島花麗] · シュヴァルグラン [夏凪ネイビードロップ] → 12.03까지</div>
+      </div>
+    </div>
+  </section>
+  <aside class="side">
+    <div class="memo">
+      <h2>지금 진행 중</h2>
+      <div class="now"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/aa6edad3e72244a08b0299e5435f35b8/inesfujin_list.png" alt=""><div><b>아이네스 후진</b><em>[Hello Hello Island]<br>10.30 – 11.10 · JP 07.11 – 07.22</em></div><div class="dd n">D-7</div></div>
+    </div>
+    <div class="memo">
+      <h2>목표까지 내 쥬얼 <span class="sample">예시 입력</span></h2>
+      <div class="big n">18,250</div>
+      <div class="sub">★ サトノクラウン 시작 11.19 기준</div>
+      <div class="rows" style="margin-top:12px"><div><span>보유 쥬얼</span><b class="n">12,400</b></div><div><span>더 모이는 양</span><b class="n">+5,850</b></div><div><span>티켓 육성 / 서포트</span><b class="n">4 / 7</b></div><div><span>월정액</span><b>구매 중</b></div><div><span>천장 200회 기준</span><b class="n">121회분</b></div></div>
+      <a class="cta" href="#">사료계산기에서 내 값 넣기</a>
+    </div>
+  </aside>
+</div>
+<nav class="tabs">
+  <a class="on" href="#" style="--c:var(--t3)">홈</a><a href="#" style="--c:var(--t1)">가챠 일정</a><a href="#" style="--c:var(--t2)">시뮬레이터</a><a href="#" style="--c:var(--t4)">사료계산기</a><a href="#" style="--c:var(--t5)">생일달력</a><a href="#" style="--c:var(--t1)">패키지</a><a class="login" href="#">로그인</a>
+</nav>
+</body></html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>우마노트 시안 B · 경마장 전광판</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--board:#14171a;--panel:#1d2226;--cell:#252b30;--line:#343c42;--txt:#eef1f2;--mute:#97a2a8;--amber:#ffb627;--green:#5ccf86;--red:#ff6b5b}
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:"Pretendard Variable",sans-serif;color:var(--txt);background:var(--board)}
+.d{font-family:"Chakra Petch",sans-serif;font-variant-numeric:tabular-nums;color:var(--amber)}
+nav{display:flex;align-items:center;gap:2px;height:60px;padding:0 32px;border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:20px;margin-right:30px}.logo b{color:var(--amber)}
+nav a{color:var(--mute);text-decoration:none;font-size:14px;font-weight:600;padding:8px 13px;border-radius:6px}
+nav a.on{color:var(--board);background:var(--amber)}
+nav .login{margin-left:auto;border:1px solid var(--line);color:var(--txt)}
+.grid{display:grid;grid-template-columns:1fr 1fr 400px;grid-template-rows:auto 1fr;gap:16px;padding:20px 32px}
+.p{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.h{font-size:13px;font-weight:700;color:var(--mute);display:flex;justify-content:space-between;margin-bottom:12px}
+.h b{color:var(--txt)}
+.now{grid-column:1/3;display:grid;grid-template-columns:1fr auto;gap:10px 24px}
+.now h1{font-size:32px;font-weight:800;letter-spacing:-.02em}
+.now .t{color:var(--mute);font-size:14px;margin-top:4px}
+.cd{display:flex;gap:6px;align-items:flex-end}
+.cd span{background:var(--cell);border:1px solid var(--line);border-radius:6px;font-size:72px;line-height:1;padding:6px 12px 2px;font-weight:700}
+.cd small{color:var(--mute);font-size:13px;margin-left:8px}
+.ents{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ent{display:flex;gap:12px;align-items:center;background:var(--cell);border-radius:8px;padding:10px}
+.ent img{width:52px;height:52px;border-radius:6px;background:#30373d;object-fit:cover}
+.ent b{display:block;font-size:15px}.ent em{font-style:normal;font-size:12px;color:var(--mute)}
+.ty{font-size:11px;font-weight:800;color:var(--board);background:var(--green);border-radius:3px;padding:1px 5px;margin-right:4px}
+.ty.s{background:var(--amber)}
+.feed{grid-row:1/3;grid-column:3;display:flex;flex-direction:column;gap:12px}
+.sample{font-size:11px;font-weight:800;color:var(--red);border:1px solid var(--red);border-radius:3px;padding:0 5px}
+.big{font-size:76px;font-weight:700;line-height:1}
+.cells{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cells div{background:var(--cell);border-radius:8px;padding:10px 12px}
+.cells small{display:block;font-size:12px;color:var(--mute)}
+.cells .d{font-size:28px;font-weight:600}
+.meter{display:grid;grid-template-columns:repeat(20,1fr);gap:3px}
+.meter i{height:18px;border-radius:2px;background:var(--cell)}.meter i.on{background:var(--amber)}
+.cta{margin-top:auto;text-align:center;background:var(--amber);color:var(--board);font-weight:800;padding:14px;border-radius:8px;text-decoration:none}
+.odds{grid-column:1/3}
+table{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:14px}
+th{font-size:12px;color:var(--mute);font-weight:600;text-align:left;padding:0 12px}
+td{background:var(--cell);padding:10px 12px}
+td:first-child{border-radius:8px 0 0 8px}td:last-child{border-radius:0 8px 8px 0}
+td .d{font-size:22px;font-weight:600}
+.who{display:flex;gap:10px;align-items:center}.who img{width:36px;height:36px;border-radius:50%;background:#30373d;object-fit:cover}
+.jp{font-size:12px;color:var(--mute)}
+.ok{color:var(--green);font-weight:700}.short{color:var(--red);font-weight:700}
+</style></head><body>
+<nav><span class="logo"><b>●</b> 우마노트</span><a class="on" href="#">홈</a><a href="#">가챠 일정</a><a href="#">뽑기 시뮬레이터</a><a href="#">사료계산기</a><a href="#">생일달력</a><a href="#">패키지</a><a class="login" href="#">구글로 로그인</a></nav>
+<div class="grid">
+  <section class="p now">
+    <div><div class="h"><b>진행 중 픽업</b></div><h1>아이네스 후진 [Hello Hello Island]</h1><div class="t">한국서버 예상 <span class="d" style="font-size:18px">10.30 – 11.10</span> · 일본서버 2025.07.11 – 07.22</div></div>
+    <div class="cd d"><span>0</span><span>7</span><small>일 남음</small></div>
+    <div class="ents">
+      <div class="ent"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/aa6edad3e72244a08b0299e5435f35b8/inesfujin_list.png" alt=""><div><span class="ty">육성</span><b>아이네스 후진</b><em>[Hello Hello Island]</em></div></div>
+      <div class="ent"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/48ba7bf78f364f819e141d8e54594a8e/mejiroryan_list.png" alt=""><div><span class="ty s">서포트 SSR</span><b>메지로 라이언</b><em>[瞳に闘志を胸に勝利の渇望を]</em></div></div>
+      <div class="ent"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e4e38a1329b94e4391cb1be2455ad120/kawakamiprincess_list.png" alt=""><div><span class="ty s">서포트 SR</span><b>카와카미 프린세스</b><em>[私たちのプリンセス流儀]</em></div></div>
+    </div>
+  </section>
+  <aside class="p feed">
+    <div class="h"><b>내 쥬얼 보드</b><span class="sample">예시 입력</span></div>
+    <div><div class="jp">サトノクラウン 픽업 시작 11.19까지</div><div class="big d">18,250</div></div>
+    <div><div class="h" style="margin:4px 0 6px"><span>천장 30,000 중</span><span class="d" style="font-size:15px">61%</span></div><div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="cells"><div><small>보유 쥬얼</small><span class="d">12,400</span></div><div><small>더 모이는 양</small><span class="d">+5,850</span></div><div><small>티켓 육성/서포트</small><span class="d">4 / 7</span></div><div><small>월정액</small><b style="font-size:18px">구매 중</b></div></div>
+    <a class="cta" href="#">사료계산기에서 내 값 넣기</a>
+  </aside>
+  <section class="p odds">
+    <div class="h"><b>다가오는 픽업</b><span>한국서버 예상일 순</span></div>
+    <table>
+      <tr><th>픽업</th><th>구분</th><th>한국서버 예상</th><th>일본서버</th><th>시작까지</th><th>그때 내 쥬얼</th></tr>
+      <tr><td><div class="who"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/be5f9ba589d34592bc05a22e347c7a77/fusaichipandora_list.png" alt=""><div><b>フサイチパンドラ</b> <span class="jp">[Assorted Cuteness♡]</span></div></div></td><td><span class="ty">육성</span></td><td><span class="d">11.10</span></td><td class="jp">2025.07.22</td><td><span class="d">D-7</span></td><td class="short">천장 부족</td></tr>
+      <tr><td><div class="who"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/749b7b5716904f79bb16749de4bdaff6/satonocrown_list.png" alt=""><div><b>サトノクラウン</b> <span class="jp">[晴島花麗]</span></div></div></td><td><span class="ty">육성</span></td><td><span class="d">11.19</span></td><td class="jp">2025.07.31</td><td><span class="d">D-16</span></td><td class="ok">목표 · 121회분</td></tr>
+      <tr><td><div class="who"><img src="https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5cf740ed13c64829a4f7b73487d180ff/chevalgrand_list.png" alt=""><div><b>シュヴァルグラン</b> <span class="jp">[夏凪ネイビードロップ]</span></div></div></td><td><span class="ty">육성</span></td><td><span class="d">11.19</span></td><td class="jp">2025.07.31</td><td><span class="d">D-16</span></td><td class="jp">동시 픽업</td></tr>
+    </table>
+  </section>
+</div>
+</body></html>

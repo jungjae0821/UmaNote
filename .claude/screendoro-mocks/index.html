@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>우마노트 시안 비교</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+*{box-sizing:border-box;margin:0}
+body{font-family:"Pretendard Variable",sans-serif;background:#f3f3f1;color:#1b1b1b;padding:24px}
+h1{font-size:22px;margin-bottom:6px}
+.note{font-size:13px;color:#555;margin-bottom:16px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tabs button{font:inherit;font-weight:700;padding:10px 16px;border-radius:8px;border:1px solid #bbb;background:#fff;cursor:pointer}
+.tabs button[aria-selected=true]{background:#1b1b1b;color:#fff;border-color:#1b1b1b}
+.tabs .sep{width:1px;background:#ccc;margin:0 6px}
+.desc{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px 18px;margin-bottom:12px;font-size:14px;line-height:1.6}
+.desc b{font-size:16px}
+.frame{width:100%;overflow:auto;border:1px solid #ccc;background:#fff}
+iframe{width:1440px;height:900px;border:0;display:block}
+.demoted{margin-top:16px;font-size:13px;color:#555}
+</style></head><body>
+<h1>우마노트 메인 화면 시안</h1>
+<p class="note">모든 시안은 실제 umapyoi 픽업 데이터(한국서버 예상일 = 일본서버 +476일)를 썼습니다. 사료 수치(12,400 / 18,250 등)는 예시 입력이며 계산 결과가 아닙니다.</p>
+<div class="tabs" role="tablist">
+  <button role="tab" data-k="d">D · 학생수첩 시간표</button>
+  <button role="tab" data-k="e">E · 위닝 라이브 셋리스트</button>
+  <button role="tab" data-k="f">F · 식권 발매기</button>
+  <span class="sep"></span>
+  <button role="tab" data-k="a">A · 픽업 노선도</button>
+  <button role="tab" data-k="b">B · 경마장 전광판</button>
+  <button role="tab" data-k="c">C · 캐릭터 굿즈 카탈로그</button>
+</div>
+<div class="desc" id="desc"></div>
+<div class="frame"><iframe id="f" title="시안"></iframe></div>
+<div class="demoted">첫 라운드에서 본 방향(제외): 승부복 레이스 카드, 출주표.</div>
+<script>
+const D={
+d:'<b>D · 학생수첩 시간표</b><br>방향: 남색 수첩 커버 안에 하늘색 모눈 종이. 메인은 달력 그 자체로, 픽업이 주간 칸을 가로지르는 색 막대로 그려지고 날짜 칸마다 일본서버 날짜가 작게 붙음. 내비는 오른쪽 수첩 인덱스 탭.<br>장점: 한국 예상일과 일본 날짜의 대응이 날짜 칸 단위로 가장 정확히 보임. 생일달력과 같은 틀을 그대로 재사용 가능.<br>위험: 세로 탭 내비는 모바일에서 하단 탭으로 바꿔야 함. 픽업이 많이 겹치는 주는 막대가 늘어나 칸 높이가 들쭉날쭉.',
+e:'<b>E · 위닝 라이브 셋리스트</b><br>방향: 화면 전체를 코발트 블루로 칠하고 레몬색 강조. 진행 중 픽업이 공연 제목처럼 크게, 다음 픽업은 번호 붙은 셋리스트로, 내 쥬얼은 절취선이 있는 공연 티켓으로.<br>장점: 가장 대담하고 기억에 남음. 진행 중 픽업 하나에 시선이 확실히 모임.<br>위험: 색이 강해 오래 보는 일정표·계산기 화면에선 피로할 수 있어, 하위 화면은 흰 바탕으로 낮춰야 함.',
+f:'<b>F · 식권 발매기</b><br>방향: \'사료\'를 식권으로. 스테인리스 회색 기계 몸체, 빨간 상단 바, LCD 화면에 날짜·D-day, 픽업은 캐릭터 색 버튼이 줄지은 메뉴판, 버튼마다 램프로 천장 가능 여부. 오른쪽은 투입 금액(=내 쥬얼) 창.<br>장점: 서비스 이름의 \'사료\' 농담과 기능이 그대로 맞물림. 버튼 그리드라 모바일에서 2열로 자연스럽게 접힘.<br>위험: 기계 은유가 과하면 장난감처럼 보일 수 있어 하위 화면에선 LCD·버튼 질감을 줄여야 함.',
+a:'<b>A · 픽업 노선도</b><br>방향: 흰 바탕에 지하철 노선도. 육성(초록)·서포트(주황) 두 노선 위에 픽업이 역으로 놓이고, 빨간 \'오늘\' 선과 \'목표\' 역 사이가 사료 계산 구간.<br>장점: 과거·현재·미래와 목표까지의 거리가 한 장의 그림으로 읽힘.<br>위험: 픽업이 겹치는 시기엔 역 이름이 붙어 보여 겹침 묶기 규칙이 필요.',
+b:'<b>B · 경마장 전광판</b><br>방향: 어두운 전광판 바탕에 호박색 숫자, 천장까지 20칸 램프 미터, 픽업마다 \'그때 내 쥬얼\' 칸.<br>장점: 숫자가 가장 크게 읽히고 밤에 보기 편함.<br>위험: 어두운 바탕 + 강조색 하나는 흔한 대시보드 인상과 가까움.',
+c:'<b>C · 캐릭터 굿즈 카탈로그</b><br>방향: 파스텔 바탕, 둥근 글꼴, 진행 중 캐릭터가 큰 원형 초상으로, 다가오는 픽업은 캐릭터 색 리본 카드 그리드, 생일 함께 표기.<br>장점: 캐릭터 애정이 큰 유저층과 가장 잘 맞고 일러스트가 주인공.<br>위험: 일정이 많아지면 카드 그리드가 표보다 비교가 느림.'};
+const f=document.getElementById('f'),d=document.getElementById('desc');
+function show(k){f.src='option-'+k+'.html?v='+Date.now();d.innerHTML=D[k];document.querySelectorAll('[role=tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.k===k))}
+document.querySelectorAll('[role=tab]').forEach(b=>b.onclick=()=>show(b.dataset.k));show('d');
+</script>
+</body></html>
