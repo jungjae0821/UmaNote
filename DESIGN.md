@@ -28,8 +28,8 @@
 
 ## 글꼴
 
-- `"Pretendard Variable", "Pretendard JP Variable", system-ui, sans-serif`
-- 이유: 한국어 UI의 표준 작업용 서체. 일본어 원문 캐릭터명·카드명(가나·한자)은 Pretendard JP로 글자 단위 대체되어 같은 형태로 이어진다.
+- `"GyeonggiTitleM", "Pretendard Variable", "Pretendard JP Variable", system-ui, sans-serif`
+- 이유: 본문·제목 모두 경기천년제목 Medium. 웹폰트는 Medium 한 굵기만 있어 굵은 글씨는 브라우저 합성 볼드로 표시된다. 경기천년체에 없는 일본어 원문 캐릭터명·카드명(가나·한자)은 Pretendard로 글자 단위 대체된다.
 - 숫자는 항상 `font-variant-numeric: tabular-nums` (날짜·D-day·쥬얼이 줄 맞춤되어야 비교가 됨).
 - 크기 단계: 12 / 13 / 14(본문) / 16 / 19 / 28(페이지 제목) / 30(D-day) / 56(쥬얼 큰 숫자). 자간 -0.02em(제목), -0.03em(큰 숫자) 이하로 좁히지 않음.
 - 굵기: 500 본문, 600 내비·라벨, 700 날짜·이름, 800 제목·큰 숫자.

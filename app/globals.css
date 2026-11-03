@@ -1,4 +1,12 @@
 /* 값과 이유는 DESIGN.md 참고 */
+@font-face {
+  font-family: "GyeonggiTitleM";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/GyeonggiTitleM.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --ground: #ffffff;
   --soft: #f4f6f8;
@@ -12,7 +20,7 @@
   --today: #d4002f;
   --past: #c9ced6;
 
-  --font: "Pretendard Variable", "Pretendard JP Variable", system-ui, -apple-system, sans-serif;
+  --font: "GyeonggiTitleM", "Pretendard Variable", "Pretendard JP Variable", system-ui, -apple-system, sans-serif;
   --gutter: 40px;
   --max: 1360px;
   --r-box: 16px;
