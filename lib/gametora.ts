@@ -1,7 +1,10 @@
+import { fetchJson, logFailure } from "./fetchJson";
+
 // gametora의 카드 데이터에서 한국어 이름·카드 제목을 가져온다.
 // 파일 이름에 해시가 붙어 있어서 manifest로 현재 파일을 찾는다.
 const BASE = "https://gametora.com/data";
 const REVALIDATE = 86_400;
+const getJson = <T>(url: string) => fetchJson<T>(url, REVALIDATE);
 
 type Manifest = Record<string, string>;
 
@@ -40,12 +43,6 @@ export type KoLookup = {
   supportCard: Map<number, { charaId: number; rarity: number; nameJp?: string; titleJp?: string }>;
 };
 
-async function getJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, { next: { revalidate: REVALIDATE } });
-  if (!res.ok) throw new Error(`gametora ${url} ${res.status}`);
-  return res.json() as Promise<T>;
-}
-
 /** 실패하면 빈 표를 돌려준다. 이름은 일본어 원문으로 표시된다 */
 export async function getKoLookup(): Promise<KoLookup> {
   const lookup: KoLookup = {
@@ -71,8 +68,9 @@ export async function getKoLookup(): Promise<KoLookup> {
       lookup.supportCard.set(s.support_id, { charaId: s.char_id, rarity: s.rarity, nameJp: s.name_jp, titleJp: s.title_ja });
       if (s.name_ko && !lookup.chara.has(s.char_id)) lookup.chara.set(s.char_id, s.name_ko);
     }
-  } catch {
+  } catch (err) {
     // 한국어가 없어도 화면은 일본어로 그대로 동작한다
+    logFailure("gametora 카드 한국어 이름", err);
   }
   return lookup;
 }
@@ -121,8 +119,9 @@ export async function getStar3Limited(outfitCard: KoLookup["outfitCard"]): Promi
         );
       }
     }
-  } catch {
+  } catch (err) {
     // 이 정보가 없어도 일정표는 그대로 동작한다
+    logFailure("gametora ★3 한정 배너", err);
   }
   return limited;
 }
@@ -138,7 +137,8 @@ export async function getPaidOnlyIds(): Promise<Set<number>> {
       `${BASE}/umamusume/gacha/special.${manifest["gacha/special"]}.json`,
     );
     return new Set(banners.filter((b) => b.restriction === "premium").map((b) => b.id));
-  } catch {
+  } catch (err) {
+    logFailure("gametora 유료 쥬얼 전용 배너", err);
     return new Set();
   }
 }

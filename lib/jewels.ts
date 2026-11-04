@@ -1,5 +1,6 @@
 // 보유 쥬얼은 사료계산기에서 입력하고 이 브라우저에 저장한다. 홈은 읽기만 한다.
-export const JEWELS_KEY = "umanote.jewels";
+// 시뮬레이터 기록(umanote:sim:v1)과 같은 "umanote:이름:버전" 규칙
+export const JEWELS_KEY = "umanote:jewels:v1";
 
 export type Jewels = { paid: number; free: number };
 

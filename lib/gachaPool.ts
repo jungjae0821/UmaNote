@@ -1,8 +1,7 @@
+import { cardArtUrl, gachaBannerUrl } from "./art";
 import { dayFromTimestamp, jpToKr, krToJp } from "./dates";
 import { getKoLookup, getStandardBanners, type KoLookup, type RawBanner } from "./gametora";
 import { getGachaImages, type Lane } from "./umapyoi";
-
-const GAMETORA_IMG = "https://gametora.com/images/umamusume";
 const LABEL_NAMES = 3;
 
 export type BannerOption = {
@@ -49,10 +48,8 @@ function card(lane: Lane, id: number, ko: KoLookup) {
     rarity: meta.rarity,
     name: text?.name || ko.chara.get(meta.charaId) || meta.nameJp || String(id),
     title: text?.title || meta.titleJp || "",
-    art:
-      lane === "train"
-        ? `${GAMETORA_IMG}/characters/thumb/chara_stand_${meta.charaId}_${id}.png`
-        : `${GAMETORA_IMG}/supports/tex_support_card_${id}.png`,
+    // 카드 정보가 있으면 캐릭터 ID도 있어서 주소가 늘 만들어진다
+    art: cardArtUrl(lane, id, meta.charaId) as string,
   };
 }
 
@@ -112,7 +109,7 @@ export async function getSimData(lane: Lane, bannerId: number | null, todayKr: n
   );
   const image = {
     src: images.get(banner.id) ?? null,
-    fallback: `${GAMETORA_IMG}/gacha/img_bnr_gacha_${banner.id}.png`,
+    fallback: gachaBannerUrl(banner.id),
   };
   return { banners, selected: banners[index], image, pool };
 }

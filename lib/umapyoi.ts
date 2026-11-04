@@ -1,4 +1,6 @@
+import { cardArtUrl } from "./art";
 import { dayFromTimestamp, jpToKr, krToJp } from "./dates";
+import { fetchJson, logFailure } from "./fetchJson";
 import { getKoLookup, getPaidOnlyIds, getStar3Limited, type KoLookup } from "./gametora";
 
 const API = "https://umapyoi.net/api/v1";
@@ -48,14 +50,6 @@ export type Pickup = {
   thumb: string;
 };
 
-// umapyoi에는 의상·카드별 이미지가 없어서 gametora의 ID 기반 경로를 쓴다
-const GAMETORA_IMG = "https://gametora.com/images/umamusume";
-
-function cardArt(lane: Lane, p: RawPickup): string | null {
-  if (lane === "support") return `${GAMETORA_IMG}/supports/tex_support_card_${p.id}.png`;
-  return p.chara_id ? `${GAMETORA_IMG}/characters/thumb/chara_stand_${p.chara_id}_${p.id}.png` : null;
-}
-
 export type Gacha = {
   id: number;
   lane: Lane;
@@ -71,11 +65,7 @@ export type Gacha = {
   pickups: Pickup[];
 };
 
-async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API}${path}`, { next: { revalidate: REVALIDATE } });
-  if (!res.ok) throw new Error(`umapyoi ${path} ${res.status}`);
-  return res.json() as Promise<T>;
-}
+const getJson = <T>(path: string) => fetchJson<T>(`${API}${path}`, REVALIDATE);
 
 const SUPPORT_TYPE_KO: Record<string, string> = {
   Speed: "스피드",
@@ -104,7 +94,7 @@ function toPickup(lane: Lane, p: RawPickup, ko: KoLookup): Pickup | null {
     title: card?.title || p.title || p.title_en || "",
     rarity: p.rarity_string ?? null,
     supportType: lane === "support" ? supportType(p) : null,
-    art: cardArt(lane, p) ?? thumb_img,
+    art: cardArtUrl(lane, p.id, p.chara_id) ?? thumb_img,
     thumb: thumb_img,
   };
 }
@@ -114,7 +104,7 @@ function gametoraPickup(id: number, ko: KoLookup): Pickup | null {
   const card = ko.outfitCard.get(id);
   if (!card) return null;
   const text = ko.outfit.get(id);
-  const art = cardArt("train", { id, chara_id: card.charaId }) as string;
+  const art = cardArtUrl("train", id, card.charaId) as string;
   return {
     id,
     name: text?.name || ko.chara.get(card.charaId) || card.nameJp || "",
@@ -137,7 +127,8 @@ export async function getGachaImages(): Promise<Map<number, string>> {
   try {
     const list = await getJson<(GachaSummary & { image_url: string | null })[]>("/gacha");
     return new Map(list.flatMap((g) => (g.image_url ? [[g.id, g.image_url] as const] : [])));
-  } catch {
+  } catch (err) {
+    logFailure("umapyoi 배너 이미지", err);
     return new Map();
   }
 }
@@ -146,6 +137,8 @@ export async function getGachaImages(): Promise<Map<number, string>> {
 export async function getGachaSpan(): Promise<{ firstKr: number; lastKr: number }> {
   const list = await getJson<GachaSummary[]>("/gacha");
   const starts = list.filter((g) => g.end_date < PERMANENT_END).map((g) => dayFromTimestamp(g.start_date));
+  // 빈 목록이면 Math.min()이 Infinity가 되어 달 계산이 깨지므로 불러오기 실패로 다룬다
+  if (starts.length === 0) throw new Error("umapyoi /gacha: 기간 한정 가챠 없음");
   return { firstKr: jpToKr(Math.min(...starts)), lastKr: jpToKr(Math.max(...starts)) };
 }
 
@@ -171,7 +164,10 @@ export async function getGachasBetween(
 
   const details = await Promise.all(
     inRange.slice(0, limit).map((g) =>
-      getJson<GachaSummary & { pickups?: RawPickup[] }>(`/gacha/${g.id}`).catch(() => null),
+      getJson<GachaSummary & { pickups?: RawPickup[] }>(`/gacha/${g.id}`).catch((err) => {
+        logFailure(`umapyoi 가챠 ${g.id} 상세`, err);
+        return null;
+      }),
     ),
   );
 

@@ -1,4 +1,5 @@
 import { CardArt } from "@/components/CardArt";
+import { PickName } from "@/components/PickName";
 import { formatDday, formatFull, formatShort } from "@/lib/dates";
 import type { Gacha } from "@/lib/umapyoi";
 
@@ -47,20 +48,7 @@ export function GachaEntry({ gacha, today }: { gacha: Gacha; today: number }) {
           <li key={p.id} className="entry-pick">
             <CardArt lane={gacha.lane} src={p.art} fallback={p.thumb} />
             <div className="pick-text">
-              <b>
-                {p.name}
-                {p.rarity && <span className="pick-rarity">{p.rarity}</span>}
-                {p.supportType && (
-                  <img
-                    className="pick-type"
-                    src={p.supportType.icon}
-                    alt={`${p.supportType.label} 타입`}
-                    title={`${p.supportType.label} 타입`}
-                    width={18}
-                    height={18}
-                  />
-                )}
-              </b>
+              <PickName pickup={p} />
               {p.title && <span className="pick-title">{p.title}</span>}
             </div>
           </li>

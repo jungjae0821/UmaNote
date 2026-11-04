@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Simulator } from "@/components/Simulator";
 import { BannerPicker } from "@/components/BannerPicker";
 import { todayKr } from "@/lib/dates";
+import { logFailure } from "@/lib/fetchJson";
 import { getSimData, type SimData } from "@/lib/gachaPool";
 import type { Lane } from "@/lib/umapyoi";
 
@@ -63,7 +64,8 @@ async function SimBody({ lane, bannerId, today }: { lane: Lane; bannerId: number
   let data: SimData | null = null;
   try {
     data = await getSimData(lane, bannerId, today);
-  } catch {
+  } catch (err) {
+    logFailure("시뮬레이터 배너", err);
     data = null;
   }
   if (data === null || data.pool.length === 0) {

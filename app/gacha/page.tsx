@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { GachaEntry } from "@/components/GachaEntry";
 import { MonthPicker } from "@/components/MonthPicker";
 import { formatFull, formatShort, krToJp, monthOf, monthStart, todayKr, weekday } from "@/lib/dates";
+import { logFailure } from "@/lib/fetchJson";
 import { getGachasBetween, getGachaSpan, type Gacha, type Lane } from "@/lib/umapyoi";
 
 export const metadata = { title: "가챠 일정 | 우마노트" };
@@ -67,7 +68,8 @@ export default async function GachaPage({ searchParams }: Props) {
   let span: { firstKr: number; lastKr: number } | null = null;
   try {
     span = await getGachaSpan();
-  } catch {
+  } catch (err) {
+    logFailure("가챠 기간", err);
     span = null;
   }
 
@@ -187,7 +189,8 @@ async function MonthRail({ from, to, lane, today, label }: RailProps) {
   let gachas: Gacha[];
   try {
     gachas = await getGachasBetween(from, to, { special: true, limit: MONTH_LIMIT });
-  } catch {
+  } catch (err) {
+    logFailure(`${label} 가챠 일정`, err);
     return <LoadError />;
   }
 

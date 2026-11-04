@@ -2,9 +2,12 @@ import { JewelSummary } from "@/components/JewelSummary";
 import { LineMap } from "@/components/LineMap";
 import { PickupColumn } from "@/components/PickupColumn";
 import { formatFull, formatLong, krToJp, todayKr } from "@/lib/dates";
+import { logFailure } from "@/lib/fetchJson";
 import { getGachasBetween, type Gacha, type Lane } from "@/lib/umapyoi";
 
-export const revalidate = 3600;
+// 페이지를 통째로 1시간 캐시하면 자정 직후에도 어제 날짜가 보인다.
+// 화면은 요청마다 그리고, 외부 API 응답만 데이터 캐시(1시간·24시간)에 둔다
+export const dynamic = "force-dynamic";
 
 // 노선도에 보여줄 범위: 오늘 기준 앞뒤 날 수. 진행 중 픽업이 더 일찍 시작했으면 MAX_BEFORE까지 늘린다
 const BEFORE = 6;
@@ -26,7 +29,8 @@ export default async function Home() {
   let gachas: Gacha[] | null = null;
   try {
     gachas = await getGachasBetween(today, to);
-  } catch {
+  } catch (err) {
+    logFailure("홈 픽업 일정", err);
     gachas = null;
   }
 

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BannerArt } from "@/components/BannerArt";
 import { CardArt } from "@/components/CardArt";
+import { buildOdds, draw } from "@/lib/gachaDraw";
 import type { BannerImage, BannerOption, PoolCard } from "@/lib/gachaPool";
 import type { Lane } from "@/lib/umapyoi";
 
@@ -55,30 +56,6 @@ function save(store: Store) {
   }
 }
 
-type Table = { cards: PoolCard[]; cum: number[]; total: number };
-
-function toTable(cards: PoolCard[], weightOf: (c: PoolCard) => number): Table {
-  const cum: number[] = [];
-  let total = 0;
-  for (const c of cards) {
-    total += weightOf(c);
-    cum.push(total);
-  }
-  return { cards, cum, total };
-}
-
-function draw(t: Table): PoolCard {
-  const r = Math.random() * t.total;
-  let lo = 0;
-  let hi = t.cum.length - 1;
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (t.cum[mid] > r) hi = mid;
-    else lo = mid + 1;
-  }
-  return t.cards[lo];
-}
-
 /** 0.0001% 단위 → "0.75%" */
 function pct(weight: number): string {
   return `${Number((weight / 10_000).toFixed(4))}%`;
@@ -105,21 +82,7 @@ export function Simulator({ lane, banner, image, pool }: Props) {
   const byId = useMemo(() => new Map(pool.map((c) => [c.id, c])), [pool]);
   const pickups = useMemo(() => pool.filter((c) => c.pickup), [pool]);
 
-  const { normal, last, sums, lastSums } = useMemo(() => {
-    const sums = [0, 0, 0, 0];
-    for (const c of pool) sums[c.rarity] += c.weight;
-    const star2 = pool.filter((c) => c.rarity === 2).length;
-    // 10번째 칸: ★1 확률을 빼고 그만큼을 ★2 카드에 똑같이 나눠 더한다 (gametora 시뮬레이터와 같은 방식)
-    const bonus = star2 > 0 ? sums[1] / star2 : 0;
-    const lastWeight = (c: PoolCard) => (c.rarity === 1 ? 0 : c.rarity === 2 ? c.weight + bonus : c.weight);
-    const lastSums = [0, 0, sums[2] + (star2 > 0 ? sums[1] : 0), sums[3]];
-    return {
-      normal: toTable(pool, (c) => c.weight),
-      last: star2 > 0 ? toTable(pool, lastWeight) : toTable(pool, (c) => c.weight),
-      sums,
-      lastSums,
-    };
-  }, [pool]);
+  const { normal, last, sums, lastSums } = useMemo(() => buildOdds(pool), [pool]);
 
   function update(fn: (r: BannerRecord) => BannerRecord) {
     setStore((prev) => {

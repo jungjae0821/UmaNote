@@ -20,7 +20,8 @@ function stationsFor(lane: Lane, gachas: Gacha[], today: number, from: number): 
     const live = g.startKr <= today && today <= g.endKr;
     const last = stations.at(-1);
     const lastStart = last && Math.max(...last.gachas.map((x) => x.startKr));
-    if (last && lastStart !== undefined && g.startKr - lastStart <= MERGE_DAYS) {
+    // 범위보다 먼저 시작해 맨 앞에 붙는 픽업도 같은 자리라 한 역으로 합친다
+    if (last && lastStart !== undefined && (g.startKr - lastStart <= MERGE_DAYS || last.day === day)) {
       last.gachas.push(g);
       last.live ||= live;
     } else {
