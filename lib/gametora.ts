@@ -1,4 +1,7 @@
 import { fetchJson, logFailure } from "./fetchJson";
+import { dayFromTimestamp, jpToKr } from "./dates";
+import type { Income } from "./jewelPlan";
+import { lohStartsKr, type Scheduled } from "./jewelSources";
 
 // gametora의 카드 데이터에서 한국어 이름·카드 제목을 가져온다.
 // 파일 이름에 해시가 붙어 있어서 manifest로 현재 파일을 찾는다.
@@ -141,4 +144,99 @@ export async function getPaidOnlyIds(): Promise<Set<number>> {
     logFailure("gametora 유료 쥬얼 전용 배너", err);
     return new Set();
   }
+}
+
+// 사료계산기에 넣는 기간 한정 보상. 아이템 ID: 43 쥬얼(무료), 41 육성 뽑기 티켓, 111 서포트 카드 뽑기 티켓
+const ITEM_JEWEL = 43;
+const ITEM_TRAIN_TICKET = 41;
+const ITEM_SUPPORT_TICKET = 111;
+// 신데렐라 그레이 방영 기념 캠페인은 한일 동시 진행이라 계산에서 뺀다
+const EXCLUDED_EVENT = /シンデレラグレイ|Cinderella Gray/i;
+
+type RawLimitedMissions = {
+  eventId: number;
+  eventOriginal: string;
+  eventEn?: string;
+  /** 밀리초 */
+  startDate: number;
+  endDate: number;
+  missions: { itemId: number; itemNumber: number }[];
+};
+type RawStoryEvent = { id: number; name_ja?: string; name_ko?: string; start_ja: number; end_ja: number };
+type RawStoryRewards = { id: number; rewards: { item_id: number; item_num: number }[] };
+
+function rewardTotals(items: { id: number; num: number }[]) {
+  const total = (id: number) => items.filter((i) => i.id === id).reduce((a, i) => a + i.num, 0);
+  return { free: total(ITEM_JEWEL), trainTickets: total(ITEM_TRAIN_TICKET), supportTickets: total(ITEM_SUPPORT_TICKET) };
+}
+
+/** 기간 한정 미션과 스토리 이벤트 포인트 보상 중 쥬얼이나 뽑기 티켓을 주는 것. 날짜는 한국서버 예상일 */
+export async function getJewelIncomes(): Promise<Income[]> {
+  const manifest = await getJson<Manifest>(`${BASE}/manifests/umamusume.json`);
+  const [limited, stories, rewards] = await Promise.all([
+    getJson<RawLimitedMissions[]>(`${BASE}/umamusume/missions/limited.${manifest["missions/limited"]}.json`),
+    getJson<RawStoryEvent[]>(`${BASE}/umamusume/events/story-events.${manifest["events/story-events"]}.json`),
+    getJson<RawStoryRewards[]>(
+      `${BASE}/umamusume/events/story-events-rewards.${manifest["events/story-events-rewards"]}.json`,
+    ),
+  ]);
+
+  const incomes: Income[] = [];
+  for (const e of limited) {
+    if (EXCLUDED_EVENT.test(`${e.eventOriginal} ${e.eventEn ?? ""}`)) continue;
+    const t = rewardTotals(e.missions.map((m) => ({ id: m.itemId, num: m.itemNumber })));
+    if (t.free + t.trainTickets + t.supportTickets === 0) continue;
+    incomes.push({
+      id: `limited-${e.eventId}`,
+      source: "limited",
+      name: e.eventOriginal,
+      startKr: jpToKr(dayFromTimestamp(e.startDate / 1000)),
+      endKr: jpToKr(dayFromTimestamp(e.endDate / 1000)),
+      ...t,
+    });
+  }
+
+  const rewardMap = new Map(rewards.map((r) => [r.id, r.rewards]));
+  for (const s of stories) {
+    const name = s.name_ko || s.name_ja || `스토리 이벤트 ${s.id}`;
+    if (EXCLUDED_EVENT.test(name)) continue;
+    const t = rewardTotals((rewardMap.get(s.id) ?? []).map((r) => ({ id: r.item_id, num: r.item_num })));
+    if (t.free + t.trainTickets + t.supportTickets === 0) continue;
+    incomes.push({
+      id: `story-${s.id}`,
+      source: "story",
+      name,
+      startKr: jpToKr(dayFromTimestamp(s.start_ja)),
+      endKr: jpToKr(dayFromTimestamp(s.end_ja)),
+      ...t,
+    });
+  }
+  return incomes.sort((a, b) => a.startKr - b.startKr);
+}
+
+type RawChampionsMeeting = { id: number; name?: string; start: number; end: number };
+type RawLegendRace = { name_ja?: string; start: number; end: number };
+
+/** 챔피언스 미팅·레전드 레이스(gametora 일정)와 리그 오브 히어로즈(고정 이력) 개최일. 날짜는 한국서버 예상일 */
+export async function getCompetitionSchedule(): Promise<Scheduled[]> {
+  const manifest = await getJson<Manifest>(`${BASE}/manifests/umamusume.json`);
+  const [cms, legends] = await Promise.all([
+    getJson<RawChampionsMeeting[]>(
+      `${BASE}/umamusume/events/champions-meeting.${manifest["events/champions-meeting"]}.json`,
+    ),
+    getJson<RawLegendRace[]>(`${BASE}/umamusume/events/legend-race.${manifest["events/legend-race"]}.json`),
+  ]);
+  const kr = (ts: number) => jpToKr(dayFromTimestamp(ts));
+  const lohDays = 9;
+  return [
+    ...cms.map((c): Scheduled => ({ kind: "cm", id: `cm-${c.id}`, name: c.name ?? "", startKr: kr(c.start), endKr: kr(c.end) })),
+    ...legends.map((l): Scheduled => ({
+      kind: "legend",
+      id: `legend-${l.start}`,
+      name: l.name_ja ?? "",
+      startKr: kr(l.start),
+      endKr: kr(l.end),
+    })),
+    ...lohStartsKr().map((d): Scheduled => ({ kind: "loh", id: `loh-${d}`, name: "", startKr: d, endKr: d + lohDays })),
+  ];
 }

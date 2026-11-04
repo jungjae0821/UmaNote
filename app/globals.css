@@ -1918,3 +1918,385 @@ a.month-step:hover,
     padding: 18px 16px 20px;
   }
 }
+
+/* 사료계산기: 왼쪽 입력, 오른쪽 결과. 결과의 '목표까지 받는 보상'은 오늘 역에서 목표 역까지의 노선 */
+.calc-grid {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.calc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.calc-form fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.calc-form legend {
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calc-field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mute);
+}
+
+.calc-input {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-btn);
+  padding: 0 12px;
+}
+
+.calc-input:focus-within {
+  border-color: var(--ink);
+  outline: 2px solid var(--ink);
+  outline-offset: -1px;
+}
+
+.calc-input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-input span {
+  margin-left: 6px;
+  color: var(--mute);
+}
+
+.calc-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.calc-check input {
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  accent-color: var(--ink);
+  flex: none;
+}
+
+.calc-check span {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.calc-check small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--mute);
+}
+
+.calc-result {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.calc-train {
+  --lane: var(--train);
+}
+
+.calc-support {
+  --lane: var(--support);
+}
+
+.calc-target {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+}
+
+.calc-chips {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.calc-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  list-style: none;
+  padding: 0;
+}
+
+.calc-picks li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.calc-more {
+  color: var(--mute);
+  font-weight: 500;
+}
+
+.calc-when {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.calc-when .dday {
+  color: var(--ink);
+}
+
+.calc-when > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.calc-when small {
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.calc-total {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calc-pulls {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.calc-pulls b {
+  margin-right: 4px;
+  font-family: var(--font-title);
+  font-synthesis: none;
+  font-size: 56px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.calc-pulls-how {
+  font-weight: 500;
+}
+
+.calc-ceiling {
+  color: var(--mute);
+}
+
+.calc-sum {
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.calc-sum div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.calc-sum dt {
+  font-weight: 500;
+}
+
+.calc-sum dt small {
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--mute);
+}
+
+.calc-sum dd {
+  margin: 0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.calc-sum .calc-sum-total {
+  border-bottom-color: var(--ink);
+}
+
+.calc-sum-total dt,
+.calc-sum-total dd {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.calc-h2 {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* 노선: 날짜 칸 오른쪽에 선로와 역 점 */
+.route {
+  --date-w: 92px;
+  --rail-x: calc(var(--date-w) + 14px);
+  list-style: none;
+  padding: 0;
+  margin-top: -10px;
+}
+
+.route-stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--date-w) minmax(0, 1fr);
+  column-gap: 32px;
+  align-items: baseline;
+  padding: 10px 0;
+}
+
+.route-stop::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  bottom: -22px;
+  left: var(--rail-x);
+  width: 4px;
+  margin-left: -2px;
+  background: var(--ink);
+}
+
+.route-stop:last-child::before {
+  display: none;
+}
+
+.route-stop::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: var(--rail-x);
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  border: 4px solid var(--ink);
+  background: var(--ground);
+}
+
+.route-today::after {
+  border-color: var(--today);
+}
+
+.route-none::after {
+  display: none;
+}
+
+.route-goal::after {
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  top: 11px;
+  border-color: var(--lane);
+  background: var(--ink);
+}
+
+.route-date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.route-date b {
+  font-weight: 600;
+}
+
+.route-date small,
+.route-name small {
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.route-today .route-date small {
+  color: var(--today);
+  font-weight: 600;
+}
+
+.route-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.route-none .route-name {
+  color: var(--mute);
+}
+
+.route-goal .route-name {
+  font-weight: 700;
+}
+
+.route-gain {
+  grid-column: 2;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.calc-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--mute);
+}
+
+@media (max-width: 860px) {
+  .calc-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .calc-pulls b {
+    font-size: 44px;
+  }
+
+  .route {
+    --date-w: 64px;
+  }
+
+  .route-stop {
+    column-gap: 28px;
+  }
+}
