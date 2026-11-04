@@ -20,7 +20,8 @@
   --today: #d4002f;
   --past: #c9ced6;
 
-  --font: "GyeonggiTitleM", "Pretendard Variable", "Pretendard JP Variable", system-ui, -apple-system, sans-serif;
+  --font: "Pretendard Variable", "Pretendard JP Variable", system-ui, -apple-system, sans-serif;
+  --font-title: "GyeonggiTitleM", var(--font);
   --gutter: 40px;
   --max: 1360px;
   --r-box: 16px;
@@ -40,12 +41,23 @@ html {
 body {
   margin: 0;
   font-family: var(--font);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 400;
   line-height: 1.5;
   color: var(--ink);
   background: var(--ground);
   font-variant-numeric: tabular-nums;
+}
+
+/* 경기천년제목은 Medium 한 굵기뿐이라, 큰 글씨에만 쓰고 합성 볼드를 막는다 */
+.logo,
+h1,
+.month-title,
+.mp-trigger,
+.dday,
+.jewels-value {
+  font-family: var(--font-title);
+  font-synthesis: none;
 }
 
 h1,
@@ -105,7 +117,7 @@ img {
   flex: none;
   min-height: 44px;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   text-decoration: none;
 }
@@ -136,7 +148,7 @@ img {
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--mute);
   text-decoration: none;
 }
@@ -164,7 +176,7 @@ img {
   border-radius: var(--r-btn);
   background: var(--ink);
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -188,7 +200,7 @@ img {
 
 .box-head h2 {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .box-head a {
@@ -196,8 +208,8 @@ img {
   align-items: center;
   min-height: 44px;
   margin: -12px 0;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--mute);
   text-underline-offset: 3px;
 }
@@ -229,7 +241,7 @@ img {
 
 .home-head h1 {
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.25;
 }
@@ -242,8 +254,8 @@ img {
 .legend {
   display: flex;
   gap: 16px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   flex: none;
 }
 
@@ -353,8 +365,8 @@ img {
   border-radius: 4px;
   background: var(--today);
   color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .stations {
@@ -417,24 +429,24 @@ img {
 .st-names {
   display: flex;
   flex-direction: column;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   line-height: 1.3;
 }
 
 .st-more {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--mute);
 }
 
 .st-date {
   margin-top: 2px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .st-jp {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--mute);
 }
 
@@ -477,20 +489,20 @@ img {
 }
 
 .jewels-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--mute);
 }
 
 .jewels-value {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
 .jewels-none {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--mute);
 }
 
@@ -501,8 +513,8 @@ img {
   padding: 0 12px;
   border-radius: var(--r-btn);
   background: var(--soft);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -524,7 +536,7 @@ img {
   align-items: center;
   gap: 10px;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .col-head i {
@@ -544,8 +556,8 @@ img {
 
 .col-sub {
   margin: 20px 0 4px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--mute);
 }
 
@@ -598,8 +610,8 @@ img {
 
 .pick-rarity {
   margin-left: 6px;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--support-ink);
 }
 
@@ -613,18 +625,18 @@ img {
 
 .pick-title {
   color: var(--mute);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .pick-dates {
-  font-weight: 700;
+  font-weight: 600;
   margin-top: 2px;
 }
 
 .pick-dates small {
   margin-left: 8px;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--mute);
 }
 
@@ -633,15 +645,15 @@ img {
   flex-direction: column;
   align-items: flex-end;
   font-size: 26px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.1;
   color: var(--today);
 }
 
 .dday small {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0;
   color: var(--mute);
 }
@@ -669,7 +681,7 @@ img {
 .sched-head h1,
 .sched-loading-title {
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.25;
 }
@@ -693,8 +705,8 @@ img {
   min-height: 44px;
   padding: 0 14px;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--mute);
   text-decoration: none;
   white-space: nowrap;
@@ -741,14 +753,14 @@ img {
   align-items: center;
   min-width: 180px;
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.25;
 }
 
 .month-title small {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   letter-spacing: 0;
   color: var(--mute);
 }
@@ -802,7 +814,7 @@ img {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--ground);
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0;
 }
 
@@ -815,7 +827,7 @@ img {
 
 .mp-year b {
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .mp-panel button {
@@ -824,7 +836,7 @@ img {
   border-radius: 8px;
   background: none;
   font: inherit;
-  font-weight: 600;
+  font-weight: 500;
   color: inherit;
   cursor: pointer;
 }
@@ -877,7 +889,7 @@ img {
   padding: 0 14px;
   border: 1px solid var(--line);
   border-radius: var(--r-btn);
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -897,8 +909,8 @@ a.month-step:hover,
   margin-left: auto;
   padding: 0 14px;
   border-radius: var(--r-btn);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--mute);
   text-underline-offset: 3px;
 }
@@ -965,27 +977,27 @@ a.month-step:hover,
 
 .stop-date b {
   font-size: 19px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.25;
 }
 
 .stop-wd {
   margin-left: 4px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0;
   color: var(--mute);
 }
 
 .stop-date small {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--mute);
 }
 
 .stop-date .stop-carried {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--mute);
 }
 
@@ -1015,8 +1027,8 @@ a.month-step:hover,
   border-radius: 4px;
   background: var(--today);
   color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -1041,8 +1053,8 @@ a.month-step:hover,
 .chip {
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: #fff;
   white-space: nowrap;
 }
@@ -1066,33 +1078,33 @@ a.month-step:hover,
 }
 
 .entry-period {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .entry-days {
   margin-left: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--mute);
 }
 
 .entry-period small {
   margin-left: 8px;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--mute);
 }
 
 .entry-status {
   margin-left: auto;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .entry-status b {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -1130,14 +1142,14 @@ a.month-step:hover,
 
 .sched-note {
   margin-top: 8px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--mute);
 }
 
 /* 준비 중 화면 */
 .coming h1 {
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -1187,7 +1199,7 @@ a.month-step:hover,
   background: var(--ground);
   color: var(--ink);
   font: inherit;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .bp-period {
@@ -1202,13 +1214,13 @@ a.month-step:hover,
 }
 
 .bp-period small {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--mute);
 }
 
 .bp-status {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--mute);
 }
 
@@ -1273,13 +1285,13 @@ a.month-step:hover,
   color: var(--ink);
   font: inherit;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .sim-pull small {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--mute);
 }
 
@@ -1371,8 +1383,8 @@ a.month-step:hover,
 .rc-rarity {
   padding: 1px 6px;
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--mute);
 }
 
@@ -1391,7 +1403,7 @@ a.month-step:hover,
 .rc-name {
   display: -webkit-box;
   width: 100%;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.3;
   text-align: center;
   word-break: keep-all;
@@ -1430,7 +1442,7 @@ a.month-step:hover,
 
 .ceil-head h2 {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .ceil-head p {
@@ -1439,7 +1451,7 @@ a.month-step:hover,
 
 .ceil-head b {
   font-size: 19px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -1496,13 +1508,13 @@ a.month-step:hover,
   top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--mute);
   white-space: nowrap;
 }
 
 .ceil-end small {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ink);
 }
 
@@ -1511,7 +1523,7 @@ a.month-step:hover,
 }
 
 .ceil-swap p {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .ceil-swap ul {
@@ -1529,7 +1541,7 @@ a.month-step:hover,
   background: var(--lane-ink);
   color: #fff;
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -1547,8 +1559,8 @@ a.month-step:hover,
   background: none;
   color: var(--mute);
   font: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -1562,19 +1574,19 @@ a.month-step:hover,
 }
 
 .stats dt {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--mute);
 }
 
 .stats dd {
   margin: 0;
   font-size: 19px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .stats dd small {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--mute);
 }
 
@@ -1582,7 +1594,7 @@ a.month-step:hover,
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid var(--line);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--mute);
 }
 
@@ -1595,8 +1607,8 @@ a.month-step:hover,
 
 .owned h3 {
   margin: 0 0 4px;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .owned li {
@@ -1608,16 +1620,16 @@ a.month-step:hover,
 }
 
 .owned li small {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--mute);
 }
 
 .owned-more summary {
   padding: 13px 0;
   margin: -13px 0 -9px;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -1627,9 +1639,9 @@ a.month-step:hover,
 
 .owned-pick {
   margin-left: 6px;
-  font-size: 12px;
+  font-size: 13px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .owned-pick-train {
@@ -1645,7 +1657,7 @@ a.month-step:hover,
   padding: 10px 0;
   margin: -10px 0;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -1664,8 +1676,8 @@ a.month-step:hover,
 
 .rates thead th {
   border-top: 0;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--mute);
 }
 
@@ -1687,12 +1699,12 @@ a.month-step:hover,
 
 .rates-picks small {
   color: var(--mute);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .rates-note {
   margin-top: 10px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--mute);
 }
 
@@ -1796,7 +1808,7 @@ a.month-step:hover,
     flex: 1;
     justify-content: center;
     padding: 0 8px;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .month-nav {
@@ -1899,7 +1911,7 @@ a.month-step:hover,
   }
 
   .rc-name {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .ceil {
