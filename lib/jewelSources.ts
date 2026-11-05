@@ -33,7 +33,11 @@ export function cmJewels(league: CmLeague, result: CmResult, startKr: number): n
   return (startKr >= CM_TABLE_CHANGE_KR ? CM_FROM_2026_04 : CM_BEFORE_2026_04)[league][result];
 }
 
-/** 레전드 레이스 첫 1착 보상. 레전드 두 명과 따로 겨루지만 상대마다 주는지 출처에 없어서 개최마다 한 번만 센다 (game8.jp/umamusume/376819) */
+/**
+ * 레전드 레이스 첫 1착 보상 (game8.jp/umamusume/376819).
+ * 개최 하나에 상대 레전드마다 기간이 따로 열리는 레이스가 있어서(2022년부터 2명), 레이스마다 한 번씩 센다.
+ * 출처는 상대마다 주는지 밝히지 않는다
+ */
 export const LEGEND_RACE_FIRST_WIN = 150;
 
 /** 리그 오브 히어로즈 랭크 도달 보상 (gamewith.jp/uma-musume/article/show/396435). 고른 랭크까지 앞 랭크 보상을 모두 받는다 */
@@ -93,21 +97,43 @@ export const EMPTY_COMPETITION: CompetitionInput = {
 };
 
 /** 개최일이 정해진 대회. 서버에서 일정만 넘기고, 보상 쥬얼은 고른 단계로 브라우저에서 채운다 */
-export type Scheduled = { kind: "cm" | "legend" | "loh"; id: string; name: string; startKr: number; endKr: number };
+export type Scheduled = {
+  kind: "cm" | "legend" | "loh";
+  id: string;
+  name: string;
+  startKr: number;
+  endKr: number;
+  /** 레전드 레이스만: 개최 안의 레이스(상대 레전드)마다 열리는 날. 없으면 개최 시작일 하나로 본다 */
+  raceStartsKr?: number[];
+};
+
+/** 레전드 레이스 보상 id는 `개최 id#레이스 순번`이다. 개최 id만 꺼낸다 */
+export function legendEditionId(incomeId: string): string {
+  return incomeId.split("#")[0];
+}
 
 const KIND_NAME = { cm: "챔피언스 미팅", legend: "레전드 레이스", loh: "리그 오브 히어로즈" } as const;
 
 /** 고른 단계로 대회 보상을 기간 보상 목록에 끼워 넣을 수 있는 모양으로 바꾼다. 0쥬얼인 대회는 뺀다 */
 export function competitionIncomes(schedule: Scheduled[], c: CompetitionInput): Income[] {
   return schedule.flatMap((s): Income[] => {
+    if (s.kind === "legend") {
+      if (!c.legendRace) return [];
+      const starts = s.raceStartsKr?.length ? s.raceStartsKr : [s.startKr];
+      const base = s.name ? `${KIND_NAME.legend} ${s.name}` : KIND_NAME.legend;
+      return starts.map((day, i) => ({
+        id: `${s.id}#${i + 1}`,
+        source: "legend",
+        name: starts.length > 1 ? `${base} (${i + 1}/${starts.length})` : base,
+        startKr: day,
+        endKr: s.endKr,
+        free: LEGEND_RACE_FIRST_WIN,
+        trainTickets: 0,
+        supportTickets: 0,
+      }));
+    }
     const free =
-      s.kind === "cm"
-        ? cmJewels(c.cmLeague, c.cmResult, s.startKr)
-        : s.kind === "legend"
-          ? c.legendRace
-            ? LEGEND_RACE_FIRST_WIN
-            : 0
-          : lohJewels(c.lohRank);
+      s.kind === "cm" ? cmJewels(c.cmLeague, c.cmResult, s.startKr) : lohJewels(c.lohRank);
     if (free === 0) return [];
     // 챔피언스 미팅은 결승이 끝나야 보상이 나오므로 마지막 날을 기준으로 센다
     const day = s.kind === "cm" ? s.endKr : s.startKr;
@@ -138,25 +164,58 @@ type Gift = { jp: [number, number, number]; name: string; jewels: number; kind: 
 /**
  * 일본서버 운영 선물(선물함 배포)과 특별 로그인 보너스. 공식 공지 umamusume.jp/news/detail?id=N 에서 옮겼다.
  * ぱかライブTV 방송 기념 선물과 같은 공지의 챌린지 보상은 한 줄로 합쳤다.
- * 점검·오류 보상(お詫び)은 공식 기록을 찾지 못해 넣지 않았고, 한일 동시 진행이었던 신데렐라 그레이 캠페인도 뺐다.
+ * 점검·오류 보상(お詫び)은 찾은 것이 모두 쥬얼이 아니었고, 한일 동시 진행이었던 신데렐라 그레이 방영 캠페인도 뺐다.
+ * 2026-11-05 기준으로 공식 공지·공략 사이트를 교차 확인했다. 공지가 지워진 2026년 7월 초는 방송 요약으로만 확인했다.
+ * 개인 성적에 따라 달라지는 보상(마스터즈 챌린지, Beyond Memories 이벤트, 시험 코인 교환)은 수량이 공개되지 않아 넣지 않았다.
  */
 const GIFTS: Gift[] = [
   { jp: [2025, 7, 31], name: "ぱかライブTV Vol.55 방송 기념 선물", jewels: 150 + 200, kind: "gift", source: "id=2693" },
+  { jp: [2025, 8, 14], name: "4.5주년 카운트다운 로그인 보너스", jewels: 150 * 10, kind: "login", source: "id=2727, gamebiz 410719, game8 710465" },
   { jp: [2025, 8, 23], name: "ぱかライブTV Vol.56 방송 기념 선물", jewels: 150 + 450, kind: "gift", source: "id=2727" },
   { jp: [2025, 8, 24], name: "4.5주년 기념 쥬얼 선물", jewels: 3000, kind: "gift", source: "id=2727" },
   { jp: [2025, 8, 24], name: "4.5주년 기념 로그인 보너스", jewels: 3000, kind: "login", source: "id=2727" },
   { jp: [2025, 9, 29], name: "ぱかライブTV Vol.57 방송 기념 선물", jewels: 150 + 450, kind: "gift", source: "id=2806" },
+  { jp: [2025, 10, 24], name: "극장판 좀비랜드 사가 콜라보 기념 로그인 보너스", jewels: 500, kind: "login", source: "gamebiz 414841, gamepedia 47423" },
   { jp: [2025, 10, 29], name: "ぱかライブTV Vol.58 방송 기념 선물", jewels: 150 + 50, kind: "gift", source: "id=2881" },
+  { jp: [2025, 10, 29], name: "새 육성 시나리오 「ゆこま温泉郷」 공개 기념 로그인 보너스", jewels: 1500, kind: "login", source: "id=2881, game8 746406" },
   { jp: [2025, 11, 28], name: "ぱかライブTV Vol.59 방송 기념 선물", jewels: 150 + 550, kind: "gift", source: "id=2940" },
   { jp: [2025, 12, 11], name: "크리스마스 캠페인 쥬얼 선물", jewels: 500, kind: "gift", source: "id=2940" },
   { jp: [2025, 12, 25], name: "ぱかライブTV Vol.60 방송 기념 선물", jewels: 150 + 350, kind: "gift", source: "id=2998" },
   { jp: [2025, 12, 26], name: "연말 카운트다운 로그인 보너스", jewels: 150 * 6, kind: "login", source: "id=2998" },
-  { jp: [2026, 1, 1], name: "설날 특별 로그인 보너스", jewels: 4200, kind: "login", source: "id=2998" },
+  // 첫날 1500, 이후 300씩 9일
+  { jp: [2026, 1, 1], name: "새해 특별 로그인 보너스", jewels: 1500 + 300 * 9, kind: "login", source: "id=2998, id=2984" },
   { jp: [2026, 1, 29], name: "ぱかライブTV Vol.61 방송 기념 선물", jewels: 150 + 600, kind: "gift", source: "id=3036" },
+  { jp: [2026, 2, 14], name: "5주년 카운트다운 로그인 보너스", jewels: 150 * 10, kind: "login", source: "gamewith 545130, game8 762809" },
+  { jp: [2026, 2, 14], name: "발렌타인 캠페인 쥬얼 선물", jewels: 500, kind: "gift", source: "id=3036, 공식 X 2026-02-14" },
   { jp: [2026, 2, 23], name: "ぱかライブTV Vol.62 (5주년) 방송 기념 선물", jewels: 150 + 800, kind: "gift", source: "id=3097" },
   { jp: [2026, 2, 24], name: "5주년 기념 쥬얼 선물", jewels: 3000, kind: "gift", source: "id=3097" },
   { jp: [2026, 2, 24], name: "5주년 기념 로그인 보너스 제1탄", jewels: 3000, kind: "login", source: "id=3097" },
+  { jp: [2026, 3, 11], name: "개발자 레터 기념 쥬얼 선물", jewels: 1500, kind: "gift", source: "id=3128" },
+  { jp: [2026, 3, 11], name: "5주년 기념 로그인 보너스 제2탄", jewels: 150 * 15, kind: "login", source: "gamewith 545130, game8 762809" },
+  { jp: [2026, 3, 14], name: "화이트데이 캠페인 쥬얼 선물", jewels: 500, kind: "gift", source: "id=3117, 공식 X 2026-03-14" },
+  { jp: [2026, 3, 18], name: "신데렐라 그레이 누계 900만 부 돌파 기념 선물", jewels: 900, kind: "gift", source: "공식 X 2026-03-18" },
   { jp: [2026, 3, 28], name: "ぱかライブTV' 첫 방송 기념 선물", jewels: 500, kind: "gift", source: "id=3174" },
+  { jp: [2026, 4, 1], name: "만우절 기념 선물", jewels: 500, kind: "gift", source: "공식 X 2026-04-01, game8 775733" },
+  { jp: [2026, 4, 29], name: "ぱかライブTV' #2 방송 기념 선물", jewels: 300, kind: "gift", source: "id=3225" },
+  { jp: [2026, 5, 28], name: "ぱかライブTV' #3 방송 기념 선물", jewels: 300, kind: "gift", source: "id=3263" },
+  { jp: [2026, 6, 27], name: "ぱかライブTV' #4 방송 기념 선물", jewels: 300, kind: "gift", source: "id=3315" },
+  { jp: [2026, 6, 29], name: "새 육성 시나리오 「トレセン軒」 공개 기념 로그인 보너스", jewels: 1500, kind: "login", source: "id=3315" },
+  { jp: [2026, 7, 30], name: "ぱかライブTV' #5 방송 기념 선물", jewels: 300, kind: "gift", source: "id=3377" },
+  { jp: [2026, 8, 12], name: "KFC 콜라보 기념 로그인 보너스", jewels: 500, kind: "login", source: "id=3388" },
+  { jp: [2026, 8, 14], name: "5.5주년 카운트다운 로그인 보너스", jewels: 150 * 10, kind: "login", source: "id=3391" },
+  { jp: [2026, 8, 23], name: "ぱかライブTV' #6 방송 기념 선물", jewels: 500, kind: "gift", source: "id=3415" },
+  { jp: [2026, 8, 24], name: "5.5주년 기념 쥬얼 선물", jewels: 3000, kind: "gift", source: "id=3407" },
+  { jp: [2026, 8, 24], name: "5.5주년 기념 로그인 보너스", jewels: 300 * 10, kind: "login", source: "id=3407" },
+  { jp: [2026, 9, 11], name: "카타르 개선문상 프리미엄 파트너 취임 기념 선물", jewels: 500, kind: "gift", source: "id=3442" },
+  { jp: [2026, 9, 28], name: "ぱかライブTV' #7 방송 기념 선물", jewels: 300, kind: "gift", source: "id=3479" },
+  { jp: [2026, 10, 19], name: "스타 블로섬 누계 50만 부 돌파 기념 선물", jewels: 150, kind: "gift", source: "id=3499" },
+  { jp: [2026, 10, 22], name: "긴급 점검 감사 선물", jewels: 150, kind: "gift", source: "id=3523" },
+  { jp: [2026, 10, 25], name: "ぱかライブTV' #8 방송 기념 선물", jewels: 300, kind: "gift", source: "id=3528" },
+  { jp: [2026, 10, 26], name: "새 육성 시나리오 「駿大祭」 공개 기념 로그인 보너스", jewels: 1500, kind: "login", source: "id=3509" },
+  // 『うまゆる』 방영 기념: 9/27부터 매주 150. 지금까지 시작한 6회분만 넣었다 (공식 일정상 2027-03까지 26회)
+  ...[[2026, 9, 27], [2026, 10, 5], [2026, 10, 12], [2026, 10, 19], [2026, 10, 26], [2026, 11, 2]].map(
+    ([y, m, d], i): Gift => ({ jp: [y, m, d], name: `うまゆる 방영 기념 로그인 보너스 ${i + 1}회`, jewels: 150, kind: "login", source: "id=3466" }),
+  ),
 ];
 
 /** 운영 선물과 특별 로그인 보너스를 한국서버 예상일의 기간 보상으로 */

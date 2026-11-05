@@ -98,6 +98,18 @@ test("운영 선물은 이벤트 보상과 따로 합친다", () => {
   assert.equal(p.eventFree, 100);
 });
 
+test("운영 선물 목록은 겹치지 않고, 주년마다 카운트다운·쥬얼 선물·로그인 보너스가 다 있다", () => {
+  const gifts = giftIncomes();
+  const keys = gifts.map((g) => `${g.startKr}|${g.name}`);
+  assert.equal(new Set(keys).size, keys.length);
+  for (const year of ["4.5주년", "5주년", "5.5주년"]) {
+    const names = gifts.filter((g) => g.name.startsWith(year)).map((g) => g.name);
+    assert.ok(names.some((n) => n.includes("카운트다운")), `${year} 카운트다운`);
+    assert.ok(names.some((n) => n.includes("쥬얼 선물")), `${year} 쥬얼 선물`);
+    assert.ok(names.some((n) => n.includes("기념 로그인 보너스")), `${year} 로그인 보너스`);
+  }
+});
+
 test("팀 경기장은 사이에 낀 월요일마다 클래스 보상", () => {
   // 일 번호 4 = 1970-01-05 월요일
   assert.equal(mondaysBetween(4, 11), 0);
@@ -110,7 +122,8 @@ test("대회 보상은 고른 단계대로, 챔피언스 미팅은 끝나는 날
   const schedule: Scheduled[] = [
     { kind: "cm", id: "cm-1", name: "", startKr: 110, endKr: 135 },
     { kind: "cm", id: "cm-2", name: "", startKr: 105, endKr: 112 },
-    { kind: "legend", id: "lr-1", name: "", startKr: 120, endKr: 125 },
+    { kind: "legend", id: "lr-1", name: "", startKr: 120, endKr: 127, raceStartsKr: [120, 124] },
+    { kind: "legend", id: "lr-2", name: "", startKr: 131, endKr: 136, raceStartsKr: [131, 134] },
     { kind: "loh", id: "loh-1", name: "", startKr: 115, endKr: 124 },
   ];
   const incomes = competitionIncomes(schedule, {
@@ -122,9 +135,10 @@ test("대회 보상은 고른 단계대로, 챔피언스 미팅은 끝나는 날
   const p = plan({ ...base, incomes });
   assert.deepEqual(
     p.incomes.map((i) => i.id),
-    ["cm-2", "loh-1", "lr-1"],
+    ["cm-2", "loh-1", "lr-1#1", "lr-1#2"],
   );
-  assert.equal(p.competitionFree, cmJewels("grade", "A1", 105) + lohJewels(11) + 150);
+  // 레전드 레이스는 개최 안의 레이스(상대 레전드)마다 150
+  assert.equal(p.competitionFree, cmJewels("grade", "A1", 105) + lohJewels(11) + 150 * 2);
   assert.equal(lohJewels(11), 1290); // 브론즈 2 ~ 골드 4
   assert.equal(p.eventFree, 0);
   assert.equal(competitionIncomes(schedule, EMPTY_COMPETITION).length, 0);

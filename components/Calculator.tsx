@@ -18,6 +18,8 @@ import {
 import {
   competitionIncomes,
   giftIncomes,
+  LEGEND_RACE_FIRST_WIN,
+  legendEditionId,
   LOGIN_BONUS,
   LOH_RANKS,
   lohJewels,
@@ -31,6 +33,10 @@ import { EMPTY_CALC, readCalc, readJewels, writeCalc, writeJewels, type CalcInpu
 import type { Gacha } from "@/lib/umapyoi";
 
 const num = (n: number) => n.toLocaleString("ko-KR");
+/** 쥬얼 수는 늘 "개"를 붙여 보인다 */
+const jw = (n: number) => `${num(n)}개`;
+/** 뽑기 티켓 수는 늘 "장"을 붙여 보인다 */
+const tk = (n: number) => `${num(n)}장`;
 const LANE_NAME = { train: "육성", support: "서포트" } as const;
 
 type Form = CalcInput & { paid: number; free: number };
@@ -41,12 +47,12 @@ const PASS_OPTIONS: { value: PassPlan; label: string; note?: string }[] = [
   {
     value: "standard",
     label: "무료 보상만 끝까지 받아요",
-    note: `한 달마다 쥬얼 ${PASS_STD.free}, 육성·서포트 티켓 ${PASS_STD.trainTickets}장씩`,
+    note: `한 달마다 쥬얼 ${jw(PASS_STD.free)}, 육성·서포트 티켓 ${PASS_STD.trainTickets}장씩`,
   },
   {
     value: "premium",
     label: "프리미엄 패스도 사요",
-    note: `한 달마다 위 보상에 더해 살 때 유료 ${PASS_PRE.paidOnBuy}, 쥬얼 ${num(PASS_PRE.free)}, 육성·서포트 티켓 ${PASS_PRE.trainTickets}장씩`,
+    note: `한 달마다 위 보상에 더해 살 때 유료 ${jw(PASS_PRE.paidOnBuy)}, 쥬얼 ${jw(PASS_PRE.free)}, 육성·서포트 티켓 ${PASS_PRE.trainTickets}장씩`,
   },
 ];
 
@@ -58,7 +64,7 @@ function toCount(value: string): number {
 
 const TEAM_OPTIONS = [
   { value: "0", label: "넣지 않아요" },
-  ...[6, 5, 4, 3, 2, 1].map((c) => ({ value: String(c), label: `클래스 ${c} · 매주 ${TEAM_TRIALS_WEEKLY[c]}` })),
+  ...[6, 5, 4, 3, 2, 1].map((c) => ({ value: String(c), label: `클래스 ${c} · 매주 ${jw(TEAM_TRIALS_WEEKLY[c])}` })),
 ];
 const CM_LEAGUE_OPTIONS = [
   { value: "grade", label: "그레이드 리그" },
@@ -72,11 +78,11 @@ const CM_RESULT_OPTIONS: { value: CmResult; label: string }[] = [
   { value: "B1", label: "B결승 1위" },
   { value: "B2", label: "B결승 2위" },
   { value: "B3", label: "B결승 3위" },
-  { value: "out", label: "결승 1~3위 밖 (0)" },
+  { value: "out", label: "결승 1~3위 밖 (0개)" },
 ];
 const LOH_OPTIONS = [
   { value: "-1", label: "넣지 않아요" },
-  ...LOH_RANKS.map((r, i) => ({ value: String(i), label: `${r.name} · 합계 ${num(lohJewels(i))}` })).reverse(),
+  ...LOH_RANKS.map((r, i) => ({ value: String(i), label: `${r.name} · 합계 ${jw(lohJewels(i))}` })).reverse(),
 ];
 
 function SelectField({
@@ -107,7 +113,7 @@ function SelectField({
 }
 
 const SOURCE_NAME: Record<Income["source"], string> = {
-  story: "스토리 이벤트 포인트 보상",
+  story: "스토리 이벤트 포인트·빙고 보상",
   limited: "기간 한정 미션",
   cm: "결승 보상",
   legend: "첫 1착 보상",
@@ -161,9 +167,9 @@ function NumberField({
 
 function Rewards({ i }: { i: Income }) {
   const parts = [
-    i.free > 0 && `쥬얼 ${num(i.free)}`,
-    i.trainTickets > 0 && `육성 티켓 ${i.trainTickets}`,
-    i.supportTickets > 0 && `서포트 티켓 ${i.supportTickets}`,
+    i.free > 0 && `쥬얼 ${jw(i.free)}`,
+    i.trainTickets > 0 && `육성 티켓 ${tk(i.trainTickets)}`,
+    i.supportTickets > 0 && `서포트 티켓 ${tk(i.supportTickets)}`,
   ].filter(Boolean);
   return <span className="route-gain">+ {parts.join(", ")}</span>;
 }
@@ -240,7 +246,7 @@ export function Calculator({ today, gachas, incomes, schedule }: Props) {
           <span>
             월정액을 계속 사요
             <small>
-              살 때 유료 {MONTHLY.paidOnBuy}, {MONTHLY.days}일 동안 매일 무료 {MONTHLY.freePerDay}
+              살 때 유료 {jw(MONTHLY.paidOnBuy)}, {MONTHLY.days}일 동안 매일 무료 {jw(MONTHLY.freePerDay)}
             </small>
           </span>
         </label>
@@ -300,7 +306,7 @@ export function Calculator({ today, gachas, incomes, schedule }: Props) {
             />
             <span>
               레전드 레이스에서 1착해요
-              <small>개최마다 첫 1착 보상 쥬얼 150</small>
+              <small>상대 레전드마다 첫 1착 보상 쥬얼 {jw(LEGEND_RACE_FIRST_WIN)}, 개최마다 보통 2명</small>
             </span>
           </label>
         </fieldset>
@@ -356,7 +362,11 @@ function Result({
   pulls: ReturnType<typeof pullsFor>;
 }) {
   const ceilingGap = CEILING - pulls.total;
-  const competitionCount = p.incomes.filter((i) => i.source === "cm" || i.source === "legend" || i.source === "loh").length;
+  const legendRaces = p.incomes.filter((i) => i.source === "legend");
+  const legendEditions = new Set(legendRaces.map((i) => legendEditionId(i.id))).size;
+  const legendFree = legendRaces.reduce((a, i) => a + i.free, 0);
+  const otherCompetitionCount = p.incomes.filter((i) => i.source === "cm" || i.source === "loh").length;
+  const competitionCount = otherCompetitionCount + legendRaces.length;
   const giftCount = p.incomes.filter((i) => i.source === "gift" || i.source === "login").length;
   return (
     <>
@@ -394,17 +404,17 @@ function Result({
         </p>
         <p className="calc-pulls-how">
           {target.paidOnly ? (
-            <>유료 쥬얼 전용 가챠라 유료 쥬얼 {num(p.paid)}개로만 계산했어요.</>
+            <>유료 쥬얼 전용 가챠라 유료 쥬얼 {jw(p.paid)}로만 계산했어요.</>
           ) : (
             <>
-              쥬얼 {num(p.free + p.paid)}개로 {num(pulls.fromJewels)}회, {LANE_NAME[target.lane]} 티켓{" "}
-              {num(pulls.fromTickets)}장으로 {num(pulls.fromTickets)}회
+              쥬얼 {jw(p.free + p.paid)}로 {num(pulls.fromJewels)}회, {LANE_NAME[target.lane]} 티켓{" "}
+              {tk(pulls.fromTickets)}으로 {num(pulls.fromTickets)}회
             </>
           )}
         </p>
         <p className="calc-ceiling">
           {ceilingGap > 0
-            ? `천장 ${CEILING}회까지 ${num(ceilingGap)}회, ${target.paidOnly ? "유료 " : ""}쥬얼 ${num(ceilingGap * JEWELS_PER_PULL)}개가 더 필요해요.`
+            ? `천장 ${CEILING}회까지 ${num(ceilingGap)}회, ${target.paidOnly ? "유료 " : ""}쥬얼 ${jw(ceilingGap * JEWELS_PER_PULL)}가 더 필요해요.`
             : `천장 ${CEILING}회를 채우고 ${num(-ceilingGap)}회가 남아요.`}
         </p>
       </div>
@@ -412,29 +422,29 @@ function Result({
       <dl className="calc-sum">
         <div>
           <dt>지금 가진 쥬얼</dt>
-          <dd>{num(owned)}</dd>
+          <dd>{jw(owned)}</dd>
         </div>
         <div>
           <dt>
-            데일리 미션 <small>{p.days}일 × {DAILY_MISSION_JEWELS}</small>
+            데일리 미션 <small>{p.days}일 × {jw(DAILY_MISSION_JEWELS)}</small>
           </dt>
-          <dd>+ {num(p.daily)}</dd>
+          <dd>+ {jw(p.daily)}</dd>
         </div>
         <div>
           <dt>
             로그인 보너스{" "}
             <small>
-              {Math.floor(p.days / LOGIN_BONUS.days)}주 × {LOGIN_BONUS.jewels}
+              {Math.floor(p.days / LOGIN_BONUS.days)}주 × {jw(LOGIN_BONUS.jewels)}
             </small>
           </dt>
-          <dd>+ {num(p.login)}</dd>
+          <dd>+ {jw(p.login)}</dd>
         </div>
         {p.monthlyPaid > 0 && (
           <div>
             <dt>
-              월정액 <small>무료 {num(p.monthlyFree)} · 유료 {num(p.monthlyPaid)}</small>
+              월정액 <small>무료 {jw(p.monthlyFree)} · 유료 {jw(p.monthlyPaid)}</small>
             </dt>
-            <dd>+ {num(p.monthlyFree + p.monthlyPaid)}</dd>
+            <dd>+ {jw(p.monthlyFree + p.monthlyPaid)}</dd>
           </div>
         )}
         {p.passPeriods > 0 && (
@@ -442,36 +452,47 @@ function Result({
             <dt>
               트레이닝 패스{" "}
               <small>
-                {p.passPeriods}기간 · 무료 {num(p.passFree)}
-                {p.passPaid > 0 && ` · 유료 ${num(p.passPaid)}`}
+                {p.passPeriods}기간 · 무료 {jw(p.passFree)}
+                {p.passPaid > 0 && ` · 유료 ${jw(p.passPaid)}`}
               </small>
             </dt>
-            <dd>+ {num(p.passFree + p.passPaid)}</dd>
+            <dd>+ {jw(p.passFree + p.passPaid)}</dd>
           </div>
         )}
         <div>
           <dt>
             이벤트·미션 보상 <small>{p.incomes.length - competitionCount - giftCount}건</small>
           </dt>
-          <dd>+ {num(p.eventFree)}</dd>
+          <dd>+ {jw(p.eventFree)}</dd>
         </div>
         {p.teamWeeks > 0 && (
           <div>
             <dt>
               팀 경기장{" "}
               <small>
-                {p.teamWeeks}주 × {TEAM_TRIALS_WEEKLY[teamClass]}
+                {p.teamWeeks}주 × {jw(TEAM_TRIALS_WEEKLY[teamClass])}
               </small>
             </dt>
-            <dd>+ {num(p.teamTrials)}</dd>
+            <dd>+ {jw(p.teamTrials)}</dd>
           </div>
         )}
-        {competitionCount > 0 && (
+        {otherCompetitionCount > 0 && (
           <div>
             <dt>
-              챔피언스 미팅·레전드 레이스·리그 오브 히어로즈 <small>{competitionCount}회</small>
+              챔피언스 미팅·리그 오브 히어로즈 <small>{otherCompetitionCount}회</small>
             </dt>
-            <dd>+ {num(p.competitionFree)}</dd>
+            <dd>+ {jw(p.competitionFree - legendFree)}</dd>
+          </div>
+        )}
+        {legendRaces.length > 0 && (
+          <div>
+            <dt>
+              레전드 레이스{" "}
+              <small>
+                {legendEditions}개최 · 레이스 {legendRaces.length}번 × {jw(LEGEND_RACE_FIRST_WIN)}
+              </small>
+            </dt>
+            <dd>+ {jw(legendFree)}</dd>
           </div>
         )}
         {giftCount > 0 && (
@@ -479,19 +500,19 @@ function Result({
             <dt>
               운영 선물·특별 로그인 보너스 <small>{giftCount}건</small>
             </dt>
-            <dd>+ {num(p.giftFree)}</dd>
+            <dd>+ {jw(p.giftFree)}</dd>
           </div>
         )}
         <div className="calc-sum-total">
           <dt>
-            예상 쥬얼 수 <small>무료 {num(p.free)} · 유료 {num(p.paid)}</small>
+            예상 쥬얼 수 <small>무료 {jw(p.free)} · 유료 {jw(p.paid)}</small>
           </dt>
-          <dd>{num(p.free + p.paid)}</dd>
+          <dd>약 {jw(p.free + p.paid)}</dd>
         </div>
         <div>
           <dt>뽑기 티켓</dt>
           <dd>
-            육성 {num(p.trainTickets)} · 서포트 {num(p.supportTickets)}
+            육성 {tk(p.trainTickets)} · 서포트 {tk(p.supportTickets)}
           </dd>
         </div>
       </dl>

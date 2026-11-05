@@ -5,7 +5,8 @@ export async function fetchJson<T>(url: string, revalidate: number): Promise<T> 
   return res.json() as Promise<T>;
 }
 
-/** 실패해도 화면은 대체 값으로 그리되, 원인은 서버 로그에 남긴다 */
+/** 실패해도 화면은 대체 값으로 그리되, 원인은 서버 로그에 남긴다.
+ * 이미 대체 화면으로 처리한 실패라 경고로 남긴다. console.error는 개발 모드에서 화면에 에러 창을 띄운다 */
 export function logFailure(what: string, err: unknown) {
-  console.error(`[umanote] ${what} 불러오기 실패:`, err);
+  console.warn(`[umanote] ${what} 불러오기 실패:`, err);
 }

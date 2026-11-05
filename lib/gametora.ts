@@ -164,6 +164,12 @@ type RawLimitedMissions = {
 };
 type RawStoryEvent = { id: number; name_ja?: string; name_ko?: string; start_ja: number; end_ja: number };
 type RawStoryRewards = { id: number; rewards: { item_id: number; item_num: number }[] };
+/** 스토리 이벤트 빙고. 시트마다 줄 보상에 쥬얼이 있다. can_loop 시트는 다시 돌 수 있지만 몇 번 도는지 정해지지 않아 한 번만 센다 */
+type RawStoryBingo = { id: number; bingo: { can_loop: number; line_rewards: { item_id: number; item_num: number }[] }[] };
+/** 트레이너 시험 기간 한정 미션. 개최마다 같은 목록 안에 기간(밀리초)만 다르게 들어 있다 */
+type RawExamMissions = {
+  missions: { itemId: number; itemNumber: number; startDate: number; endDate: number; subMissions?: { itemId: number; itemNumber: number }[] }[];
+};
 
 function rewardTotals(items: { id: number; num: number }[]) {
   const total = (id: number) => items.filter((i) => i.id === id).reduce((a, i) => a + i.num, 0);
@@ -173,15 +179,41 @@ function rewardTotals(items: { id: number; num: number }[]) {
 /** 기간 한정 미션과 스토리 이벤트 포인트 보상 중 쥬얼이나 뽑기 티켓을 주는 것. 날짜는 한국서버 예상일 */
 export async function getJewelIncomes(): Promise<Income[]> {
   const manifest = await getJson<Manifest>(`${BASE}/manifests/umamusume.json`);
-  const [limited, stories, rewards] = await Promise.all([
+  const [limited, stories, rewards, bingos, exams] = await Promise.all([
     getJson<RawLimitedMissions[]>(`${BASE}/umamusume/missions/limited.${manifest["missions/limited"]}.json`),
     getJson<RawStoryEvent[]>(`${BASE}/umamusume/events/story-events.${manifest["events/story-events"]}.json`),
     getJson<RawStoryRewards[]>(
       `${BASE}/umamusume/events/story-events-rewards.${manifest["events/story-events-rewards"]}.json`,
     ),
+    getJson<RawStoryBingo[]>(`${BASE}/umamusume/events/story-events-bingo.${manifest["events/story-events-bingo"]}.json`),
+    getJson<RawExamMissions | RawExamMissions[]>(
+      `${BASE}/umamusume/missions/trainerexam-limited.${manifest["missions/trainerexam-limited"]}.json`,
+    ),
   ]);
 
   const incomes: Income[] = [];
+
+  // 트레이너 시험: 같은 기간끼리 묶어 개최 하나로 센다
+  const examByPeriod = new Map<string, { start: number; end: number; items: { id: number; num: number }[] }>();
+  for (const m of (Array.isArray(exams) ? exams : [exams]).flatMap((e) => e.missions)) {
+    const key = `${m.startDate}-${m.endDate}`;
+    const g = examByPeriod.get(key) ?? { start: m.startDate, end: m.endDate, items: [] };
+    for (const x of [m, ...(m.subMissions ?? [])]) g.items.push({ id: x.itemId, num: x.itemNumber });
+    examByPeriod.set(key, g);
+  }
+  for (const g of examByPeriod.values()) {
+    const t = rewardTotals(g.items);
+    if (t.free + t.trainTickets + t.supportTickets === 0) continue;
+    incomes.push({
+      id: `exam-${g.start}`,
+      source: "limited",
+      name: "트레이너 시험 기간 한정 미션",
+      startKr: jpToKr(dayFromTimestamp(g.start / 1000)),
+      endKr: jpToKr(dayFromTimestamp(g.end / 1000)),
+      ...t,
+    });
+  }
+
   for (const e of limited) {
     if (EXCLUDED_EVENT.test(`${e.eventOriginal} ${e.eventEn ?? ""}`)) continue;
     const t = rewardTotals(e.missions.map((m) => ({ id: m.itemId, num: m.itemNumber })));
@@ -197,10 +229,13 @@ export async function getJewelIncomes(): Promise<Income[]> {
   }
 
   const rewardMap = new Map(rewards.map((r) => [r.id, r.rewards]));
+  const bingoMap = new Map(bingos.map((b) => [b.id, b.bingo.flatMap((sheet) => sheet.line_rewards)]));
   for (const s of stories) {
     const name = s.name_ko || s.name_ja || `스토리 이벤트 ${s.id}`;
     if (EXCLUDED_EVENT.test(name)) continue;
-    const t = rewardTotals((rewardMap.get(s.id) ?? []).map((r) => ({ id: r.item_id, num: r.item_num })));
+    const t = rewardTotals(
+      [...(rewardMap.get(s.id) ?? []), ...(bingoMap.get(s.id) ?? [])].map((r) => ({ id: r.item_id, num: r.item_num })),
+    );
     if (t.free + t.trainTickets + t.supportTickets === 0) continue;
     incomes.push({
       id: `story-${s.id}`,
@@ -215,7 +250,7 @@ export async function getJewelIncomes(): Promise<Income[]> {
 }
 
 type RawChampionsMeeting = { id: number; name?: string; start: number; end: number };
-type RawLegendRace = { name_ja?: string; start: number; end: number };
+type RawLegendRace = { name_ja?: string; start: number; end: number; races?: { start: number }[] };
 
 /** 챔피언스 미팅·레전드 레이스(gametora 일정)와 리그 오브 히어로즈(고정 이력) 개최일. 날짜는 한국서버 예상일 */
 export async function getCompetitionSchedule(): Promise<Scheduled[]> {
@@ -236,6 +271,7 @@ export async function getCompetitionSchedule(): Promise<Scheduled[]> {
       name: l.name_ja ?? "",
       startKr: kr(l.start),
       endKr: kr(l.end),
+      raceStartsKr: (l.races ?? []).map((r) => kr(r.start)),
     })),
     ...lohStartsKr().map((d): Scheduled => ({ kind: "loh", id: `loh-${d}`, name: "", startKr: d, endKr: d + lohDays })),
   ];

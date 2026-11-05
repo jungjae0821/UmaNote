@@ -1920,6 +1920,11 @@ a.month-step:hover,
 }
 
 /* 사료계산기: 왼쪽 입력, 오른쪽 결과. 결과의 '목표까지 받는 보상'은 오늘 역에서 목표 역까지의 노선 */
+/* 제목·설명과 입력 상자 사이 간격 (다른 화면의 머리줄 아래 간격과 같게) */
+.calc > .sched-head {
+  margin-bottom: 24px;
+}
+
 .calc-grid {
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr);
@@ -1998,10 +2003,16 @@ a.month-step:hover,
 
 .calc-check {
   display: flex;
-  align-items: flex-start;
+  /* 설명 없는 한 줄 선택지는 44px 누를 자리 안에서 가운데로. 위로 붙이면 아래만 비어 보인다 */
+  align-items: center;
   gap: 10px;
   min-height: 44px;
   cursor: pointer;
+}
+
+/* 설명이 붙은 선택지는 단추를 첫 줄에 맞춘다 */
+.calc-check:has(small) {
+  align-items: flex-start;
 }
 
 .calc-check input {
