@@ -1,4 +1,5 @@
 import { fetchJson, logFailure } from "./fetchJson";
+import { fixKo } from "./koNameFallback";
 import { dayFromTimestamp, jpToKr } from "./dates";
 import type { Income } from "./jewelPlan";
 import { lohStartsKr, type Scheduled } from "./jewelSources";
@@ -61,12 +62,14 @@ export async function getKoLookup(): Promise<KoLookup> {
       getJson<RawCharacterCard[]>(`${BASE}/umamusume/character-cards.${manifest["character-cards"]}.json`),
       getJson<RawSupportCard[]>(`${BASE}/umamusume/support-cards.${manifest["support-cards"]}.json`),
     ]);
-    for (const c of cards) {
+    for (const raw of cards) {
+      const c = { ...raw, name_ko: fixKo(raw.name_ko), title_ko: fixKo(raw.title_ko) };
       lookup.outfit.set(c.card_id, { name: c.name_ko, title: c.title_ko });
       lookup.outfitCard.set(c.card_id, { charaId: c.char_id, rarity: c.rarity, nameJp: c.name_jp, titleJp: c.title_jp });
       if (c.name_ko) lookup.chara.set(c.char_id, c.name_ko);
     }
-    for (const s of supports) {
+    for (const raw of supports) {
+      const s = { ...raw, name_ko: fixKo(raw.name_ko), title_ko: fixKo(raw.title_ko) };
       lookup.support.set(s.support_id, { name: s.name_ko, title: s.title_ko });
       lookup.supportCard.set(s.support_id, { charaId: s.char_id, rarity: s.rarity, nameJp: s.name_jp, titleJp: s.title_ja });
       if (s.name_ko && !lookup.chara.has(s.char_id)) lookup.chara.set(s.char_id, s.name_ko);
@@ -231,7 +234,7 @@ export async function getJewelIncomes(): Promise<Income[]> {
   const rewardMap = new Map(rewards.map((r) => [r.id, r.rewards]));
   const bingoMap = new Map(bingos.map((b) => [b.id, b.bingo.flatMap((sheet) => sheet.line_rewards)]));
   for (const s of stories) {
-    const name = s.name_ko || s.name_ja || `스토리 이벤트 ${s.id}`;
+    const name = fixKo(s.name_ko) || s.name_ja || `스토리 이벤트 ${s.id}`;
     if (EXCLUDED_EVENT.test(name)) continue;
     const t = rewardTotals(
       [...(rewardMap.get(s.id) ?? []), ...(bingoMap.get(s.id) ?? [])].map((r) => ({ id: r.item_id, num: r.item_num })),

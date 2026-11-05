@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { defaultMonth, isNpc, monthCells, nextBirthdays, yearFor, type Birthday } from "../lib/birthdayCalendar.ts";
 import { formatFull, monthStart } from "../lib/dates.ts";
+import { fixKo } from "../lib/koNameFallback.ts";
 
 const b = (id: number, month: number, day: number): Birthday => ({ id, name: `${id}`, month, day, icon: "" });
 const list = [b(1, 1, 1), b(2, 3, 10), b(3, 3, 10), b(4, 6, 30), b(5, 9, 1)];
@@ -45,4 +46,11 @@ test("나무위키 인덱스 기준 NPC는 빼고, ID가 없는 캐릭터는 남
   assert.equal(isNpc(2001), true);
   assert.equal(isNpc(9040), true);
   assert.equal(isNpc(null), false);
+});
+
+test("gametora 표기 '베르시나'는 공식 표기 '비르시나'로 고친다", () => {
+  assert.equal(fixKo("베르시나"), "비르시나");
+  assert.equal(fixKo("[감청색 대관식] 베르시나"), "[감청색 대관식] 비르시나");
+  assert.equal(fixKo("스페셜 위크"), "스페셜 위크");
+  assert.equal(fixKo(undefined), undefined);
 });

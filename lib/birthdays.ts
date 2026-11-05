@@ -1,7 +1,7 @@
 import { isNpc, type Birthday } from "./birthdayCalendar";
 import { GAMETORA_IMG } from "./art";
 import { fetchJson, logFailure } from "./fetchJson";
-import { KO_NAME_FALLBACK } from "./koNameFallback";
+import { fixKo, KO_NAME_FALLBACK } from "./koNameFallback";
 
 const UMAPYOI = "https://umapyoi.net/api/v1";
 const GAMETORA = "https://gametora.com/data";
@@ -42,7 +42,7 @@ export async function getBirthdays(): Promise<Birthday[]> {
     fetchJson<RawBirthday[]>(`${UMAPYOI}/character/birthday`, REVALIDATE),
     getGametoraCharacters(),
   ]);
-  const ko = new Map(gametora.flatMap((c) => (c.name_ko ? [[c.char_id, c.name_ko] as const] : [])));
+  const ko = new Map(gametora.flatMap((c) => (c.name_ko ? [[c.char_id, fixKo(c.name_ko)] as const] : [])));
 
   const fromUmapyoi: Birthday[] = list
     .filter((b) => b.birth_month && b.birth_day && !isNpc(b.game_id))
@@ -62,7 +62,7 @@ export async function getBirthdays(): Promise<Birthday[]> {
     .filter((c) => c.birth_month && c.birth_day && !isNpc(c.char_id) && !seenIds.has(c.char_id) && !(c.name_ja && seenJa.has(c.name_ja)))
     .map((c) => ({
       id: -c.char_id,
-      name: c.name_ko ?? (c.name_ja && KO_NAME_FALLBACK[c.name_ja]) ?? c.name_ja ?? String(c.char_id),
+      name: fixKo(c.name_ko) ?? (c.name_ja && KO_NAME_FALLBACK[c.name_ja]) ?? c.name_ja ?? String(c.char_id),
       month: c.birth_month as number,
       day: c.birth_day as number,
       icon: `${GAMETORA_IMG}/characters/icons/chr_icon_${c.char_id}.png`,
