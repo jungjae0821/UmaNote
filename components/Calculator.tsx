@@ -484,7 +484,7 @@ function Result({
         )}
         <div className="calc-sum-total">
           <dt>
-            목표 시작일의 쥬얼 <small>무료 {num(p.free)} · 유료 {num(p.paid)}</small>
+            예상 쥬얼 수 <small>무료 {num(p.free)} · 유료 {num(p.paid)}</small>
           </dt>
           <dd>{num(p.free + p.paid)}</dd>
         </div>
