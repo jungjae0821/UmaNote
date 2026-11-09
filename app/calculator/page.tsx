@@ -39,10 +39,6 @@ export default async function CalculatorPage() {
       <div className="sched-head">
         <div>
           <h1>사료계산기</h1>
-          <p className="sub">
-            지금 가진 쥬얼과 티켓을 넣고 목표 픽업을 고르면, 그 픽업이 열리는 날까지 모이는 양을 계산해요. 입력값은
-            이 브라우저에만 저장돼요.
-          </p>
         </div>
       </div>
 

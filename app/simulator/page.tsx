@@ -28,7 +28,6 @@ export default async function SimulatorPage({ searchParams }: Props) {
       <div className="sched-head">
         <div>
           <h1>뽑기 시뮬레이터</h1>
-          <p className="sub">실제 배너의 카드별 제공 비율로 뽑아요. 쥬얼은 들지 않고, 기록은 이 브라우저에만 남아요.</p>
         </div>
         <nav className="seg" aria-label="가챠 종류">
           {LANES.map((l) => (

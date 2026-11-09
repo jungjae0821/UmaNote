@@ -250,11 +250,6 @@ img {
   line-height: 1.25;
 }
 
-.sub {
-  margin-top: 4px;
-  color: var(--mute);
-}
-
 .legend {
   display: flex;
   gap: 16px;
@@ -676,7 +671,7 @@ img {
 /* 가챠 일정: 달 단위 세로 노선. 시작일마다 정거장, 오늘은 빨간 가로선 */
 .sched-head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px 24px;
   flex-wrap: wrap;

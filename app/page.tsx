@@ -1,7 +1,7 @@
 import { JewelSummary } from "@/components/JewelSummary";
 import { LineMap } from "@/components/LineMap";
 import { PickupColumn } from "@/components/PickupColumn";
-import { formatFull, formatLong, krToJp, todayKr } from "@/lib/dates";
+import { formatLong, todayKr } from "@/lib/dates";
 import { logFailure } from "@/lib/fetchJson";
 import { getGachasBetween, type Gacha, type Lane } from "@/lib/umapyoi";
 
@@ -43,9 +43,6 @@ export default async function Home() {
       <div className="home-head">
         <div>
           <h1>{formatLong(today)}</h1>
-          <p className="sub">
-            한국서버 예상일이에요. 일본서버는 {formatFull(krToJp(today))}, 476일 앞서 있어요.
-          </p>
         </div>
         <div className="home-side">
           <JewelSummary />

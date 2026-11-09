@@ -95,7 +95,6 @@ export default async function GachaPage({ searchParams }: Props) {
       <div className="sched-head">
         <div>
           <h1>가챠 일정</h1>
-          <p className="sub">한국서버 예상일 기준이에요. 일본서버 날짜는 476일 앞이고 날짜 아래 작게 적었어요.</p>
         </div>
         <nav className="seg" aria-label="가챠 종류">
           {FILTERS.map((f) => (
