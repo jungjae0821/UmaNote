@@ -19,6 +19,10 @@
   --support-ink: #9a5000;
   --today: #d4002f;
   --past: #c9ced6;
+  --ev-race: #1f62c4;
+  --ev-story: #a32b72;
+  --ev-training: #3f2585;
+  --ev-mission: #d5dbe3;
 
   --font: "Pretendard Variable", "Pretendard JP Variable", system-ui, -apple-system, sans-serif;
   --font-title: "GyeonggiTitleM", var(--font);
@@ -1144,23 +1148,6 @@ a.month-step:hover,
   margin-top: 8px;
   font-size: 14px;
   color: var(--mute);
-}
-
-/* 준비 중 화면 */
-.coming h1 {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.coming p {
-  margin: 8px 0 20px;
-  color: var(--mute);
-  max-width: 40em;
-}
-
-.coming .btn {
-  display: inline-block;
 }
 
 /* 뽑기 시뮬레이터 */
@@ -2579,5 +2566,393 @@ a.month-step:hover,
 
   .bday-people {
     margin-top: 0;
+  }
+}
+
+/* 이벤트 일정: 한 달 달력 위에 이벤트 기간을 막대로 놓는다. 막대 색은 이벤트 묶음(경기·스토리·육성·기념 미션) */
+.ev-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+}
+
+.ev-h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.ev-h1 + .notice {
+  margin-top: 22px;
+}
+
+.ev-next {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 4px 18px;
+  border-radius: 12px;
+  background: var(--soft);
+  font-size: 14px;
+}
+
+.ev-next-label {
+  font-weight: 500;
+  color: var(--mute);
+}
+
+.ev-next-date {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ev-next-names {
+  min-width: 0;
+  word-break: keep-all;
+}
+
+.ev-dday {
+  margin-left: 4px;
+  font-family: var(--font-title);
+  font-synthesis: none;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.ev-groups {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 22px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ev-race {
+  --ev: var(--ev-race);
+}
+
+.ev-story {
+  --ev: var(--ev-story);
+}
+
+.ev-training {
+  --ev: var(--ev-training);
+}
+
+/* 기념 미션은 주마다 여러 개가 겹쳐 열리므로 옅은 판으로 두어 다른 막대가 묻히지 않게 한다 */
+.ev-mission {
+  --ev: var(--ev-mission);
+}
+
+.ev-groups i {
+  width: 16px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--ev);
+}
+
+.ev-groups .ev-none {
+  display: none;
+}
+
+.ev .month-nav {
+  margin-bottom: 20px;
+}
+
+.ev-weekdays,
+.ev-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.ev-weekdays {
+  padding-bottom: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mute);
+}
+
+.ev-weekdays span {
+  padding-left: 11px;
+}
+
+.ev-weeks {
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+/* 첫 줄은 날짜, 그 아래 줄마다 막대 하나. 날짜 칸은 모든 줄을 덮어 세로선을 그린다 */
+.ev-week {
+  grid-template-rows: 34px repeat(var(--lanes), 26px) minmax(10px, 1fr);
+  row-gap: 4px;
+  min-height: 104px;
+}
+
+.ev-day {
+  grid-row: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.ev-day b {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  margin: -2px 0 0 -4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ev-day.is-out {
+  background: var(--soft);
+}
+
+.ev-day.is-out b {
+  color: var(--mute);
+  font-weight: 400;
+}
+
+.ev-day.is-today b {
+  border-radius: 50%;
+  background: var(--today);
+  color: #fff;
+}
+
+.ev-today {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--today);
+}
+
+.ev-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0 4px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--ev);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ev-bar.ev-mission {
+  color: var(--ink);
+}
+
+.ev-bar em {
+  flex: none;
+  font-style: normal;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+/* 이어지는 쪽은 칸 끝까지 붙이고 모서리를 각지게 해 다음 주 막대와 한 줄로 읽히게 한다 */
+.ev-bar.from-before {
+  margin-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.ev-bar.to-after {
+  margin-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* 끝난 막대는 묶음 색을 옅게 섞은 바탕에 먹색 글자. 막대 전체를 흐리면 글자 대비가 2:1까지 떨어진다 */
+.ev-bar.is-done {
+  background: color-mix(in srgb, var(--ev) 20%, #fff);
+  color: var(--ink);
+}
+
+.ev-bar.ev-mission.is-done {
+  background: var(--soft);
+  color: var(--mute);
+}
+
+.ev-list {
+  margin-top: 32px;
+}
+
+.ev-list h2 {
+  font-size: 17px;
+  font-weight: 700;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ev-list h2 span {
+  margin-left: 4px;
+  font-weight: 400;
+  color: var(--mute);
+}
+
+.ev-item {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) 260px 88px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.ev-item > i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--ev);
+}
+
+.ev-item-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  min-width: 0;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.ev-kind {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mute);
+}
+
+.ev-item-text b {
+  font-weight: 600;
+}
+
+.ev-detail {
+  width: 100%;
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.ev-dates {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ev-dates small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--mute);
+}
+
+.ev-status {
+  justify-self: end;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ev-status.is-live {
+  color: var(--today);
+}
+
+.ev-status.is-done {
+  font-weight: 400;
+  color: var(--mute);
+}
+
+.ev-item.is-done .ev-item-text b {
+  font-weight: 500;
+  color: var(--mute);
+}
+
+.ev .sched-note {
+  max-width: 72ch;
+  margin-top: 20px;
+}
+
+/* 1100px 이하는 칸이 좁아 막대 글씨가 거의 다 잘리므로 달력을 빼고 목록만 둔다 */
+@media (max-width: 1100px) {
+  .ev-cal {
+    display: none;
+  }
+
+  .ev-list {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 860px) {
+  /* 탭 다섯 개(약 430px)가 343px에 들어가도록 같은 폭으로 나누고 색 표시를 글자 위로 올린다 */
+  .ev-groups {
+    width: 100%;
+  }
+
+  .ev-groups a {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px 0;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  /* '전체'는 색 표시가 없어서 빈 자리를 두어 다른 탭과 글자 높이를 맞춘다 */
+  .ev-groups .ev-none {
+    display: block;
+    visibility: hidden;
+  }
+
+  .ev-next {
+    width: 100%;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    row-gap: 0;
+    padding: 10px 16px;
+  }
+
+  .ev-dday {
+    margin-left: auto;
+  }
+
+  .ev-next-names {
+    order: 1;
+    width: 100%;
+  }
+
+  .ev-item {
+    grid-template-columns: 12px minmax(0, 1fr) auto;
+    row-gap: 4px;
+    align-items: start;
+  }
+
+  .ev-item > i {
+    margin-top: 5px;
+  }
+
+  .ev-dates {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .ev-status {
+    grid-column: 3;
+    grid-row: 1;
   }
 }

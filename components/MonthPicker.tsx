@@ -11,14 +11,16 @@ type Props = {
   first: Month;
   last: Month;
   thisMonth: Month;
-  /** 고른 달로 가는 주소 */
+  /** 고른 달 주소에 함께 붙일 검색어 */
   hrefBase: string;
+  /** 이 페이지 경로 */
+  path?: string;
 };
 
 const key = ({ y, m }: Month) => y * 12 + m;
 
 // 달 제목을 누르면 연도와 12개월 칸이 열린다. 데이터가 없는 달은 고를 수 없다
-export function MonthPicker({ month, first, last, thisMonth, hrefBase }: Props) {
+export function MonthPicker({ month, first, last, thisMonth, hrefBase, path = "/gacha" }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [year, setYear] = useState(month.y);
@@ -47,7 +49,7 @@ export function MonthPicker({ month, first, last, thisMonth, hrefBase }: Props) 
     setOpen(false);
     const q = new URLSearchParams(hrefBase);
     q.set("month", `${year}-${String(m).padStart(2, "0")}`);
-    router.push(`/gacha?${q}`);
+    router.push(`${path}?${q}`);
   };
 
   return (
