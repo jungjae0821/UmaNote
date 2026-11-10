@@ -294,7 +294,7 @@ img {
 }
 
 .map-loading {
-  height: 460px;
+  height: 504px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -316,10 +316,12 @@ img {
   opacity: 0.35;
 }
 
+/* 맨 위 44px은 '오늘' 라벨 전용 줄이다. 선 위로 뒤집힌 역 라벨(최대 약 100px)이 이 줄까지 올라오지 않도록
+   두 노선을 그만큼 내렸다. 줄이 없으면 오늘 바로 뒤 역의 이름을 오늘 라벨이 덮는다 */
 .map-inner {
   position: relative;
   min-width: 960px;
-  height: 460px;
+  height: 504px;
 }
 
 .ln {
@@ -333,12 +335,12 @@ img {
 
 .ln-train {
   --lane: var(--train);
-  top: 120px;
+  top: 164px;
 }
 
 .ln-support {
   --lane: var(--support);
-  top: 330px;
+  top: 374px;
 }
 
 .today,
@@ -374,11 +376,11 @@ img {
 }
 
 .stations-train .st {
-  top: 125px;
+  top: 169px;
 }
 
 .stations-support .st {
-  top: 335px;
+  top: 379px;
 }
 
 .st-dot {
@@ -1955,7 +1957,7 @@ a.month-step:hover,
   min-height: 44px;
   border: 1px solid var(--line);
   border-radius: var(--r-btn);
-  padding: 0 12px;
+  padding-right: 12px;
 }
 
 .calc-input:focus-within {
@@ -1964,9 +1966,12 @@ a.month-step:hover,
   outline-offset: -1px;
 }
 
+/* 입력 요소가 상자 높이와 왼쪽 여백까지 채워서, 상자 어디를 눌러도 입력이 시작된다 */
 .calc-input input {
   flex: 1;
+  align-self: stretch;
   min-width: 0;
+  padding: 0 0 0 12px;
   border: 0;
   outline: 0;
   background: transparent;
