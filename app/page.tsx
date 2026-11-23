@@ -33,7 +33,7 @@ export default async function Home() {
   const races = events
     .filter((e) => e.kind !== "story" && e.end >= today && e.start <= today + 45)
     .slice(0, 4);
-  const birthdays = upcomingBirthdays(characters, today, 12);
+  const birthdays = upcomingBirthdays(characters, today, 5);
   // 히어로 바탕은 보너스 캐릭터의 대표색으로
   const colorOf = (charId?: number) => characters.find((c) => c.charId === charId)?.color;
   const heroColors = (heroStory?.bonusCards ?? []).slice(0, 2).map((c) => colorOf(c.charId)).filter(Boolean);
@@ -71,26 +71,33 @@ export default async function Home() {
           </section>
         )}
 
-        {/* 배너가 있으면 생일 박스 높이를 배너에 맞추고, 화면 폭에 따라 다 안 들어가는 생일은 숨긴다 */}
-        <section className={`home-bd${heroStory ? " fit" : ""}`}>
-          <h2 className="section-title">다가오는 생일</h2>
-          <div className="panel glass bd-list">
-            <div className="bd-items">
-              {birthdays.map((b) => (
-                <div key={b.charId} className="bd">
-                  <img src={charIcon(b.charId)} alt="" loading="lazy" />
-                  <div>
-                    <b>{b.name}</b>
-                    <span>
-                      {b.month}/{b.day}
-                    </span>
+        {/* 오른쪽 열은 스크롤을 따라 내려온다. 배너가 있으면 생일 박스 높이를 배너에 맞추고, 다 안 들어가는 생일은 숨긴다 */}
+        <aside className={`home-side stack${heroStory ? " fit" : ""}`}>
+          <section className="home-bd">
+            <h2 className="section-title">다가오는 생일</h2>
+            <div className="panel glass bd-list">
+              <div className="bd-items">
+                {birthdays.map((b) => (
+                  <div key={b.charId} className="bd">
+                    <img src={charIcon(b.charId)} alt="" loading="lazy" />
+                    <div>
+                      <b>{b.name}</b>
+                      <span>
+                        {b.month}/{b.day}
+                      </span>
+                    </div>
+                    <span className={`chip${b.until === 0 ? " urgent" : ""}`}>{untilText(b.until)}</span>
                   </div>
-                  <span className={`chip${b.until === 0 ? " urgent" : ""}`}>{untilText(b.until)}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+
+          <section>
+            <h2 className="section-title">내 쥬얼</h2>
+            <HomeJewels today={today} />
+          </section>
+        </aside>
 
         <div className="home-main stack">
           <section>
@@ -199,13 +206,6 @@ export default async function Home() {
             </div>
           </section>
         </div>
-
-        <aside className="home-side stack">
-          <section>
-            <h2 className="section-title">내 쥬얼</h2>
-            <HomeJewels today={today} />
-          </section>
-        </aside>
       </div>
     </>
   );
