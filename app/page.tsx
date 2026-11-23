@@ -59,11 +59,12 @@ export default async function Home() {
             <section>
               <h2 className="section-title">이벤트</h2>
               <article className="hero" style={heroStyle}>
-                <div className="hero-art" aria-hidden>
-                  {(heroStory.bonusCards ?? []).slice(0, 2).map((c) => (
-                    <img key={c.id} src={c.art} alt="" fetchPriority="high" />
-                  ))}
-                </div>
+                <img
+                  className="hero-art"
+                  src={heroStory.art}
+                  alt={heroStory.name}
+                  fetchPriority="high"
+                />
                 <div className="hero-live">
                   <Live start={heroStory.start} end={heroStory.end} today={today} dark />
                 </div>

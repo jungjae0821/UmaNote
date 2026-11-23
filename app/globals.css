@@ -148,6 +148,11 @@ h3 {
   outline: 2px solid var(--support);
   outline-offset: 2px;
 }
+input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
 
 * {
   scrollbar-width: thin;
@@ -552,10 +557,11 @@ input:disabled {
   background: var(--glass-strong);
 }
 .art-fallback img {
-  height: 92%;
-  width: auto;
-  max-width: 25%;
-  object-fit: cover;
-  object-position: top;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  width: 0;
+  object-fit: contain;
+  object-position: bottom;
   border-radius: 10px 10px 0 0;
 }
