@@ -71,8 +71,8 @@ export default async function Home() {
           </section>
         )}
 
-        {/* 오른쪽 열은 스크롤을 따라 내려온다. 배너가 있으면 생일 박스 높이를 배너에 맞추고, 다 안 들어가는 생일은 숨긴다 */}
-        <aside className={`home-side stack${heroStory ? " fit" : ""}`}>
+        {/* 오른쪽 열은 스크롤을 따라 내려온다 */}
+        <aside className="home-side stack">
           <section className="home-bd">
             <h2 className="section-title">다가오는 생일</h2>
             <div className="panel glass bd-list">

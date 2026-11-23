@@ -24,25 +24,6 @@
   grid-row: 1 / span 2;
 }
 
-/* 생일 박스는 배너와 높이를 맞춘다. 배너 높이 = 왼쪽 열 폭의 절반(최대 420px).
-   넘치는 생일은 열 줄바꿈으로 박스 밖 오른쪽에 밀려나 통째로 가려진다 */
-.home-side.fit .bd-list {
-  height: min(calc((100cqw - 320px - 24px) / 2), 420px);
-  display: flex;
-  flex-direction: column;
-}
-.home-side.fit .bd-items {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  overflow: hidden;
-}
-.home-side.fit .bd {
-  width: 100%;
-}
-
 .hero {
   position: relative;
   aspect-ratio: 2 / 1;
@@ -318,12 +299,6 @@
   }
   .home-side > section:last-child {
     order: 1;
-  }
-  .home-side.fit .bd-list {
-    height: auto;
-  }
-  .home-side.fit .bd-items {
-    flex-wrap: nowrap;
   }
 }
 @media (max-width: 767px) {
