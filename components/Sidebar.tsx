@@ -7,15 +7,18 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon, type IconName } from "./Icon";
 import { SearchModal } from "./SearchModal";
+import { hasUnseen, type LatestIds } from "@/lib/cafeNotices";
+import { readSeen, SEEN_EVENT } from "@/lib/noticeSeen";
 import "./Sidebar.css";
 
-type Item = { href: string; label: string; icon: IconName; external?: boolean };
+type Item = { href: string; label: string; icon: IconName; external?: boolean; newBadge?: boolean };
 
 const GROUPS: { title: string | null; items: Item[] }[] = [
   { title: null, items: [{ href: "/", label: "홈", icon: "home" }] },
   {
     title: "게임 정보",
     items: [
+      { href: "/notices", label: "공지사항", icon: "megaphone", newBadge: true },
       { href: "/futures", label: "미래시", icon: "calendar" },
       { href: "/events", label: "이벤트", icon: "flag" },
       { href: "/characters", label: "캐릭터", icon: "person" },
@@ -43,6 +46,22 @@ export function Sidebar() {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  // 공지사항 페이지를 마지막으로 연 뒤 카페에 새 글이 올라왔으면 NEW!
+  const [unseen, setUnseen] = useState(false);
+  useEffect(() => {
+    let latest: LatestIds = {};
+    const check = () => setUnseen(hasUnseen(latest, readSeen()));
+    fetch("/api/notices/latest")
+      .then((r) => (r.ok ? (r.json() as Promise<LatestIds>) : {}))
+      .then((v) => {
+        latest = v;
+        check();
+      })
+      .catch(() => {});
+    window.addEventListener(SEEN_EVENT, check);
+    return () => window.removeEventListener(SEEN_EVENT, check);
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -60,8 +79,14 @@ export function Sidebar() {
   return (
     <>
       <header className="topbar glass">
-        <button type="button" className="icon-btn" onClick={() => setOpen(true)} aria-label="메뉴 열기">
+        <button
+          type="button"
+          className="icon-btn menu-btn"
+          onClick={() => setOpen(true)}
+          aria-label={unseen ? "메뉴 열기, 새 공지 있음" : "메뉴 열기"}
+        >
           <Icon name="menu" />
+          {unseen && <span className="menu-dot" aria-hidden />}
         </button>
         <Link href="/" className="logo">
           <Image src={horseshoe} alt="" width={36} height={36} className="logo-mark" />
@@ -120,6 +145,7 @@ export function Sidebar() {
                     <Link key={it.href} href={it.href} className="nav-link" aria-current={isActive(it.href) ? "page" : undefined}>
                       <Icon name={it.icon} />
                       {it.label}
+                      {it.newBadge && unseen && <span className="nav-new">NEW!</span>}
                     </Link>
                   ),
                 )}
