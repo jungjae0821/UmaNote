@@ -62,7 +62,11 @@ export function FuturesView({ banners, today, initialBanner }: { banners: ViewBa
   const first = monthStart(month.y, month.m);
   const last = monthStart(month.y, month.m + 1) - 1;
   const visible = useMemo(() => banners.filter((b) => prefs.lanes.includes(b.lane)), [banners, prefs.lanes]);
-  const inMonth = visible.filter((b) => b.start <= last && b.end >= first).sort((a, b) => a.start - b.start || a.id - b.id);
+  // 진행 중 → 예정 → 종료 순, 같은 상태 안에서는 시작일 순
+  const stateRank = (b: ViewBanner) => (b.end < today ? 2 : b.start > today ? 1 : 0);
+  const inMonth = visible
+    .filter((b) => b.start <= last && b.end >= first)
+    .sort((a, b) => stateRank(a) - stateRank(b) || a.start - b.start || a.id - b.id);
 
   const move = (delta: number) => setMonth(({ y, m }) => monthOf(monthStart(y, m + delta)));
   const toggleLane = (lane: Lane) => {
