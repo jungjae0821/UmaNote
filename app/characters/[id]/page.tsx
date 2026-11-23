@@ -19,10 +19,10 @@ export function generateStaticParams() {
   return [];
 }
 
-async function findCard(id: string): Promise<Card | undefined> {
+async function findCard(id: string, cards?: Card[]): Promise<Card | undefined> {
   const m = /^([ts])(\d+)$/.exec(id);
   if (!m) return undefined;
-  const idx = cardIndex(await getCards());
+  const idx = cardIndex(cards ?? (await getCards()));
   return idx.get(m[1] === "t" ? "train" : "support", Number(m[2]));
 }
 
@@ -208,11 +208,13 @@ function SupportSections({ d }: { d: SupportDetail }) {
 
 export default async function CharacterDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const card = await findCard(id);
+  const cards = await getCards();
+  const card = await findCard(id, cards);
   if (!card) notFound();
   const today = todayKr();
+  // 한국서버 일정이 끝난 뒤의 픽업도 보이도록 일본서버 배너를 +476일로 옮겨 붙인다
   const [banners, characters, detail, predicted] = await Promise.all([
-    getBanners(),
+    getBanners(cards, { jpProjection: true }),
     getCharacters(),
     getCardDetail(card.lane, card.id),
     getPredictedReleases(),
@@ -300,13 +302,15 @@ export default async function CharacterDetail({ params }: { params: Promise<{ id
                   const p = b.pickups.find((x) => x.card.id === card.id);
                   return (
                     <li key={b.id}>
-                      <Link href={`/futures?banner=${b.id}`}>
+                      {/* 일본서버에서 옮겨 온 배너는 미래시에 없어서 시뮬레이터로 보낸다 */}
+                      <Link href={b.jpProjected ? `/simulator?lane=${b.lane}&banner=${b.id}` : `/futures?banner=${b.id}`}>
                         <img src={b.art ?? card.art} alt="" loading="lazy" className={b.art ? undefined : "cd-noart"} />
                         <span className="cd-b-main">
                           <b>
                             {formatFull(b.start)} ~ {formatMd(b.end)}
                           </b>
                           <span className="tags-row">
+                            {b.estimated && <span className="tag">날짜 예상</span>}
                             {p?.isNew && <span className="tag">신규</span>}
                             {b.paidOnly && <span className="tag">유료 쥬얼 전용</span>}
                             {p && <span className="tag">{formatRate(p.rate)}</span>}

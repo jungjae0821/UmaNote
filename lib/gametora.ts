@@ -262,6 +262,8 @@ export type Banner = {
   lineup: Record<string, number[]>;
   /** gametora가 날짜를 추정한 미래 배너 */
   estimated: boolean;
+  /** 한국서버 일정에 없어 일본서버 배너를 +476일로 옮겨 온 배너 (미래시에는 없다) */
+  jpProjected: boolean;
   /** 유료 쥬얼로만 돌릴 수 있는 배너 */
   paidOnly: boolean;
   /** ★3 확률이 기본(3%)보다 높은 배너 */
@@ -318,6 +320,7 @@ export async function getBanners(cards?: Card[], opts: { jpProjection?: boolean 
         }),
         lineup: b.lineup,
         estimated: estimated.has(b.id),
+        jpProjected: false,
         paidOnly,
         star3Up: !!b.rarityOdds && b.rarityOdds[0] > 30_000,
         art: bannerArt(b.id),
@@ -371,7 +374,7 @@ async function jpProjectedBanners(kr: Banner[], toBanner: (b: RawBanner, lane: L
     const jp = await safe(`gametora 일본서버 ${lane} 배너`, () => load<RawBanner[]>(lane === "train" ? "gacha/char-standard" : "gacha/support-standard"), []);
     for (const b of jp) {
       if (known.has(b.id) || b.start + gap <= lastKr || b.start >= FAR_FUTURE) continue;
-      result.push({ ...toBanner({ ...b, start: b.start + gap, end: b.end + gap }, lane, false), estimated: true, art: jpBannerArt(b.id) });
+      result.push({ ...toBanner({ ...b, start: b.start + gap, end: b.end + gap }, lane, false), estimated: true, jpProjected: true, art: jpBannerArt(b.id) });
     }
   }
   return result;
