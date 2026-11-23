@@ -16,27 +16,6 @@
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --blur: saturate(180%) blur(24px);
 
-  --wash1: #b9f0dd;
-  --wash2: #bfe6ff;
-  --wash3: #e9d9ff;
-  --glass: rgba(255, 255, 255, 0.72);
-  --glass-strong: rgba(255, 255, 255, 0.8);
-  --glass-line: rgba(255, 255, 255, 0.75);
-  --solid: #f3f6fa;
-  --ink: #0b1220;
-  --text: #1f2937;
-  --sub: #3f4856;
-  --train: #b0002f;
-  --support: #1450d6;
-  --new: #8a4b00;
-  --live: #b4000a;
-  --shadow: 0 8px 30px rgba(15, 23, 42, 0.12);
-  --shadow-hero: 0 12px 40px rgba(15, 23, 42, 0.25);
-  --wash-opacity: 0.9;
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
   --wash1: #0e3b2a;
   --wash2: #0f2f4a;
   --wash3: #2a1f4a;
@@ -362,10 +341,6 @@ svg.i {
   background: var(--glass-strong);
   box-shadow: none;
   color: var(--ink);
-}
-/* 라이트에서는 glass-line이 흰색이라 꺼진 칩 선이 안 보인다 */
-:root[data-theme="light"] .filter-chip:not([aria-pressed="true"]) {
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.16);
 }
 
 .field {

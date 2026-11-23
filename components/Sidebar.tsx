@@ -9,7 +9,7 @@ import { Icon, type IconName } from "./Icon";
 import { SearchModal } from "./SearchModal";
 import "./Sidebar.css";
 
-type Item = { href: string; label: string; icon: IconName };
+type Item = { href: string; label: string; icon: IconName; external?: boolean };
 
 const GROUPS: { title: string | null; items: Item[] }[] = [
   { title: null, items: [{ href: "/", label: "홈", icon: "home" }] },
@@ -29,20 +29,17 @@ const GROUPS: { title: string | null; items: Item[] }[] = [
       { href: "/simulator", label: "뽑기 시뮬레이터", icon: "cards" },
     ],
   },
+  {
+    title: "놀거리",
+    items: [{ href: "https://syuenasset.xyz/", label: "슈엔증권", icon: "chart", external: true }],
+  },
 ];
-
-const THEME_KEY = "umanote:theme:v1";
 
 export function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
-  }, []);
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -57,17 +54,6 @@ export function Sidebar() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-
-  const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    setTheme(next);
-    try {
-      localStorage.setItem(THEME_KEY, next);
-    } catch {
-      // 저장소를 못 쓰면 이번 방문 동안만 바뀐다
-    }
-  };
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
@@ -121,20 +107,25 @@ export function Sidebar() {
                 </button>
               )}
               {!hidden &&
-                g.items.map((it) => (
-                  <Link key={it.href} href={it.href} className="nav-link" aria-current={isActive(it.href) ? "page" : undefined}>
-                    <Icon name={it.icon} />
-                    {it.label}
-                  </Link>
-                ))}
+                g.items.map((it) =>
+                  it.external ? (
+                    <a key={it.href} href={it.href} className="nav-link" target="_blank" rel="noopener noreferrer">
+                      <Icon name={it.icon} />
+                      {it.label}
+                      <span className="nav-ext">
+                        <Icon name="external" label="새 창" />
+                      </span>
+                    </a>
+                  ) : (
+                    <Link key={it.href} href={it.href} className="nav-link" aria-current={isActive(it.href) ? "page" : undefined}>
+                      <Icon name={it.icon} />
+                      {it.label}
+                    </Link>
+                  ),
+                )}
             </div>
           );
         })}
-        <div className="nav-foot">
-          <button type="button" className="icon-btn" onClick={toggleTheme} aria-label={theme === "dark" ? "라이트 테마로" : "다크 테마로"}>
-            <Icon name={theme === "dark" ? "sun" : "moon"} />
-          </button>
-        </div>
       </nav>
 
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />

@@ -10,9 +10,6 @@ export const metadata: Metadata = {
   appleWebApp: { title: "우마노트" },
 };
 
-// 처음 그리기 전에 저장된 테마를 적용한다. 기본은 다크
-const THEME_SCRIPT = `try{var t=localStorage.getItem("umanote:theme:v1");document.documentElement.dataset.theme=t==="light"?"light":"dark"}catch(e){}`;
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const today = todayKr();
   const banners = await getBanners();
@@ -20,10 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const washStyle = live?.art ? ({ "--wash-img": `url(${live.art})` } as React.CSSProperties) : undefined;
 
   return (
-    <html lang="ko" data-theme="dark" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
-      </head>
+    <html lang="ko">
       <body>
         <div className="wash" style={washStyle} aria-hidden />
         <div className="app">
