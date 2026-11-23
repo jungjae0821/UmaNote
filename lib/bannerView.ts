@@ -1,7 +1,7 @@
 // 서버에서 클라이언트 화면으로 넘기는 가벼운 배너 모양
-import type { Banner, Lane } from "./gametora";
+import type { Banner, Lane, SupportType } from "./gametora";
 
-export type ViewCard = { id: number; lane: Lane; name: string; title: string; art: string; rarity: number };
+export type ViewCard = { id: number; lane: Lane; name: string; title: string; art: string; rarity: number; supportType?: SupportType };
 
 export type ViewBanner = {
   id: number;
@@ -36,6 +36,7 @@ export function toViewBanner(b: Banner): ViewBanner {
       title: p.card.title,
       art: p.card.art,
       rarity: p.card.rarity,
+      supportType: p.card.supportType,
       rate: p.rate,
       isNew: p.isNew,
     })),

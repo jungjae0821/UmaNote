@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { HomeJewels } from "@/components/HomeJewels";
 import { Live } from "@/components/Live";
 import { PickupCard } from "@/components/PickupCard";
+import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import { charIcon } from "@/lib/art";
 import { formatMd, todayKr, untilText } from "@/lib/dates";
 import { EVENT_KIND_NAME, getBanners, getCards, getCharacters, getEvents, type Banner } from "@/lib/gametora";
@@ -153,7 +155,13 @@ export default async function Home() {
               <div className="races">
                 {races.map((e) => (
                   <Link key={e.id} href={`/events#${e.id}`} className="race panel glass">
-                    {e.rivals && e.rivals[0] && <img src={e.rivals[0].art} alt="" />}
+                    {e.rivals && e.rivals.length > 0 && (
+                      <span className="race-rivals">
+                        {e.rivals.map((c) => (
+                          <img key={c.id} src={c.art} alt={c.name} title={c.name} />
+                        ))}
+                      </span>
+                    )}
                     <div>
                       <div className="race-top">
                         <b>{EVENT_KIND_NAME[e.kind]}</b>
@@ -185,7 +193,15 @@ export default async function Home() {
                 <div className="row">
                   <b className="row-label">이벤트 보상</b>
                   <div>
-                    <p className="row-name">{liveStory.rewardSupports!.map((c) => `${c.name} (서포트 카드)`).join(", ")}</p>
+                    <p className="row-name">
+                      {liveStory.rewardSupports!.map((c, i) => (
+                        <Fragment key={c.id}>
+                          {i > 0 && ", "}
+                          <SupportTypeIcon type={c.supportType} />
+                          {c.name} (서포트 카드)
+                        </Fragment>
+                      ))}
+                    </p>
                     <p className="row-sub">{liveStory.name} 보상</p>
                   </div>
                   <Live start={liveStory.start} end={liveStory.end} today={today} />

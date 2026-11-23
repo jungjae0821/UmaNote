@@ -2,9 +2,10 @@
 // 파일 이름에 해시가 붙어 있어서 manifest로 현재 파일을 찾는다. 날짜는 모두 한국(카카오) 서버 기준이다.
 import "server-only";
 import { bannerArt, outfitArt, storyEventArt, supportArt } from "./art";
-import { dayFromTimestamp } from "./dates";
+import { dayFromTimestamp, SERVER_GAP_DAYS } from "./dates";
 import { fetchJson, logFailure } from "./fetchJson";
 import { fixKo, stripBrackets } from "./koName";
+import { namuCardTitle, namuCharName, namuSupportArt, realKo } from "./namuKo";
 
 const BASE = "https://gametora.com/data";
 const REVALIDATE = 3600;
@@ -15,11 +16,16 @@ async function manifest(): Promise<Manifest> {
   return fetchJson<Manifest>(`${BASE}/manifests/umamusume.json`, REVALIDATE);
 }
 
-async function load<T>(key: string): Promise<T> {
+/** 현재 해시가 붙은 데이터 파일 주소 */
+export async function dataUrl(key: string): Promise<string> {
   const m = await manifest();
   const hash = m[key];
   if (!hash) throw new Error(`manifest에 ${key} 없음`);
-  return fetchJson<T>(`${BASE}/umamusume/${key}.${hash}.json`, REVALIDATE);
+  return `${BASE}/umamusume/${key}.${hash}.json`;
+}
+
+export async function load<T>(key: string): Promise<T> {
+  return fetchJson<T>(await dataUrl(key), REVALIDATE);
 }
 
 /** 실패하면 fallback을 돌려주고 서버 로그에 남긴다 */
@@ -49,6 +55,8 @@ export type Card = {
   art: string;
   /** 한국서버 출시일(일 번호). 아직이면 null */
   releaseKr: number | null;
+  /** 일본서버 출시일(일 번호) */
+  releaseJp: number | null;
   obtained: string;
   supportType?: SupportType;
   /** 육성만: 잔디·더트·단거리·마일·중거리·장거리·도주·선행·선입·추입 */
@@ -64,6 +72,7 @@ type RawCharacterCard = {
   name_jp?: string;
   title_ko?: string;
   title_jp?: string;
+  release?: string;
   release_ko?: string;
   obtained: string;
   aptitude?: string[];
@@ -78,11 +87,14 @@ type RawSupportCard = {
   name_jp?: string;
   title_ko?: string;
   title_ja?: string;
+  release?: string;
   release_ko?: string;
   obtained: string;
   type: SupportType;
   url_name: string;
 };
+
+const SUPPORT_RARITY = ["", "R", "SR", "SSR"];
 
 const dayFromIso = (iso?: string) => (iso ? Math.floor(Date.parse(`${iso}T00:00:00Z`) / 86_400_000) : null);
 
@@ -94,35 +106,50 @@ export async function getCards(): Promise<Card[]> {
         load<RawCharacterCard[]>("character-cards"),
         load<RawSupportCard[]>("support-cards"),
       ]);
-      const train = chars.map(
-        (c): Card => ({
+      // 한국어가 없는 미출시 카드는 나무위키 표기로 채운다
+      const train = chars.map((c): Card => {
+        const name = fixKo(c.name_ko) || namuCharName(c.name_jp) || c.name_jp || String(c.card_id);
+        return {
           lane: "train",
           id: c.card_id,
           charId: c.char_id,
-          name: fixKo(c.name_ko) || c.name_jp || String(c.card_id),
-          title: stripBrackets(fixKo(c.title_ko) || c.title_jp),
+          name,
+          title: stripBrackets(fixKo(realKo(c.title_ko, c.title_jp)) || namuCardTitle(name, "t", c.title_jp, c.release) || c.title_jp),
           rarity: c.rarity,
           art: outfitArt(c.char_id, c.card_id),
           releaseKr: dayFromIso(c.release_ko),
+          releaseJp: dayFromIso(c.release),
           obtained: c.obtained,
           aptitude: c.aptitude,
           urlName: c.url_name,
-        }),
-      );
-      const support = supports.map(
-        (s): Card => ({
+        };
+      });
+      const support = supports.map((s): Card => {
+        const name = fixKo(s.name_ko) || namuCharName(s.name_jp) || s.name_jp || String(s.support_id);
+        return {
           lane: "support",
           id: s.support_id,
           charId: s.char_id,
-          name: fixKo(s.name_ko) || s.name_jp || String(s.support_id),
-          title: stripBrackets(fixKo(s.title_ko) || s.title_ja),
+          name,
+          title: stripBrackets(fixKo(realKo(s.title_ko, s.title_ja)) || namuCardTitle(name, SUPPORT_RARITY[s.rarity], s.title_ja, s.release) || s.title_ja),
           rarity: s.rarity,
           art: supportArt(s.support_id, !!s.release_ko),
           releaseKr: dayFromIso(s.release_ko),
+          releaseJp: dayFromIso(s.release),
           obtained: s.obtained,
           supportType: s.type,
           urlName: s.url_name,
-        }),
+        };
+      });
+      // 한국서버 미출시 카드도 gametora에 큰 일러스트가 먼저 올라오는 경우가 많아서, 있으면 그걸 쓴다.
+      // 아직 없는 최신 카드는 나무위키 카드 이미지, 그마저 없으면 gametora 작은 그림
+      await Promise.all(
+        support
+          .filter((c) => c.releaseKr === null)
+          .map(async (c) => {
+            const big = await existing(supportArt(c.id, true));
+            c.art = big ?? namuSupportArt(c.id) ?? c.art;
+          }),
       );
       return [...train, ...support];
     },
@@ -135,6 +162,29 @@ export function cardIndex(cards: Card[]) {
   const support = new Map<number, Card>();
   for (const c of cards) (c.lane === "train" ? train : support).set(c.id, c);
   return { train, support, get: (lane: Lane, id: number) => (lane === "train" ? train : support).get(id) };
+}
+
+// ── 한국서버 출시 예상일 ──────────────────────────────
+
+type RawPredicted = Record<"char_cards" | "support_cards", Record<string, { release_date: string; banner_id?: number }>>;
+
+/** gametora가 일본서버 일정으로 계산한 한국서버 출시 예상일. 키는 "train:카드 ID" */
+export async function getPredictedReleases(): Promise<Map<string, number>> {
+  return safe(
+    "gametora 출시 예상일",
+    async () => {
+      const raw = await load<RawPredicted>("ko/foresight/predicted_releases");
+      const map = new Map<string, number>();
+      for (const [lane, key] of [["train", "char_cards"], ["support", "support_cards"]] as const) {
+        for (const [id, p] of Object.entries(raw[key] ?? {})) {
+          const day = dayFromIso(p.release_date);
+          if (day !== null) map.set(`${lane}:${id}`, day);
+        }
+      }
+      return map;
+    },
+    new Map(),
+  );
 }
 
 // ── 캐릭터 (생일) ─────────────────────────────────────
@@ -168,7 +218,7 @@ export async function getCharacters(): Promise<Character[]> {
         .filter((c) => c.birth_month && c.birth_day)
         .map((c) => ({
           charId: c.char_id,
-          name: fixKo(c.name_ko) || c.name_ja || String(c.char_id),
+          name: fixKo(c.name_ko) || namuCharName(c.name_ja) || c.name_ja || String(c.char_id),
           birthMonth: c.birth_month as number,
           birthDay: c.birth_day as number,
           playableKr: !!c.playable_ko,
@@ -327,6 +377,8 @@ export type GameEvent = {
   rivals?: Card[];
   /** 레전드 레이스: 상대마다 열리는 날 */
   raceStarts?: number[];
+  /** 한국서버 일정이 아직 없어 일본서버 날짜 +476일로 잡은 이벤트 */
+  estimated?: boolean;
 };
 
 export const EVENT_KIND_NAME: Record<EventKind, string> = {
@@ -359,6 +411,8 @@ type RawStory = {
   name_ja?: string;
   start_ko?: number;
   end_ko?: number;
+  start_ja?: number;
+  end_ja?: number;
   bonus_chars?: { card_id: number; char_id: number }[];
   event_support_ids?: number[];
 };
@@ -369,19 +423,36 @@ const ground = (g: number) => (g === 2 ? "더트" : "잔디") as "잔디" | "더
 export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
   const list = cards ?? (await getCards());
   const idx = cardIndex(list);
-  const [cm, loh, legend, story, races] = await Promise.all([
+  const [cmKo, lohKo, legendKo, cmJp, lohJp, legendJp, story, races] = await Promise.all([
     safe("gametora 챔피언스 미팅", () => load<RawCm[]>("ko/events/champions-meeting"), []),
     safe("gametora 리그 오브 히어로즈", () => load<RawLoh[]>("ko/events/league-of-heroes"), []),
     safe("gametora 레전드 레이스", () => load<RawLegend[]>("ko/events/legend-race"), []),
+    safe("gametora 챔피언스 미팅(일본)", () => load<RawCm[]>("events/champions-meeting"), []),
+    safe("gametora 리그 오브 히어로즈(일본)", () => load<RawLoh[]>("events/league-of-heroes"), []),
+    safe("gametora 레전드 레이스(일본)", () => load<RawLegend[]>("events/legend-race"), []),
     safe("gametora 스토리 이벤트", () => load<RawStory[]>("events/story-events"), []),
     safe("gametora 경주 이름", () => load<RawRaceName[]>("races"), []),
   ]);
+  // 한국 파일에 아직 없는 일본서버 이벤트는 +476일로 옮겨 붙인다. ID는 두 서버가 같다
+  const GAP = SERVER_GAP_DAYS * 86_400;
+  const shift = <T extends { start: number; end: number }>(e: T): T & { estimated: true } => ({ ...e, start: e.start + GAP, end: e.end + GAP, estimated: true });
+  const shiftLegend = (e: RawLegend) => ({ ...shift(e), races: e.races.map((r) => ({ ...r, start: r.start + GAP, end: r.end + GAP })) });
+  const cmIds = new Set(cmKo.map((e) => e.id));
+  const lohIds = new Set(lohKo.map((e) => e.id));
+  const legendIds = new Set(legendKo.flatMap((e) => e.races.map((r) => r.id)));
+  const cm: (RawCm & { estimated?: boolean })[] = [...cmKo, ...cmJp.filter((e) => !cmIds.has(e.id)).map(shift)];
+  const loh: (RawLoh & { estimated?: boolean })[] = [...lohKo, ...lohJp.filter((e) => !lohIds.has(e.id)).map(shift)];
+  const legend: (RawLegend & { estimated?: boolean })[] = [
+    ...legendKo,
+    ...legendJp.filter((e) => !e.races.some((r) => legendIds.has(r.id))).map(shiftLegend),
+  ];
   const raceKo = new Map(races.map((r) => [r.name_ja, r.name_ko]));
-  const base = (startTs: number, endTs: number) => ({
+  const base = (startTs: number, endTs: number, estimated?: boolean) => ({
     startTs,
     endTs,
     start: dayFromTimestamp(startTs),
     end: dayFromTimestamp(endTs),
+    ...(estimated ? { estimated } : {}),
   });
   const events: GameEvent[] = [
     ...cm.map(
@@ -389,7 +460,7 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
         kind: "cm",
         id: `cm-${e.id}`,
         name: e.name,
-        ...base(e.start, e.end),
+        ...base(e.start, e.end, e.estimated),
         race: { ground: ground(e.race.ground), distance: e.race.distance, track: TRACK_NAME[e.race.track] },
       }),
     ),
@@ -398,7 +469,7 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
         kind: "loh",
         id: `loh-${e.id}`,
         name: `리그 오브 히어로즈 #${e.id}`,
-        ...base(e.start, e.end),
+        ...base(e.start, e.end, e.estimated),
         race: { ground: ground(e.race.ground), distance: e.race.distance, track: TRACK_NAME[e.race.track] },
       }),
     ),
@@ -407,24 +478,28 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
         kind: "legend",
         id: `legend-${e.races[0]?.id ?? i}`,
         name: fixKo(raceKo.get(e.name_ja)) || e.name_ja,
-        ...base(e.start, e.end),
+        ...base(e.start, e.end, e.estimated),
         race: { ground: ground(e.ground), distance: e.distance },
+        // 레전드 전용 의상(104150 등)은 카드 목록에 없어서 같은 캐릭터의 기본 카드로 대신한다
         rivals: e.races.flatMap((r) => {
-          const c = idx.train.get(r.card_id);
+          const charId = Math.floor(r.card_id / 100);
+          const c = idx.train.get(r.card_id) ?? idx.train.get(charId * 100 + 1) ?? list.find((x) => x.lane === "train" && x.charId === charId);
           return c ? [c] : [];
         }),
         raceStarts: e.races.map((r) => dayFromTimestamp(r.start)),
       }),
     ),
     ...story
-      .filter((e) => e.start_ko && e.end_ko)
+      .filter((e) => (e.start_ko && e.end_ko) || (e.start_ja && e.end_ja))
       .map(
         (e): GameEvent => ({
           kind: "story",
           id: `story-${e.id}`,
           name: fixKo(e.name_ko) || e.name_ja || String(e.id),
           art: storyEventArt(e.id),
-          ...base(e.start_ko as number, e.end_ko as number),
+          ...(e.start_ko && e.end_ko
+            ? base(e.start_ko, e.end_ko)
+            : base((e.start_ja as number) + GAP, (e.end_ja as number) + GAP, true)),
           bonusCards: (e.bonus_chars ?? []).flatMap((b) => {
             const c = b.card_id ? idx.train.get(b.card_id) : undefined;
             return c ? [c] : [];

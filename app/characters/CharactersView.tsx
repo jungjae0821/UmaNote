@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import type { Lane, SupportType } from "@/lib/gametora";
 import "./characters.css";
 
@@ -13,7 +14,10 @@ export type ListCard = {
   title: string;
   rarity: number;
   art: string;
+  /** 한국서버 출시일(확정 또는 가챠 일정) */
   releaseKr: number | null;
+  /** 이 날까지 신규 표시 */
+  newUntil: number | null;
   obtained: string;
   supportType?: SupportType;
   aptitude?: string[];
@@ -87,6 +91,7 @@ export function CharactersView({ cards, today }: { cards: ListCard[]; today: num
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const isUpcoming = (c: ListCard) => c.releaseKr === null || c.releaseKr > today;
+  const isNew = (c: ListCard) => !isUpcoming(c) && c.newUntil !== null && today <= c.newUntil;
 
   const list = useMemo(() => {
     const q = query.trim().replace(/\s/g, "");
@@ -105,8 +110,9 @@ export function CharactersView({ cards, today }: { cards: ListCard[]; today: num
     return out.sort((a, b) =>
       sort === "name"
         ? a.name.localeCompare(b.name, "ko") || a.id - b.id
-        : // 출시일이 없는 미출시 카드는 맨 뒤로
-          (b.releaseKr ?? -Infinity) - (a.releaseKr ?? -Infinity) || b.id - a.id,
+        : // 미출시 카드는 일정이 잡혀 있어도 맨 뒤로
+          (isUpcoming(b) ? -Infinity : (b.releaseKr as number)) - (isUpcoming(a) ? -Infinity : (a.releaseKr as number)) ||
+            b.id - a.id,
     );
   }, [cards, f, query, sort, today]);
 
@@ -226,9 +232,12 @@ export function CharactersView({ cards, today }: { cards: ListCard[]; today: num
                 <Link href={`/characters/${c.lane === "train" ? "t" : "s"}${c.id}`} className="ccard">
                   <span className="art">
                     <img src={c.art} alt="" loading="lazy" />
-                    {isUpcoming(c) && <span className="badge new">예정</span>}
+                    {isUpcoming(c) ? <span className="badge">예정</span> : isNew(c) && <span className="badge fresh">신규</span>}
                   </span>
-                  <b>{c.name}</b>
+                  <b>
+                    <SupportTypeIcon type={c.supportType} />
+                    {c.name}
+                  </b>
                   <small>{c.title}</small>
                 </Link>
               </li>

@@ -456,6 +456,16 @@ select.input option {
   color: var(--ink);
   line-height: 1.3;
 }
+/* 서포트 카드 타입 아이콘. 이름 글자 크기에 맞춰 커진다 */
+.stype {
+  display: inline-block;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  margin-right: 0.25em;
+  vertical-align: -0.2em;
+  background: center / contain no-repeat;
+}
 .ccard .tags {
   display: flex;
   gap: 4px;

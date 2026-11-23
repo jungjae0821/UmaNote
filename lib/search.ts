@@ -1,6 +1,8 @@
+import type { SupportType } from "./gametora";
+
 export type SearchGroup = "육성 우마무스메" | "서포트 카드" | "픽업" | "이벤트";
 
-export type SearchItem = { group: SearchGroup; title: string; sub: string; href: string; img?: string };
+export type SearchItem = { group: SearchGroup; title: string; sub: string; href: string; img?: string; supportType?: SupportType };
 
 export const SEARCH_GROUPS: SearchGroup[] = ["육성 우마무스메", "서포트 카드", "픽업", "이벤트"];
 

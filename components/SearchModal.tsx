@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SEARCH_GROUPS, searchItems, type SearchItem } from "@/lib/search";
 import { Icon } from "./Icon";
+import { SupportTypeIcon } from "./SupportTypeIcon";
 import "./SearchModal.css";
 
 let cache: SearchItem[] | null = null;
@@ -117,7 +118,10 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
                   >
                     {r.img ? <img src={r.img} alt="" loading="lazy" /> : <span className="sr-dot" />}
                     <span>
-                      <b>{r.title}</b>
+                      <b>
+                        <SupportTypeIcon type={r.supportType} />
+                        {r.title}
+                      </b>
                       <small>{r.sub}</small>
                     </span>
                   </button>

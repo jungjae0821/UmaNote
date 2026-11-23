@@ -18,8 +18,9 @@ export default async function EventsPage() {
     endTs: e.endTs,
     race: e.race,
     bonus: (e.bonusCards ?? []).map((c) => ({ id: c.id, name: c.name, art: c.art, lane: c.lane })),
-    rewards: (e.rewardSupports ?? []).map((c) => ({ id: c.id, name: c.name, art: c.art, lane: c.lane })),
+    rewards: (e.rewardSupports ?? []).map((c) => ({ id: c.id, name: c.name, art: c.art, lane: c.lane, supportType: c.supportType })),
     rivals: (e.rivals ?? []).map((c) => ({ id: c.id, name: c.name, art: c.art, lane: c.lane })),
+    estimated: e.estimated,
   }));
   return (
     <>

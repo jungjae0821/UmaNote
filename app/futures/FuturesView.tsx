@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import { pickupLabel, type ViewBanner } from "@/lib/bannerView";
 import { formatMdTime, monthOf, monthStart, relative } from "@/lib/dates";
 import { formatRate } from "@/lib/gachaPool";
@@ -169,7 +170,10 @@ export function FuturesView({ banners, today, initialBanner }: { banners: ViewBa
                       <img src={p.art} alt="" loading="lazy" />
                       <span>
                         <small>{p.title}</small>
-                        <b>{p.name}</b>
+                        <b>
+                          <SupportTypeIcon type={p.supportType} />
+                          {p.name}
+                        </b>
                       </span>
                       <span className="fd-rate">
                         {p.isNew && <span className="tag">신규</span>}

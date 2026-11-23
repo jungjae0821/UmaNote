@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatRate } from "@/lib/gachaPool";
 import type { Card } from "@/lib/gametora";
+import { SupportTypeIcon } from "./SupportTypeIcon";
 
 const RARITY = { train: ["", "★1", "★2", "★3"], support: ["", "R", "SR", "SSR"] } as const;
 
@@ -32,6 +33,7 @@ export function PickupCard({
         {card.title}
       </small>
       <b>
+        <SupportTypeIcon type={card.supportType} />
         <Link href={cardHref(card)}>{card.name}</Link>
       </b>
       <div className="tags">

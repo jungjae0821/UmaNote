@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { formatMd, formatMdTime, monthOf, relative } from "@/lib/dates";
 import { Live } from "@/components/Live";
-import type { EventKind, Lane } from "@/lib/gametora";
+import { SupportTypeIcon } from "@/components/SupportTypeIcon";
+import type { EventKind, Lane, SupportType } from "@/lib/gametora";
 import "./events.css";
 
-type MiniCard = { id: number; name: string; art: string; lane: Lane };
+type MiniCard = { id: number; name: string; art: string; lane: Lane; supportType?: SupportType };
 export type ViewEvent = {
   kind: EventKind;
   id: string;
@@ -20,6 +21,7 @@ export type ViewEvent = {
   bonus: MiniCard[];
   rewards: MiniCard[];
   rivals: MiniCard[];
+  estimated?: boolean;
 };
 
 const KINDS: { kind: EventKind; name: string }[] = [
@@ -93,9 +95,21 @@ export function EventsView({ events, today }: { events: ViewEvent[]; today: numb
           </span>
         </div>
         <div className="ev-extra">
+          {e.estimated && <span className="tag">날짜 예상</span>}
           <RaceTag e={e} />
           {e.rivals.length > 0 && <span className="tag">상대 {e.rivals.map((c) => c.name).join(", ")}</span>}
-          {e.rewards.length > 0 && <span className="tag">보상 {e.rewards.map((c) => c.name).join(", ")}</span>}
+          {e.rewards.length > 0 && (
+            <span className="tag">
+              보상{" "}
+              {e.rewards.map((c, i) => (
+                <Fragment key={c.id}>
+                  {i > 0 && ", "}
+                  <SupportTypeIcon type={c.supportType} />
+                  {c.name}
+                </Fragment>
+              ))}
+            </span>
+          )}
         </div>
         <span className={`chip${r.urgent ? " urgent" : ""}`}>{r.text}</span>
       </li>
@@ -121,6 +135,7 @@ export function EventsView({ events, today }: { events: ViewEvent[]; today: numb
                   {formatMdTime(e.startTs)} ~ {formatMdTime(e.endTs)}
                 </p>
                 <div className="tags-row">
+                  {e.estimated && <span className="tag">날짜 예상</span>}
                   <RaceTag e={e} />
                 </div>
                 <Faces label="보너스" cards={e.bonus} />

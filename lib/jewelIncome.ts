@@ -1,5 +1,5 @@
 // 사료계산기에 넣는 기간 한정 보상과 대회 일정을 gametora에서 모은다.
-// 스토리 이벤트와 대회는 한국서버 일정이 있고, 기간 한정 미션·트레이너 시험은 일본 데이터뿐이라 +476일로 잡는다.
+// 스토리 이벤트와 대회는 한국서버 일정을 쓰되 아직 없으면, 기간 한정 미션·트레이너 시험은 일본 데이터뿐이라 +476일로 잡는다.
 import "server-only";
 import { dayFromTimestamp, SERVER_GAP_DAYS } from "./dates";
 import { fetchJson, logFailure } from "./fetchJson";
@@ -27,7 +27,7 @@ type RawLimitedMissions = {
   endDate: number;
   missions: { itemId: number; itemNumber: number }[];
 };
-type RawStoryEvent = { id: number; name_ja?: string; name_ko?: string; start_ko?: number; end_ko?: number };
+type RawStoryEvent = { id: number; name_ja?: string; name_ko?: string; start_ko?: number; end_ko?: number; start_ja?: number; end_ja?: number };
 type RawStoryRewards = { id: number; rewards: { item_id: number; item_num: number }[] };
 /** 빙고 시트마다 줄 보상에 쥬얼이 있다. 다시 도는 시트도 한 번만 센다 */
 type RawStoryBingo = { id: number; bingo: { line_rewards: { item_id: number; item_num: number }[] }[] };
@@ -82,12 +82,15 @@ export async function getJewelIncomes(): Promise<Income[]> {
     const rewardMap = new Map(rewards.map((r) => [r.id, r.rewards]));
     const bingoMap = new Map(bingos.map((b) => [b.id, b.bingo.flatMap((sheet) => sheet.line_rewards)]));
     for (const s of stories) {
-      if (!s.start_ko || !s.end_ko) continue;
+      // 한국서버 일정이 아직 없으면 일본서버 날짜 +476일
+      const startKr = s.start_ko ? dayFromTimestamp(s.start_ko) : s.start_ja ? dayFromTimestamp(s.start_ja) + SERVER_GAP_DAYS : null;
+      const endKr = s.end_ko ? dayFromTimestamp(s.end_ko) : s.end_ja ? dayFromTimestamp(s.end_ja) + SERVER_GAP_DAYS : null;
+      if (startKr === null || endKr === null) continue;
       const name = fixKo(s.name_ko) || s.name_ja || `스토리 이벤트 ${s.id}`;
       if (EXCLUDED_EVENT.test(name)) continue;
       const t = rewardTotals([...(rewardMap.get(s.id) ?? []), ...(bingoMap.get(s.id) ?? [])].map((r) => ({ id: r.item_id, num: r.item_num })));
       if (t.free + t.trainTickets + t.supportTickets === 0) continue;
-      incomes.push({ id: `story-${s.id}`, source: "story", name, startKr: dayFromTimestamp(s.start_ko), endKr: dayFromTimestamp(s.end_ko), ...t });
+      incomes.push({ id: `story-${s.id}`, source: "story", name, startKr, endKr, ...t });
     }
     return incomes.sort((a, b) => a.startKr - b.startKr);
   } catch (err) {

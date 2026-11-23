@@ -136,14 +136,22 @@
   display: flex;
   gap: 14px;
 }
-.race > img {
-  width: 64px;
+/* 레전드 레이스 상대. 여러 명이면 살짝 겹쳐 나란히 */
+.race-rivals {
+  display: flex;
+  flex: none;
+}
+.race-rivals img {
+  width: 56px;
   height: 76px;
   border-radius: 14px;
   object-fit: cover;
   object-position: top;
   background: var(--glass-strong);
-  flex: none;
+  box-shadow: 0 0 0 2px var(--solid);
+}
+.race-rivals img + img {
+  margin-left: -14px;
 }
 .race > div {
   flex: 1;

@@ -15,6 +15,7 @@ export async function GET() {
         sub: c.title,
         href: `/characters/${c.lane === "train" ? "t" : "s"}${c.id}`,
         img: c.art,
+        supportType: c.supportType,
       }),
     ),
     ...banners

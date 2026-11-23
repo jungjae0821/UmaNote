@@ -142,3 +142,8 @@
     display: inline-flex;
   }
 }
+
+/* 한국서버 신규 카드: 첫 픽업이 끝날 때까지 */
+.ccard .badge.fresh {
+  color: #ffd166;
+}

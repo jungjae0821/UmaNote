@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import type { ViewBanner } from "@/lib/bannerView";
 import { formatMdTime, relative } from "@/lib/dates";
 import { buildOdds, draw } from "@/lib/gachaDraw";
@@ -130,7 +131,10 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
                   <img src={c.art} alt="" loading="lazy" />
                   <span>
                     <small>{c.title}</small>
-                    <b>{c.name}</b>
+                    <b>
+                      <SupportTypeIcon type={c.supportType} />
+                      {c.name}
+                    </b>
                   </span>
                   <span className="tag">{formatRate(c.weight)}</span>
                 </li>
@@ -182,7 +186,10 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
                       <span className="rc-rarity">{names[card.rarity]}</span>
                       {card.pickup && <span className="rc-pick">픽업</span>}
                     </span>
-                    <b title={`${card.name} ${card.title}`}>{card.name}</b>
+                    <b title={`${card.name} ${card.title}`}>
+                      <SupportTypeIcon type={card.supportType} />
+                      {card.name}
+                    </b>
                   </li>
                 ))}
               </ol>
@@ -207,6 +214,7 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
               <p>픽업 하나와 바꿀 수 있습니다.</p>
               {pickups.map((c) => (
                 <button key={c.id} type="button" className="btn primary" onClick={() => exchange(c)}>
+                  <SupportTypeIcon type={c.supportType} />
                   {c.name} 교환
                 </button>
               ))}
