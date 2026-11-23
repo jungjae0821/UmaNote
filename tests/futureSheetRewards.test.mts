@@ -84,6 +84,21 @@ test("새 스토리 일정과 신캐 최초 출시일만 있어도 보상을 생
   assert.equal(output.find(i => i.id === "character-story-9991")!.free, 80);
 });
 
+test("신캐 스토리는 한국서버 출시일이 있으면 그 날짜를, 없으면 일본 날짜 + 476일을 쓴다", () => {
+  const day = latestSheetRow("character-story").startJp + 100;
+  const iso = (day: number) => new Date(day * 86400000).toISOString().slice(0, 10);
+  const [confirmed, estimated] = characterScheduleIncomes([
+    { char_id: 9991, release: iso(day), release_ko: iso(day + 400) },
+    { char_id: 9992, release: iso(day) },
+  ]);
+  assert.equal(confirmed.startKr, day + 400);
+  assert.equal(confirmed.startJp, day);
+  assert.equal(estimated.startKr, day + 476);
+  const output = applySheetRewards([confirmed]);
+  assert.equal(output.find(i => i.id === "character-story-9991")!.free, 80);
+  assert.equal(output.find(i => i.id === "character-story-9991")!.startKr, day + 400);
+});
+
 test("공개 플래너의 데이터 리터럴에서 일본 개최 일정만 읽고 원본 보상량·실행 코드는 쓰지 않는다", () => {
   const day = Math.max(...SHEET_REWARDS.rows.map(r => r.startJp)) + 100;
   const event = { id: 9001, title: "new", start_date: day * 86400, end_date: (day + 10) * 86400, reward_quantity1: 99999 };

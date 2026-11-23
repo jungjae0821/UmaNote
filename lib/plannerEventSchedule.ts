@@ -146,16 +146,22 @@ export function storyScheduleIncomes(stories: StorySchedule[]): Income[] {
   }));
 }
 
-type CharacterCard = { char_id: number; release?: string; name_ko?: string; name_jp?: string };
+type CharacterCard = { char_id: number; release?: string; release_ko?: string; name_ko?: string; name_jp?: string };
+const isoDay = (iso?: string) => Math.floor(Date.parse(`${iso}T00:00:00Z`) / 86_400_000);
 export function characterScheduleIncomes(cards: CharacterCard[]): Income[] {
   const first = new Map<number, { card: CharacterCard; day: number }>();
   for (const card of cards) {
-    const day = Math.floor(Date.parse(`${card.release}T00:00:00Z`) / 86_400_000);
+    const day = isoDay(card.release);
     if (!Number.isFinite(day) || !Number.isInteger(card.char_id)) continue;
     if (!first.has(card.char_id) || first.get(card.char_id)!.day > day) first.set(card.char_id, { card, day });
   }
-  return [...first.values()].filter(({ day }) => day > latestSheetRow("character-story").startJp).map(({ card, day }) => ({
-    id: `character-story-${card.char_id}`, source: "limited", category: "character-story", name: `${card.name_ko || card.name_jp || card.char_id} 스토리 1~4화`,
-    startKr: day + SERVER_GAP_DAYS, endKr: day + SERVER_GAP_DAYS, free: 0, trainTickets: 0, supportTickets: 0,
-  }));
+  // 한국서버 출시일이 나오면 그 날짜를, 없으면 일본서버 출시일 + 476일을 쓴다. 시트 대조는 일본 날짜(startJp)로 한다
+  return [...first.values()].filter(({ day }) => day > latestSheetRow("character-story").startJp).map(({ card, day }) => {
+    const kr = isoDay(card.release_ko);
+    const startKr = Number.isFinite(kr) ? kr : day + SERVER_GAP_DAYS;
+    return {
+      id: `character-story-${card.char_id}`, source: "limited", category: "character-story", name: `${card.name_ko || card.name_jp || card.char_id} 스토리 1~4화`,
+      startKr, endKr: startKr, startJp: day, endJp: day, free: 0, trainTickets: 0, supportTickets: 0,
+    };
+  });
 }
