@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import type { Lane, SupportType } from "@/lib/gametora";
@@ -66,6 +66,18 @@ type Filters = {
 
 const EMPTY: Filters = { lane: "all", rarity: [], types: [], distance: [], style: [], obtained: [], release: "all" };
 
+type Saved = { f: Filters; query: string; sort: "release" | "name"; scrollY: number };
+
+// 상세로 갔다가 뒤로가기 하면 목록이 새로 마운트되므로, 마지막 상태를 모듈에 들고 있다가
+// 뒤로/앞으로 이동(popstate)으로 돌아왔을 때만 되살린다. 새로고침하면 모듈이 초기화된다.
+let saved: Saved | null = null;
+let poppedBack = false;
+if (typeof window !== "undefined") {
+  window.addEventListener("popstate", () => {
+    poppedBack = true;
+  });
+}
+
 const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 const good = (grade?: string) => grade === "A" || grade === "S";
 
@@ -85,9 +97,27 @@ function Group({ title, children, defaultOpen = false }: { title: string; childr
 }
 
 export function CharactersView({ cards, today }: { cards: ListCard[]; today: number }) {
-  const [f, setF] = useState<Filters>(EMPTY);
-  const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"release" | "name">("release");
+  const [restore] = useState(() => (poppedBack ? saved : null));
+  const [f, setF] = useState<Filters>(restore?.f ?? EMPTY);
+  const [query, setQuery] = useState(restore?.query ?? "");
+  const [sort, setSort] = useState<"release" | "name">(restore?.sort ?? "release");
+
+  useLayoutEffect(() => {
+    poppedBack = false;
+    if (restore) window.scrollTo(0, restore.scrollY);
+  }, [restore]);
+
+  useEffect(() => {
+    saved = { f, query, sort, scrollY: saved?.scrollY ?? 0 };
+  }, [f, query, sort]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (saved) saved.scrollY = window.scrollY;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const isUpcoming = (c: ListCard) => c.releaseKr === null || c.releaseKr > today;
