@@ -259,6 +259,8 @@ export default async function CharacterDetail({ params }: { params: Promise<{ id
               <span className="tag">{rarity}</span>
               {card.supportType && <span className="tag">{SUPPORT_TYPE_LABEL[card.supportType]}</span>}
               {limited && <span className="tag limited">한정</span>}
+              {/* 스토리 이벤트·메인 스토리 보상처럼 가챠 밖에서 얻는 카드 */}
+              {card.obtained !== "gacha" && <span className="tag">배포</span>}
               {state === "new" && <span className="tag fresh">신규</span>}
             </div>
           </section>
