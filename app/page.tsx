@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Fragment } from "react";
+import { HeroCarousel, type HeroSlide } from "@/components/HeroCarousel";
 import { HomeJewels } from "@/components/HomeJewels";
 import { Live } from "@/components/Live";
 import { PickupCard } from "@/components/PickupCard";
@@ -7,7 +8,7 @@ import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import { charIcon } from "@/lib/art";
 import { formatMd, formatMdTime, todayKr, untilText } from "@/lib/dates";
 import { getUmaVideos, UMA_CHANNEL_URL } from "@/lib/youtube";
-import { EVENT_KIND_NAME, getBanners, getCards, getCharacters, getEvents, type Banner } from "@/lib/gametora";
+import { EVENT_KIND_NAME, getBanners, getCards, getCharacters, getEvents, type Banner, type GameEvent } from "@/lib/gametora";
 import { upcomingBirthdays } from "@/lib/birthdays";
 import "./home.css";
 
@@ -37,17 +38,32 @@ export default async function Home() {
   const story = events.filter((e) => e.kind === "story");
   const liveStory = story.find((e) => isLive(e, today));
   const nextStory = story.find((e) => e.start > today);
-  const heroStory = liveStory ?? nextStory;
   const races = events
     .filter((e) => (e.kind === "cm" || e.kind === "loh" || e.kind === "legend") && e.end >= today && e.start <= today + 45)
     .slice(0, 4);
   const birthdays = upcomingBirthdays(characters, today, 5);
   // 히어로 바탕은 보너스 캐릭터의 대표색으로
   const colorOf = (charId?: number) => characters.find((c) => c.charId === charId)?.color;
-  const heroColors = (heroStory?.bonusCards ?? []).slice(0, 2).map((c) => colorOf(c.charId)).filter(Boolean);
-  const heroStyle = heroColors.length
-    ? { background: `linear-gradient(120deg, ${heroColors[0]} 0%, ${heroColors[1] ?? heroColors[0]} 100%)` }
-    : undefined;
+  const storyBackground = (e: GameEvent) => {
+    const colors = (e.bonusCards ?? []).slice(0, 2).map((c) => colorOf(c.charId)).filter(Boolean);
+    return colors.length ? `linear-gradient(120deg, ${colors[0]} 0%, ${colors[1] ?? colors[0]} 100%)` : undefined;
+  };
+  // 진행 중인 스토리 이벤트와 배너가 있는 다른 이벤트를 돌려 보여준다. 하나도 없으면 다음 스토리 이벤트
+  const liveOthers = events
+    .filter((e) => e.kind !== "story" && e.banner && isLive(e, today))
+    .sort((a, b) => a.end - b.end);
+  const liveHero = [...(liveStory ? [liveStory] : []), ...liveOthers];
+  const heroEvents = liveHero.length ? liveHero : nextStory ? [nextStory] : [];
+  const heroSlides: HeroSlide[] = heroEvents.map((e) => ({
+    id: e.id,
+    kindName: EVENT_KIND_NAME[e.kind],
+    name: e.name,
+    start: e.start,
+    end: e.end,
+    art: e.kind === "story" ? e.art : undefined,
+    banner: e.banner,
+    background: e.kind === "story" ? storyBackground(e) : undefined,
+  }));
 
   return (
     <>
@@ -56,26 +72,10 @@ export default async function Home() {
       </div>
 
       <div className="home">
-        {heroStory && (
+        {heroSlides.length > 0 && (
           <section className="home-hero">
             <h2 className="section-title">이벤트</h2>
-            <article className="hero" style={heroStyle}>
-              <img
-                className="hero-art"
-                src={heroStory.art}
-                alt={heroStory.name}
-                fetchPriority="high"
-              />
-              <div className="hero-over">
-                <div>
-                  <p className="hero-kind">
-                    {EVENT_KIND_NAME.story} · {formatMd(heroStory.start)} ~ {formatMd(heroStory.end)} ·{" "}
-                    <Live start={heroStory.start} end={heroStory.end} today={today} dark />
-                  </p>
-                  <h3 className="hero-name">{heroStory.name}</h3>
-                </div>
-              </div>
-            </article>
+            <HeroCarousel slides={heroSlides} today={today} />
           </section>
         )}
 

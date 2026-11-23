@@ -1,7 +1,7 @@
 // gametora 데이터를 가져와 화면에서 쓰는 모양으로 바꾼다.
 // 파일 이름에 해시가 붙어 있어서 manifest로 현재 파일을 찾는다. 날짜는 모두 한국(카카오) 서버 기준이다.
 import "server-only";
-import { bannerArt, jpBannerArt, outfitArt, storyEventArt, supportArt } from "./art";
+import { bannerArt, EDITION_BANNER, jpBannerArt, outfitArt, storyEventArt, supportArt } from "./art";
 import { dayFromTimestamp, SERVER_GAP_DAYS } from "./dates";
 import { fetchJson, logFailure } from "./fetchJson";
 import { fixKo, stripBrackets } from "./koName";
@@ -10,6 +10,7 @@ import { unstable_cache } from "next/cache";
 import { plannerEditions, type PlannerEdition, type PlannerEditionKind } from "./plannerEventSchedule";
 import { fetchPlannerModules } from "./plannerSource";
 import sheetRewards from "./data/sheetRewards.json";
+import eventBanners from "./data/eventBanners.json";
 
 const BASE = "https://gametora.com/data";
 const REVALIDATE = 3600;
@@ -394,6 +395,8 @@ export type GameEvent = {
   name: string;
   /** 스토리 이벤트 ID에 대응하는 원본 배너 */
   art?: string;
+  /** 일본서버 공지의 개최 배너(936×228). 스토리 이벤트 외 종류 */
+  banner?: string;
   start: number;
   end: number;
   startTs: number;
@@ -578,5 +581,12 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
       };
     }),
   ];
-  return events.filter((e) => e.startTs < FAR_FUTURE).sort((a, b) => a.startTs - b.startTs);
+  const banners: Record<string, string> = eventBanners.banners;
+  return events
+    .filter((e) => e.startTs < FAR_FUTURE)
+    .map((e) => {
+      const banner = e.kind === "story" ? undefined : e.kind in EDITION_BANNER ? EDITION_BANNER[e.kind as PlannerEditionKind] : banners[e.id];
+      return banner ? { ...e, banner } : e;
+    })
+    .sort((a, b) => a.startTs - b.startTs);
 }

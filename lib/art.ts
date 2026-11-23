@@ -30,6 +30,14 @@ export const bannerArt = (bannerId: number) => `${GAMETORA_IMG}/ko/gacha/img_bnr
 /** 일본서버 게임 내 가챠 배너. 한국서버에 아직 없는 배너에 쓴다 */
 export const jpBannerArt = (bannerId: number) => `${GAMETORA_IMG}/gacha/img_bnr_gacha_${bannerId}.png`;
 
+/** 일본서버 공식 공지의 "이벤트 개최 중" 배너(936×228). 회차와 관계없이 같은 그림을 쓴다 */
+const ANNOUNCE_IMG = "https://prd-info-umamusume.akamaized.net/announce";
+export const EDITION_BANNER = {
+  research: `${ANNOUNCE_IMG}/3540/Thumbnail/banner_31200006.png`,
+  exam: `${ANNOUNCE_IMG}/3518/Thumbnail/banner_30600004.png`,
+  masters: `${ANNOUNCE_IMG}/2680/Thumbnail/banner_31300002.png`,
+} as const;
+
 /** 홍보 문구가 없는 스토리 이벤트 일러스트. 이벤트 ID로 해당 그림을 불러온다. */
 export const storyEventArt = (eventId: number) =>
   `https://media.gametora.com/umamusume/story_events/hero/${eventId}.png`;
