@@ -1,6 +1,7 @@
 // 캐릭터 상세 화면용 데이터: 육성 카드의 능력치·적성·스킬, 서포트 카드의 효과·주는 스킬.
 // 한국서버에 아직 없는 카드·스킬은 한국어 이름이 없어서 일본어 원문을 쓴다.
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { skillArt } from "./art";
 import { logFailure } from "./fetchJson";
 import { fixKo } from "./koName";
@@ -33,13 +34,24 @@ type RawSkill = {
 const SKILLS_TTL = 3600 * 1000;
 let skillsCache: { at: number; data: Promise<Map<number, Skill>> } | null = null;
 
-// 스킬 파일은 2MB가 넘어 Next.js 데이터 캐시에 들어가지 않아서, 서버 메모리에 한 시간 둔다
-function getSkills(): Promise<Map<number, Skill>> {
-  if (skillsCache && Date.now() - skillsCache.at < SKILLS_TTL) return skillsCache.data;
-  const data = (async () => {
+// 스킬 파일은 2MB가 넘어 Next.js 데이터 캐시에 그대로 들어가지 않는다. 쓰는 칸만 남겨(약 1MB) 캐시한다.
+// fetch를 unstable_cache 안에서 해야 상세 페이지가 요청마다 새로 그려지지 않는다
+const rawSkills = unstable_cache(
+  async (): Promise<RawSkill[]> => {
     const res = await fetch(await dataUrl("skills"), { cache: "no-store" });
     if (!res.ok) throw new Error(`skills ${res.status}`);
     const raw = (await res.json()) as RawSkill[];
+    return raw.map(({ id, iconid, rarity, name_ko, desc_ko, jpname, jpdesc }) => ({ id, iconid, rarity, name_ko, desc_ko, jpname, jpdesc }));
+  },
+  ["gametora-skills-v1"],
+  { revalidate: 3600 },
+);
+
+// 가공한 Map은 서버 메모리에 한 시간 둔다
+function getSkills(): Promise<Map<number, Skill>> {
+  if (skillsCache && Date.now() - skillsCache.at < SKILLS_TTL) return skillsCache.data;
+  const data = (async () => {
+    const raw = await rawSkills();
     return new Map(
       raw.map((s): [number, Skill] => {
         // gametora는 번역이 없을 때 한국어 칸에 일본어 원문을 넣어 두기도 해서 그런 값은 버린다.

@@ -14,6 +14,11 @@ import "./detail.css";
 
 export const revalidate = 3600;
 
+// 카드마다 처음 요청될 때 만들어 두고 한 시간 동안 그대로 쓴다
+export function generateStaticParams() {
+  return [];
+}
+
 async function findCard(id: string): Promise<Card | undefined> {
   const m = /^([ts])(\d+)$/.exec(id);
   if (!m) return undefined;
