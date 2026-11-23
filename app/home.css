@@ -134,14 +134,18 @@
 }
 .race {
   display: flex;
+  flex-wrap: wrap;
   gap: 14px;
 }
-/* 레전드 레이스 상대. 여러 명이면 살짝 겹쳐 나란히 */
+/* 레전드 레이스 상대는 겹치지 않게 나란히 배치한다. */
 .race-rivals {
   display: flex;
-  flex: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
 }
 .race-rivals img {
+  flex: none;
   width: 56px;
   height: 76px;
   border-radius: 14px;
@@ -150,11 +154,8 @@
   background: var(--glass-strong);
   box-shadow: 0 0 0 2px var(--solid);
 }
-.race-rivals img + img {
-  margin-left: -14px;
-}
 .race > div {
-  flex: 1;
+  flex: 1 160px;
   min-width: 0;
 }
 .race-top {
