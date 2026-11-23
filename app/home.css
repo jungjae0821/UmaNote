@@ -316,6 +316,20 @@
   .hero-name {
     font-size: 19px;
   }
+  /* 좁은 폭에서는 항목 이름을 위로 올려 내용 칸을 넓힌다 */
+  .row {
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .row-label {
+    width: 100%;
+  }
+}
+/* 픽업 패널이 좁으면(2단 홈의 왼쪽 열 포함) 다음 픽업 줄을 두 줄로 나눈다 */
+.panel:has(> .next-rows) {
+  container-type: inline-size;
+}
+@container (max-width: 560px) {
   .next-rows {
     grid-template-columns: max-content minmax(0, 1fr) auto;
   }

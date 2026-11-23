@@ -77,7 +77,7 @@
 }
 .ev-item {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr) auto 104px;
+  grid-template-columns: 120px minmax(160px, 1fr) fit-content(45%) 104px;
   align-items: center;
   gap: 12px;
   padding: 11px 0;
@@ -104,6 +104,10 @@
   gap: 4px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  min-width: 0;
+}
+.ev-extra .tag {
+  white-space: normal;
 }
 .ev-item > .chip {
   grid-column: -2 / -1;

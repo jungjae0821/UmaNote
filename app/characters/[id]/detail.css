@@ -255,6 +255,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 0 20px;
+  /* 마지막 줄의 아래 선이 패널 테두리와 겹쳐 두 줄로 보이지 않게 잘라낸다 */
+  clip-path: inset(0 0 1px 0);
+  margin-bottom: -1px;
 }
 .cd-effects div {
   display: flex;
@@ -288,6 +291,10 @@
   }
   .cd-apt-row {
     align-items: flex-start;
+  }
+  /* 줄바꿈되어 위로 붙을 때 제목을 첫 줄 칩 글자 높이에 맞춘다 */
+  .cd-apt-title {
+    padding-top: 6px;
   }
 }
 .cd-body {

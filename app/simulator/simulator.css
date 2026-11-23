@@ -17,6 +17,9 @@
   align-items: start;
 }
 
+.sim-main {
+  container-type: inline-size;
+}
 .sim-banner {
   display: grid;
   grid-template-columns: minmax(200px, 320px) minmax(0, 1fr);
@@ -277,6 +280,11 @@
   text-align: right;
 }
 
+@container (max-width: 600px) {
+  .sim-banner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 @media (max-width: 1023px) {
   .sim {
     grid-template-columns: minmax(0, 1fr);
