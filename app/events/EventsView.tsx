@@ -29,6 +29,9 @@ const KINDS: { kind: EventKind; name: string }[] = [
   { kind: "cm", name: "챔피언스 미팅" },
   { kind: "loh", name: "리그 오브 히어로즈" },
   { kind: "legend", name: "레전드 레이스" },
+  { kind: "research", name: "인자연구" },
+  { kind: "exam", name: "트레이너 기능시험" },
+  { kind: "masters", name: "마스터즈 챌린지" },
 ];
 const KIND_NAME = Object.fromEntries(KINDS.map((k) => [k.kind, k.name])) as Record<EventKind, string>;
 

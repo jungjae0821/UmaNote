@@ -13,6 +13,7 @@ import { fixKo } from "./koName";
 import { isEventReward } from "./rewardScope";
 import { applySheetRewards, applySheetSchedule } from "./sheetRewards";
 import { plannerRewardIncomes, storyScheduleIncomes, characterScheduleIncomes, type StorySchedule } from "./plannerEventSchedule";
+import { fetchPlannerModules } from "./plannerSource";
 import { operatorNewsRewards, type OperatorNews } from "./operatorNews";
 import operatorSnapshot from "./data/operatorRewards.json";
 import { futureScenarioRewards } from "./futureCampaignRewards";
@@ -25,21 +26,8 @@ const EXCLUDED = /シンデレラグレイ|Cinderella Gray|신데렐라 그레�
 
 const plannerSchedules = unstable_cache(async (): Promise<Income[]> => {
   try {
-    const text = async (url: string) => {
-      // Cache the compact parsed schedules, not the multi-megabyte JS modules.
-      const response = await fetch(url, { cache: "no-store" });
-      if (!response.ok) throw Error(`Planner schedule ${response.status}`);
-      return response.text();
-    };
-    const html = await text("https://uma.guide/pull-planner/");
-    const path = html.match(/<script[^>]*src="([^" ]*\/app\.[^" ]+\.js)"/)?.[1];
-    if (!path) throw Error("Planner app module missing");
-    const appUrl = new URL(path, "https://uma.guide");
-    if (appUrl.origin !== "https://uma.guide") throw Error("Unexpected planner origin");
-    const app = await text(appUrl.href);
-    const dataPath = app.match(/from"(\.\/chunks\/uma-data\.[^"]+\.js)"/)?.[1];
-    if (!dataPath) throw Error("Planner schedule module missing");
-    return plannerRewardIncomes(app, await text(new URL(dataPath, appUrl).href));
+    const { app, source } = await fetchPlannerModules();
+    return plannerRewardIncomes(app, source);
   } catch (err) { logFailure("일본 이벤트 개최 일정 (기존 일정 사용)", err); return []; }
 }, ["sheet-planner-rewards-v2"], { revalidate: REVALIDATE });
 
@@ -114,5 +102,5 @@ export async function getJewelIncomes(): Promise<Income[]> {
 }
 
 export function competitionSchedule(events: GameEvent[]): Scheduled[] {
-  return applySheetSchedule(events.flatMap((e): Scheduled[] => e.kind === "story" ? [] : [{kind:e.kind,id:e.id,name:e.kind==="loh"?"":e.name,startKr:e.start,endKr:e.end,raceStartsKr:e.raceStarts}]));
+  return applySheetSchedule(events.flatMap((e): Scheduled[] => e.kind !== "cm" && e.kind !== "loh" && e.kind !== "legend" ? [] : [{kind:e.kind,id:e.id,name:e.kind==="loh"?"":e.name,startKr:e.start,endKr:e.end,raceStartsKr:e.raceStarts}]));
 }

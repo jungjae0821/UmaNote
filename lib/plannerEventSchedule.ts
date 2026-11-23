@@ -80,22 +80,31 @@ function plannerTable(app: string, source: string, label: string): unknown {
     return readLiteral(source, declaration.index + declaration[0].length);
 }
 
-/** Discover announced JP editions; amounts always come from the user's sheet. */
-export function plannerEventSchedules(app: string, source: string): Income[] {
-  const rows: Income[] = [];
+export type PlannerEditionKind = "research" | "exam" | "masters";
+/** 일본서버 회차 일정. start, end는 일본서버 타임스탬프(초) */
+export type PlannerEdition = { kind: PlannerEditionKind; id: number; title: string; start: number; end: number };
+
+/** 인자연구, 트레이너 기능시험, 마스터즈 챌린지의 발표된 일본서버 회차 전부 */
+export function plannerEditions(app: string, source: string): PlannerEdition[] {
+  const rows: PlannerEdition[] = [];
   for (const [label, kind] of [["Spark Laboratory", "research"], ["Trainer Aptitude Tests", "exam"], ["Masters Challenges", "masters"]] as const) {
     const events = plannerTable(app, source, label);
     if (!Array.isArray(events)) throw Error(`Planner ${label} is not an array`);
     for (const event of events) {
       if (!Number.isInteger(event.id) || !Number.isFinite(event.start_date) || !Number.isFinite(event.end_date)) throw Error(`Invalid ${label} schedule`);
-      const day = dayFromTimestamp(event.start_date);
-      if (day <= latestSheetRow(kind).startJp) continue;
-      rows.push({ id: `${kind}-${event.id}`, source: "limited", category: kind, name: event.title ?? `${label} #${event.id}`,
-        startKr: day + SERVER_GAP_DAYS, endKr: dayFromTimestamp(event.end_date) + SERVER_GAP_DAYS,
-        free: 0, trainTickets: 0, supportTickets: 0, reference: "https://uma.guide/pull-planner/" });
+      rows.push({ kind, id: event.id, title: event.title ?? `${label} #${event.id}`, start: event.start_date, end: event.end_date });
     }
   }
   return rows;
+}
+
+/** Discover announced JP editions; amounts always come from the user's sheet. */
+export function plannerEventSchedules(app: string, source: string): Income[] {
+  return plannerEditions(app, source)
+    .filter((e) => dayFromTimestamp(e.start) > latestSheetRow(e.kind).startJp)
+    .map((e) => ({ id: `${e.kind}-${e.id}`, source: "limited", category: e.kind, name: e.title,
+      startKr: dayFromTimestamp(e.start) + SERVER_GAP_DAYS, endKr: dayFromTimestamp(e.end) + SERVER_GAP_DAYS,
+      free: 0, trainTickets: 0, supportTickets: 0, reference: "https://uma.guide/pull-planner/" }));
 }
 
 /** Import actual limited rewards and per-day special logins on every refresh. */

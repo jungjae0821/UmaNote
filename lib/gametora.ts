@@ -6,6 +6,10 @@ import { dayFromTimestamp, SERVER_GAP_DAYS } from "./dates";
 import { fetchJson, logFailure } from "./fetchJson";
 import { fixKo, stripBrackets } from "./koName";
 import { namuCardTitle, namuCharName, namuSupportArt, realKo } from "./namuKo";
+import { unstable_cache } from "next/cache";
+import { plannerEditions, type PlannerEdition, type PlannerEditionKind } from "./plannerEventSchedule";
+import { fetchPlannerModules } from "./plannerSource";
+import sheetRewards from "./data/sheetRewards.json";
 
 const BASE = "https://gametora.com/data";
 const REVALIDATE = 3600;
@@ -382,7 +386,7 @@ async function jpProjectedBanners(kr: Banner[], toBanner: (b: RawBanner, lane: L
 
 // ── 이벤트 ────────────────────────────────────────────
 
-export type EventKind = "story" | "cm" | "loh" | "legend";
+export type EventKind = "story" | "cm" | "loh" | "legend" | PlannerEditionKind;
 
 export type GameEvent = {
   kind: EventKind;
@@ -412,7 +416,33 @@ export const EVENT_KIND_NAME: Record<EventKind, string> = {
   cm: "챔피언스 미팅",
   loh: "리그 오브 히어로즈",
   legend: "레전드 레이스",
+  research: "인자연구",
+  exam: "트레이너 기능시험",
+  masters: "마스터즈 챌린지",
 };
+
+const EDITION_NAME: Record<PlannerEditionKind, string> = {
+  research: "아그네스 타키온의 인자연구",
+  exam: "트레이너 기능시험",
+  masters: "마스터즈 챌린지",
+};
+// 시트 회차 이름의 시나리오 부제(「마스터즈 챌린지 06」- 무인도 → 무인도)
+const EDITION_SUBTITLE = new Map(
+  sheetRewards.rows.flatMap((r) => {
+    const sub = r.category !== "research" && "edition" in r ? r.name.split("」")[1]?.replace(/^\s*-\s*/, "").trim() : "";
+    return sub ? [[`${r.category}-${(r as { edition: number }).edition}`, sub] as const] : [];
+  }),
+);
+
+/** uma.guide 플래너의 일본서버 회차 일정. 실패하면 빈 목록 */
+const getPlannerEditions = unstable_cache(
+  () => safe("uma.guide 인자연구·기능시험·마스터즈 일정", async () => {
+    const { app, source } = await fetchPlannerModules();
+    return plannerEditions(app, source);
+  }, [] as PlannerEdition[]),
+  ["planner-editions-v1"],
+  { revalidate: REVALIDATE },
+);
 
 const TRACK_NAME: Record<number, string> = {
   10001: "삿포로", 10002: "하코다테", 10003: "니가타", 10004: "후쿠시마", 10005: "나카야마",
@@ -449,7 +479,7 @@ const ground = (g: number) => (g === 2 ? "더트" : "잔디") as "잔디" | "더
 export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
   const list = cards ?? (await getCards());
   const idx = cardIndex(list);
-  const [cmKo, lohKo, legendKo, cmJp, lohJp, legendJp, story, races] = await Promise.all([
+  const [cmKo, lohKo, legendKo, cmJp, lohJp, legendJp, story, races, editions] = await Promise.all([
     safe("gametora 챔피언스 미팅", () => load<RawCm[]>("ko/events/champions-meeting"), []),
     safe("gametora 리그 오브 히어로즈", () => load<RawLoh[]>("ko/events/league-of-heroes"), []),
     safe("gametora 레전드 레이스", () => load<RawLegend[]>("ko/events/legend-race"), []),
@@ -458,6 +488,7 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
     safe("gametora 레전드 레이스(일본)", () => load<RawLegend[]>("events/legend-race"), []),
     safe("gametora 스토리 이벤트", () => load<RawStory[]>("events/story-events"), []),
     safe("gametora 경주 이름", () => load<RawRaceName[]>("races"), []),
+    getPlannerEditions(),
   ]);
   // 한국 파일에 아직 없는 일본서버 이벤트는 +476일로 옮겨 붙인다. ID는 두 서버가 같다
   const GAP = SERVER_GAP_DAYS * 86_400;
@@ -536,6 +567,16 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
           }),
         }),
       ),
+    // 한국서버 일정 자료가 없어 모두 일본서버 날짜 +476일로 잡는다
+    ...editions.map((e): GameEvent => {
+      const sub = EDITION_SUBTITLE.get(`${e.kind}-${e.id}`);
+      return {
+        kind: e.kind,
+        id: `${e.kind}-${e.id}`,
+        name: `${EDITION_NAME[e.kind]} ${String(e.id).padStart(2, "0")}${sub ? ` - ${sub}` : ""}`,
+        ...base(e.start + GAP, e.end + GAP, true),
+      };
+    }),
   ];
   return events.filter((e) => e.startTs < FAR_FUTURE).sort((a, b) => a.startTs - b.startTs);
 }

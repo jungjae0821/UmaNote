@@ -39,7 +39,7 @@ export default async function Home() {
   const nextStory = story.find((e) => e.start > today);
   const heroStory = liveStory ?? nextStory;
   const races = events
-    .filter((e) => e.kind !== "story" && e.end >= today && e.start <= today + 45)
+    .filter((e) => (e.kind === "cm" || e.kind === "loh" || e.kind === "legend") && e.end >= today && e.start <= today + 45)
     .slice(0, 4);
   const birthdays = upcomingBirthdays(characters, today, 5);
   // 히어로 바탕은 보너스 캐릭터의 대표색으로
