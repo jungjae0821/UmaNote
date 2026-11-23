@@ -41,6 +41,7 @@
 - [umapyoi.net](https://api.umapyoi.net/): 픽업 일정, 일러스트, 생일
 - [gametora.com](https://gametora.com/ko/umamusume): 배너·제공 비율, 한국어 이름, 미션·이벤트 보상, 이벤트 일정
 - [uma.guide](https://uma.guide/): 게임 데이터·보상 확인용 참고 자료
+- 사이트 아이콘: [Game8의 무지개 편자 이미지](https://game8.jp/umamusume/419913)에서 테두리와 배경을 제거한 투명 PNG (`app/icon.png`, 게임 이미지 저작권: Cygames, Inc.)
 - 고정 보상표(로그인 보너스, 팀 경기장, 챔피언스 미팅 등)는 공략 사이트·공식 공지를 근거로 `lib/jewelSources.ts`에 직접 정리
 
 ## 기술 스택
