@@ -5,7 +5,8 @@ import { Live } from "@/components/Live";
 import { PickupCard } from "@/components/PickupCard";
 import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import { charIcon } from "@/lib/art";
-import { formatMd, todayKr, untilText } from "@/lib/dates";
+import { formatMd, formatMdTime, todayKr, untilText } from "@/lib/dates";
+import { getUmaVideos, UMA_CHANNEL_URL } from "@/lib/youtube";
 import { EVENT_KIND_NAME, getBanners, getCards, getCharacters, getEvents, type Banner } from "@/lib/gametora";
 import { upcomingBirthdays } from "@/lib/birthdays";
 import "./home.css";
@@ -17,7 +18,12 @@ const isLive = (b: { start: number; end: number }, today: number) => b.start <= 
 export default async function Home() {
   const today = todayKr();
   const cards = await getCards();
-  const [banners, events, characters] = await Promise.all([getBanners(cards), getEvents(cards), getCharacters()]);
+  const [banners, events, characters, videos] = await Promise.all([
+    getBanners(cards),
+    getEvents(cards),
+    getCharacters(),
+    getUmaVideos(),
+  ]);
 
   const regular = banners.filter((b) => !b.paidOnly);
   const liveBanners = regular.filter((b) => isLive(b, today));
@@ -94,6 +100,26 @@ export default async function Home() {
               </div>
             </div>
           </section>
+
+          {videos.length > 0 && (
+            <section className="home-yt">
+              <h2 className="section-title">공식 유튜브 최근 영상</h2>
+              <div className="panel glass yt-list">
+                {videos.map((v) => (
+                  <a key={v.id} href={v.url} target="_blank" rel="noreferrer" className="yt">
+                    <img src={v.thumbnail} alt="" loading="lazy" />
+                    <div>
+                      <b>{v.title}</b>
+                      <span>{formatMdTime(v.published)}</span>
+                    </div>
+                  </a>
+                ))}
+                <a href={UMA_CHANNEL_URL} target="_blank" rel="noreferrer" className="more">
+                  채널에서 더 보기
+                </a>
+              </div>
+            </section>
+          )}
 
           <section>
             <h2 className="section-title">내 쥬얼</h2>
