@@ -307,3 +307,6 @@
 .cd-tags .tag.fresh {
   color: var(--new);
 }
+.cd-tags .tag.limited {
+  color: #d9b3ff;
+}

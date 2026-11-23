@@ -222,6 +222,9 @@ export default async function CharacterDetail({ params }: { params: Promise<{ id
     getGrade(card.charId),
   ]);
   const appearances = banners.filter((b) => b.lane === card.lane && b.pickups.some((p) => p.card.id === card.id));
+  // 첫 출시 배너(신규로 나온 픽업, 없으면 가장 이른 픽업)가 ★3 확률 업이면 한정 육성 우마무스메
+  const debut = appearances.find((b) => b.pickups.some((p) => p.card.id === card.id && p.isNew)) ?? appearances[0];
+  const limited = card.lane === "train" && !!debut?.star3Up;
   const character = characters.find((c) => c.charId === card.charId);
   const kr = krRelease(card, banners);
   const state = releaseState(kr, today);
@@ -255,6 +258,7 @@ export default async function CharacterDetail({ params }: { params: Promise<{ id
               <span className={`tag ${card.lane}`}>{card.lane === "train" ? "육성 우마무스메" : "서포트 카드"}</span>
               <span className="tag">{rarity}</span>
               {card.supportType && <span className="tag">{SUPPORT_TYPE_LABEL[card.supportType]}</span>}
+              {limited && <span className="tag limited">한정</span>}
               {state === "new" && <span className="tag fresh">신규</span>}
             </div>
           </section>
