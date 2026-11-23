@@ -17,9 +17,9 @@ export type HeroSlide = {
   background?: string;
 };
 
-const INTERVAL = 6000;
+const INTERVAL = 3000;
 
-/** 홈 이벤트 박스. 여러 개면 가로로 넘기고, 6초마다 다음 장으로 간다 */
+/** 홈 이벤트 박스. 여러 개면 가로로 넘기고, 3초마다 다음 장으로 간다 */
 export function HeroCarousel({ slides, today }: { slides: HeroSlide[]; today: number }) {
   const track = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
