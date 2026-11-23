@@ -117,10 +117,7 @@ export function CharactersView({ cards, today }: { cards: ListCard[]; today: num
     <div className="chars">
       <aside className={`filters panel glass${filtersOpen ? " open" : ""}`} aria-label="필터">
         <div className="filters-head">
-          <b>
-            <Icon name="flag" />
-            필터
-          </b>
+          <b>필터</b>
           {active && (
             <button type="button" className="btn" onClick={() => setF(EMPTY)}>
               초기화

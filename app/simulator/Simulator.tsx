@@ -153,19 +153,21 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
               </small>
             </button>
           </div>
-          <div className="sim-filter" role="group" aria-label="결과 등급">
-            {[3, 2, 1].map((r) => (
-              <button
-                key={r}
-                type="button"
-                className="filter-chip"
-                aria-pressed={show.includes(r)}
-                onClick={() => setShow((s) => (s.includes(r) ? s.filter((x) => x !== r) : [...s, r]))}
-              >
-                {names[r]}
-              </button>
-            ))}
-          </div>
+          {results.length > 0 && (
+            <div className="sim-filter" role="group" aria-label="결과 등급">
+              {[3, 2, 1].map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  className="filter-chip"
+                  aria-pressed={show.includes(r)}
+                  onClick={() => setShow((s) => (s.includes(r) ? s.filter((x) => x !== r) : [...s, r]))}
+                >
+                  {names[r]}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="sim-results" aria-live="polite">
             {results.length === 0 ? (
               <p className="empty">단차나 10연차를 누르면 나온 {lane === "train" ? "우마무스메" : "카드"}가 여기에 나옵니다.</p>

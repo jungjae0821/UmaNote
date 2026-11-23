@@ -88,7 +88,7 @@
   align-items: center;
   gap: 2px;
   padding: 14px 16px;
-  border-radius: 999px;
+  border-radius: 14px;
   font-family: var(--title);
   font-size: 18px;
   background: var(--glass-strong);

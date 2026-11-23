@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Sidebar } from "@/components/Sidebar";
 import { todayKr } from "@/lib/dates";
-import { getBanners, getEvents } from "@/lib/gametora";
+import { getBanners } from "@/lib/gametora";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,9 +14,8 @@ const THEME_SCRIPT = `try{var t=localStorage.getItem("umanote:theme:v1");documen
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const today = todayKr();
-  const [banners, events] = await Promise.all([getBanners(), getEvents()]);
+  const banners = await getBanners();
   const live = banners.find((b) => b.lane === "train" && !b.paidOnly && b.start <= today && today <= b.end);
-  const eventLive = events.some((e) => e.start <= today && today <= e.end);
   const washStyle = live?.art ? ({ "--wash-img": `url(${live.art})` } as React.CSSProperties) : undefined;
 
   return (
@@ -27,7 +26,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <div className="wash" style={washStyle} aria-hidden />
         <div className="app">
-          <Sidebar eventLive={eventLive} />
+          <Sidebar />
           <main className="page">{children}</main>
         </div>
       </body>

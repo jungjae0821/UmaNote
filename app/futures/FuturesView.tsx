@@ -4,22 +4,21 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { pickupLabel, type ViewBanner } from "@/lib/bannerView";
-import { dayOfMonth, formatMd, formatMdTime, monthOf, monthStart, relative, weekdayIndex } from "@/lib/dates";
+import { formatMdTime, monthOf, monthStart, relative } from "@/lib/dates";
 import { formatRate } from "@/lib/gachaPool";
 import type { Lane } from "@/lib/gametora";
 import "./futures.css";
 
 const KEY = "umanote:futures:v1";
-type Prefs = { lanes: Lane[]; view: "calendar" | "list" };
-const DEFAULT_PREFS: Prefs = { lanes: ["train", "support"], view: "calendar" };
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+type Prefs = { lanes: Lane[] };
+const DEFAULT_PREFS: Prefs = { lanes: ["train", "support"] };
 
 function readPrefs(): Prefs {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) ?? "null") as Partial<Prefs> | null;
     if (!v) return DEFAULT_PREFS;
     const lanes = (v.lanes ?? []).filter((l): l is Lane => l === "train" || l === "support");
-    return { lanes: lanes.length ? lanes : DEFAULT_PREFS.lanes, view: v.view === "list" ? "list" : "calendar" };
+    return { lanes: lanes.length ? lanes : DEFAULT_PREFS.lanes };
   } catch {
     return DEFAULT_PREFS;
   }
@@ -34,26 +33,6 @@ function ArtFallback({ b, className }: { b: ViewBanner; className?: string }) {
       ))}
     </span>
   );
-}
-
-type Seg = { b: ViewBanner; col: number; span: number; row: number; openLeft: boolean; openRight: boolean };
-
-/** 한 주에 걸친 배너를 칸과 줄로 나눈다. 겹치면 아래 줄로 */
-function weekSegments(banners: ViewBanner[], weekStart: number): Seg[] {
-  const weekEnd = weekStart + 6;
-  const rows: number[] = [];
-  return banners
-    .filter((b) => b.start <= weekEnd && b.end >= weekStart)
-    // 유료 전용 배너는 한 달씩 길게 걸려서 정규 픽업 아래 줄로 보낸다
-    .sort((a, b) => Number(a.paidOnly) - Number(b.paidOnly) || a.start - b.start || b.end - a.end)
-    .map((b) => {
-      const s = Math.max(b.start, weekStart);
-      const e = Math.min(b.end, weekEnd);
-      let row = rows.findIndex((last) => last < s);
-      if (row === -1) row = rows.length;
-      rows[row] = e;
-      return { b, col: s - weekStart, span: e - s + 1, row, openLeft: b.start < weekStart, openRight: b.end > weekEnd };
-    });
 }
 
 export function FuturesView({ banners, today, initialBanner }: { banners: ViewBanner[]; today: number; initialBanner: number | null }) {
@@ -84,10 +63,6 @@ export function FuturesView({ banners, today, initialBanner }: { banners: ViewBa
   const last = monthStart(month.y, month.m + 1) - 1;
   const visible = useMemo(() => banners.filter((b) => prefs.lanes.includes(b.lane)), [banners, prefs.lanes]);
   const inMonth = visible.filter((b) => b.start <= last && b.end >= first).sort((a, b) => a.start - b.start || a.id - b.id);
-
-  const gridStart = first - weekdayIndex(first);
-  const weeks: number[] = [];
-  for (let w = gridStart; w <= last; w += 7) weeks.push(w);
 
   const move = (delta: number) => setMonth(({ y, m }) => monthOf(monthStart(y, m + delta)));
   const toggleLane = (lane: Lane) => {
@@ -123,88 +98,38 @@ export function FuturesView({ banners, today, initialBanner }: { banners: ViewBa
               서포트 카드
             </button>
           </div>
-          <div className="seg" role="group" aria-label="보기 방식">
-            <button type="button" aria-pressed={prefs.view === "calendar"} onClick={() => save({ ...prefs, view: "calendar" })}>
-              달력
-            </button>
-            <button type="button" aria-pressed={prefs.view === "list"} onClick={() => save({ ...prefs, view: "list" })}>
-              목록
-            </button>
-          </div>
         </div>
       </div>
 
-      {prefs.view === "calendar" ? (
-        <div className="cal glass" role="grid" aria-label={`${month.y}년 ${month.m}월 픽업 달력`}>
-          <div className="cal-head" role="row">
-            {WEEKDAYS.map((w) => (
-              <span key={w} role="columnheader">
-                {w}
-              </span>
-            ))}
-          </div>
-          {weeks.map((ws) => {
-            const segs = weekSegments(visible, ws);
-            const rowCount = segs.reduce((a, s) => Math.max(a, s.row + 1), 0);
-            return (
-              <div key={ws} className="cal-week" role="row" style={{ "--rows": rowCount } as React.CSSProperties}>
-                {Array.from({ length: 7 }, (_, i) => {
-                  const d = ws + i;
-                  const out = d < first || d > last;
-                  return (
-                    <span key={d} role="gridcell" className={`cal-day${out ? " out" : ""}${d === today ? " today" : ""}`}>
-                      {dayOfMonth(d)}
-                    </span>
-                  );
-                })}
-                {segs.map((s) => (
-                  <button
-                    key={`${s.b.id}-${ws}`}
-                    type="button"
-                    className={`cal-bar ${s.b.lane}${s.b.start <= today && today <= s.b.end ? " now" : ""}`}
-                    style={{ gridColumn: `${s.col + 1} / span ${s.span}`, gridRow: s.row + 2 }}
-                    onClick={() => setSelected(s.b)}
-                    title={`${pickupLabel(s.b)} · ${formatMd(s.b.start)} ~ ${formatMd(s.b.end)}`}
-                  >
-                    {s.b.paidOnly && <span className="mark">유료</span>}
-                    {pickupLabel(s.b, 2)}
-                  </button>
-                ))}
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="fut-list">
-          {inMonth.length === 0 && <p className="empty glass panel">이 달에는 고른 종류의 픽업이 없습니다.</p>}
-          {inMonth.map((b) => {
-            const r = relative(b.start, b.end, today);
-            return (
-              <button key={b.id} type="button" className="fut-item glass" onClick={() => setSelected(b)}>
-                {b.art ? <img className="fut-art" src={b.art} alt="" loading="lazy" /> : <ArtFallback b={b} className="fut-art" />}
-                <div className="fut-body">
-                  <div className="fut-top">
-                    <span className={`tag ${b.lane}`}>{b.lane === "train" ? "육성" : "서포트"}</span>
-                    {b.paidOnly && <span className="tag">유료 쥬얼 전용</span>}
-                    {b.star3Up && <span className="tag">★3 확률 업</span>}
-                    {b.estimated && <span className="tag">날짜 예상</span>}
-                    <span className={`chip${r.urgent ? " urgent" : ""}`}>{r.text}</span>
-                  </div>
-                  <b className="fut-name">{pickupLabel(b)}</b>
-                  <span className="fut-period">
-                    {formatMdTime(b.startTs)} ~ {formatMdTime(b.endTs)}
-                  </span>
-                  <span className="fut-faces">
-                    {b.pickups.slice(0, 6).map((p) => (
-                      <img key={p.id} src={p.art} alt="" loading="lazy" />
-                    ))}
-                  </span>
+      <div className="fut-list">
+        {inMonth.length === 0 && <p className="empty glass panel">이 달에는 고른 종류의 픽업이 없습니다.</p>}
+        {inMonth.map((b) => {
+          const r = relative(b.start, b.end, today);
+          return (
+            <button key={b.id} type="button" className="fut-item glass" onClick={() => setSelected(b)}>
+              {b.art ? <img className="fut-art" src={b.art} alt="" loading="lazy" /> : <ArtFallback b={b} className="fut-art" />}
+              <div className="fut-body">
+                <div className="fut-top">
+                  <span className={`tag ${b.lane}`}>{b.lane === "train" ? "육성" : "서포트"}</span>
+                  {b.paidOnly && <span className="tag">유료 쥬얼 전용</span>}
+                  {b.star3Up && <span className="tag">★3 확률 업</span>}
+                  {b.estimated && <span className="tag">날짜 예상</span>}
+                  <span className={`chip${r.urgent ? " urgent" : ""}`}>{r.text}</span>
                 </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
+                <b className="fut-name">{pickupLabel(b)}</b>
+                <span className="fut-period">
+                  {formatMdTime(b.startTs)} ~ {formatMdTime(b.endTs)}
+                </span>
+                <span className="fut-faces">
+                  {b.pickups.slice(0, 6).map((p) => (
+                    <img key={p.id} src={p.art} alt="" loading="lazy" />
+                  ))}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
 
       <dialog
         ref={dialogRef}

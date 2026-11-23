@@ -38,100 +38,6 @@
 .fut-filters .filter-chip {
   padding: 0 14px;
 }
-.fut-filters .seg button {
-  height: 30px;
-  padding-block: 0;
-}
-
-.cal {
-  border-radius: 18px;
-  padding: 8px;
-  overflow: hidden;
-}
-.cal-head {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  font-family: var(--title);
-  font-size: 12px;
-  color: var(--sub);
-  text-align: left;
-  padding: 4px 0 8px;
-}
-.cal-head > * {
-  padding: 0 12px;
-}
-.cal-week {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  grid-template-rows: 26px repeat(var(--rows, 0), 26px);
-  row-gap: 3px;
-  min-height: 96px;
-  padding-bottom: 8px;
-  border-top: 1px solid var(--glass-line);
-  position: relative;
-}
-.cal-day {
-  grid-row: 1;
-  font-size: 12px;
-  color: var(--text);
-  padding: 4px 12px;
-}
-.cal-day:nth-child(7n + 1) {
-  color: var(--train);
-}
-.cal-day.out {
-  opacity: 0.4;
-}
-.cal-day.today {
-  font-family: var(--title);
-  color: var(--ink);
-}
-.cal-day.today::before {
-  content: "오늘 ";
-  color: var(--live);
-}
-.cal-bar {
-  margin: 0 2px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-  padding: 0 10px;
-  border-radius: 999px;
-  font-family: var(--title);
-  font-size: 11px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  background: var(--glass-strong);
-  color: var(--text);
-  transition: background 0.12s var(--ease);
-}
-.cal-bar.train {
-  color: var(--train);
-}
-.cal-bar.support {
-  color: var(--support);
-}
-.cal-bar.now.train {
-  background: var(--train);
-  color: #fff;
-}
-.cal-bar.now.support {
-  background: var(--support);
-  color: #fff;
-}
-:root[data-theme="dark"] .cal-bar.now.train {
-  color: #2a0405;
-}
-:root[data-theme="dark"] .cal-bar.now.support {
-  color: #04162e;
-}
-.cal-bar .mark {
-  font-size: 10px;
-  opacity: 0.8;
-}
 
 .fut-list {
   display: grid;
@@ -274,25 +180,6 @@
 }
 
 @media (max-width: 767px) {
-  .cal-week {
-    min-height: 72px;
-  }
-  .cal-day {
-    padding: 4px 6px;
-  }
-  .cal-head > * {
-    padding: 0 6px;
-  }
-  .cal-day.today::before {
-    content: "";
-  }
-  .cal-day.today {
-    color: var(--live);
-  }
-  .cal-bar {
-    font-size: 10px;
-    padding: 0 4px;
-  }
   .fut-item {
     grid-template-columns: minmax(0, 1fr);
   }

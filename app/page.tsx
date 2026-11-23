@@ -88,7 +88,16 @@ export default async function Home() {
             <div className="panel glass">
               <div className="panel-head">
                 <b>진행 중 픽업</b>
-                {liveBanners.length > 0 && <Live start={today} end={pickupEnd} today={today} />}
+                {liveBanners.length > 0 && (
+                  <div className="panel-head-side">
+                    <Live start={today} end={pickupEnd} today={today} />
+                    {[...liveTrain, ...liveSupport].map((b) => (
+                      <Link key={b.id} href={`/simulator?lane=${b.lane}&banner=${b.id}`} className="btn">
+                        {b.lane === "train" ? "육성" : "서포트"} 시뮬레이션
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
               {liveBanners.length === 0 ? (
                 <p className="empty">지금 진행 중인 픽업이 없습니다.</p>
@@ -101,7 +110,6 @@ export default async function Home() {
                         card={p.card}
                         rate={p.rate}
                         isNew={p.isNew}
-                        action={{ href: `/simulator?lane=${b.lane}&banner=${b.id}`, label: "시뮬레이션" }}
                       />
                     )),
                   )}

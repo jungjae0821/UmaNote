@@ -55,6 +55,16 @@
   align-items: center;
   margin-bottom: 12px;
 }
+.panel-head-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.panel-head-side .chip {
+  margin-right: 4px;
+}
 .panel-head b {
   font-family: var(--title);
   font-weight: 400;

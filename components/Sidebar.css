@@ -94,11 +94,6 @@
   background: var(--glass-strong);
   color: var(--ink);
 }
-.nav-note {
-  margin-left: auto;
-  font-size: 11px;
-  color: var(--live);
-}
 .nav-foot {
   margin-top: auto;
   padding-top: 12px;

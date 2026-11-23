@@ -31,7 +31,7 @@ const GROUPS: { title: string | null; items: Item[] }[] = [
 
 const THEME_KEY = "umanote:theme:v1";
 
-export function Sidebar({ eventLive }: { eventLive: boolean }) {
+export function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -121,7 +121,6 @@ export function Sidebar({ eventLive }: { eventLive: boolean }) {
                   <Link key={it.href} href={it.href} className="nav-link" aria-current={isActive(it.href) ? "page" : undefined}>
                     <Icon name={it.icon} />
                     {it.label}
-                    {it.href === "/events" && eventLive && <span className="nav-note">진행중</span>}
                   </Link>
                 ))}
             </div>

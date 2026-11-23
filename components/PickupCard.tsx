@@ -13,23 +13,24 @@ export function PickupCard({
   card,
   rate,
   isNew,
-  action,
   badge,
 }: {
   card: Card;
   rate?: number;
   isNew?: boolean;
-  action?: { href: string; label: string };
   badge?: string;
 }) {
-  const badgeText = badge ?? (isNew ? "신규" : card.lane === "support" ? RARITY.support[card.rarity] : undefined);
+  const badgeText = badge ?? (card.lane === "support" ? RARITY.support[card.rarity] : undefined);
   return (
     <figure className="ccard">
       <Link href={cardHref(card)} className="art">
         <img src={card.art} alt="" loading="lazy" />
-        {badgeText && <span className={`badge${isNew ? " new" : ""}`}>{badgeText}</span>}
+        {badgeText && <span className="badge">{badgeText}</span>}
       </Link>
-      <small title={card.title}>{card.title}</small>
+      <small title={card.title}>
+        {isNew && <em className="new">신규 </em>}
+        {card.title}
+      </small>
       <b>
         <Link href={cardHref(card)}>{card.name}</Link>
       </b>
@@ -37,11 +38,6 @@ export function PickupCard({
         <span className={`tag ${card.lane}`}>{card.lane === "train" ? "육성" : "서포트"}</span>
         {rate !== undefined && <span className="tag">{formatRate(rate)}</span>}
       </div>
-      {action && (
-        <Link href={action.href} className="btn ccard-action">
-          {action.label}
-        </Link>
-      )}
     </figure>
   );
 }
