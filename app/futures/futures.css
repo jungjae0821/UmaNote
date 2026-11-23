@@ -131,7 +131,7 @@
 .fut-art {
   width: 100%;
   aspect-ratio: 2 / 1;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 14px;
   background: var(--glass-strong);
 }
@@ -190,10 +190,11 @@
 .fd-art {
   position: relative;
 }
-.fd-art img {
+.fd-art > img {
+  display: block;
   width: 100%;
   aspect-ratio: 2 / 1;
-  object-fit: cover;
+  object-fit: contain;
 }
 .fd-close {
   position: absolute;

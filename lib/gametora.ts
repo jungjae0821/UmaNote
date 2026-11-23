@@ -1,7 +1,7 @@
 // gametora 데이터를 가져와 화면에서 쓰는 모양으로 바꾼다.
 // 파일 이름에 해시가 붙어 있어서 manifest로 현재 파일을 찾는다. 날짜는 모두 한국(카카오) 서버 기준이다.
 import "server-only";
-import { bannerArt, outfitArt, supportArt } from "./art";
+import { bannerArt, outfitArt, storyEventArt, supportArt } from "./art";
 import { dayFromTimestamp } from "./dates";
 import { fetchJson, logFailure } from "./fetchJson";
 import { fixKo, stripBrackets } from "./koName";
@@ -312,6 +312,8 @@ export type GameEvent = {
   kind: EventKind;
   id: string;
   name: string;
+  /** 스토리 이벤트 ID에 대응하는 원본 배너 */
+  art?: string;
   start: number;
   end: number;
   startTs: number;
@@ -421,6 +423,7 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
           kind: "story",
           id: `story-${e.id}`,
           name: fixKo(e.name_ko) || e.name_ja || String(e.id),
+          art: storyEventArt(e.id),
           ...base(e.start_ko as number, e.end_ko as number),
           bonusCards: (e.bonus_chars ?? []).flatMap((b) => {
             const c = b.card_id ? idx.train.get(b.card_id) : undefined;
