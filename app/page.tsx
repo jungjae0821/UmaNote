@@ -61,7 +61,7 @@ export default async function Home() {
               <article className="hero" style={heroStyle}>
                 <img
                   className="hero-art"
-                  src={`https://media.gametora.com/umamusume/story_events/hero/${heroStory.id.replace("story-", "")}.png`}
+                  src={heroStory.art}
                   alt={heroStory.name}
                   fetchPriority="high"
                 />
