@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { formatMd, formatMdTime, monthOf, relative } from "@/lib/dates";
+import { Live } from "@/components/Live";
 import type { EventKind, Lane } from "@/lib/gametora";
 import "./events.css";
 
@@ -96,10 +97,7 @@ export function EventsView({ events, today }: { events: ViewEvent[]; today: numb
           {e.rivals.length > 0 && <span className="tag">상대 {e.rivals.map((c) => c.name).join(", ")}</span>}
           {e.rewards.length > 0 && <span className="tag">보상 {e.rewards.map((c) => c.name).join(", ")}</span>}
         </div>
-        <span className={`chip${r.state === "live" ? " live" : ""}`}>
-          <i aria-hidden />
-          {r.text}
-        </span>
+        <span className={`chip${r.urgent ? " urgent" : ""}`}>{r.text}</span>
       </li>
     );
   };
@@ -116,10 +114,7 @@ export function EventsView({ events, today }: { events: ViewEvent[]; today: numb
               <article key={e.id} className="ev-card panel glass" id={`live-${e.id}`}>
                 <div className="ev-card-top">
                   <span className={`ev-kind k-${e.kind}`}>{KIND_NAME[e.kind]}</span>
-                  <span className="chip live">
-                    <i aria-hidden />
-                    {relative(e.start, e.end, today).text}
-                  </span>
+                  <Live start={e.start} end={e.end} today={today} />
                 </div>
                 <h3>{e.name}</h3>
                 <p className="ev-period">

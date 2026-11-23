@@ -22,11 +22,6 @@
   height: 100%;
   object-fit: fill;
 }
-.hero-live {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-}
 .hero-over {
   position: absolute;
   inset: auto 0 0 0;

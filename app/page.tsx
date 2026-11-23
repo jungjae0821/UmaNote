@@ -60,13 +60,11 @@ export default async function Home() {
                   alt={heroStory.name}
                   fetchPriority="high"
                 />
-                <div className="hero-live">
-                  <Live start={heroStory.start} end={heroStory.end} today={today} dark />
-                </div>
                 <div className="hero-over">
                   <div>
                     <p className="hero-kind">
-                      {EVENT_KIND_NAME.story} · {formatMd(heroStory.start)} ~ {formatMd(heroStory.end)}
+                      {EVENT_KIND_NAME.story} · {formatMd(heroStory.start)} ~ {formatMd(heroStory.end)} ·{" "}
+                      <Live start={heroStory.start} end={heroStory.end} today={today} dark />
                     </p>
                     <h3 className="hero-name">{heroStory.name}</h3>
                   </div>
@@ -206,10 +204,7 @@ export default async function Home() {
                       {b.month}/{b.day}
                     </span>
                   </div>
-                  <span className={`chip${b.until === 0 ? " live" : ""}`}>
-                    <i aria-hidden />
-                    {untilText(b.until)}
-                  </span>
+                  <span className={`chip${b.until === 0 ? " urgent" : ""}`}>{untilText(b.until)}</span>
                 </div>
               ))}
               <Link href="/birthdays" className="more">

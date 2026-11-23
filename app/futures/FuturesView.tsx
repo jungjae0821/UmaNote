@@ -188,10 +188,7 @@ export function FuturesView({ banners, today, initialBanner }: { banners: ViewBa
                     {b.paidOnly && <span className="tag">유료 쥬얼 전용</span>}
                     {b.star3Up && <span className="tag">★3 확률 업</span>}
                     {b.estimated && <span className="tag">날짜 예상</span>}
-                    <span className={`chip${r.state === "live" ? " live" : ""}`}>
-                      <i aria-hidden />
-                      {r.text}
-                    </span>
+                    <span className={`chip${r.urgent ? " urgent" : ""}`}>{r.text}</span>
                   </div>
                   <b className="fut-name">{pickupLabel(b)}</b>
                   <span className="fut-period">

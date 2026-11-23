@@ -52,10 +52,7 @@ export function BirthdaysView({ list, next, today }: { list: BdChar[]; next: Nex
                     {b.month}월 {b.day}일
                   </small>
                 </span>
-                <span className="chip">
-                  <i aria-hidden />
-                  {formatDday(b.until)}
-                </span>
+                <span className="chip">{formatDday(b.until)}</span>
               </li>
             ))}
           </ol>

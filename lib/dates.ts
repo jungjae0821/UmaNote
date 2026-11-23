@@ -73,20 +73,27 @@ export function weekday(day: number): string {
   return WEEKDAYS[parts(day).w];
 }
 
+/** 종료까지 이 일수 이하로 남으면 강조색으로 표시 */
+export const URGENT_DAYS = 3;
+
 /**
  * 진행 상태와 상대 시간 문구.
  * 진행 중이면 "n일 남음"(마지막 날이면 "오늘 종료"), 시작 전이면 "n일 후 시작"(내일이면 "내일 시작"), 끝났으면 "종료"
  */
-export function relative(startDay: number, endDay: number, today: number): { state: "live" | "soon" | "ended"; text: string } {
+export function relative(
+  startDay: number,
+  endDay: number,
+  today: number,
+): { state: "live" | "soon" | "ended"; text: string; urgent: boolean } {
   if (today < startDay) {
     const n = startDay - today;
-    return { state: "soon", text: n === 1 ? "내일 시작" : `${n}일 후 시작` };
+    return { state: "soon", text: n === 1 ? "내일 시작" : `${n}일 후 시작`, urgent: false };
   }
   if (today <= endDay) {
     const n = endDay - today;
-    return { state: "live", text: n === 0 ? "오늘 종료" : `${n}일 남음` };
+    return { state: "live", text: n === 0 ? "오늘 종료" : `${n}일 남음`, urgent: n <= URGENT_DAYS };
   }
-  return { state: "ended", text: "종료" };
+  return { state: "ended", text: "종료", urgent: false };
 }
 
 /** 생일·날짜까지 남은 날: 오늘 / 내일 / n일 후 */

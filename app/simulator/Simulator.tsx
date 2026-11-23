@@ -121,10 +121,7 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
                 {formatMdTime(banner.startTs)} ~ {formatMdTime(banner.endTs)}
               </span>
               {status.state !== "ended" && (
-                <span className={`chip${status.state === "live" ? " live" : ""}`}>
-                  <i aria-hidden />
-                  {status.text}
-                </span>
+                <span className={`chip${status.urgent ? " urgent" : ""}`}>{status.text}</span>
               )}
             </div>
             <ul className="sim-picks">
