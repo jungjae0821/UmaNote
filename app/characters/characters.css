@@ -1,0 +1,134 @@
+.chars {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.filters {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+.filters-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.filters-head b {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--title);
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--ink);
+}
+.fg-static {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.fg-static > span {
+  font-family: var(--title);
+  font-size: 12px;
+  color: var(--sub);
+}
+.fg {
+  border-top: 1px solid var(--glass-line);
+}
+.fg-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0;
+  font-family: var(--title);
+  font-size: 13px;
+  color: var(--text);
+}
+.fg-title .rot svg {
+  transform: rotate(-90deg);
+}
+.fg-body {
+  padding-bottom: 12px;
+}
+
+.chars-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.search-field {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 360px;
+  color: var(--sub);
+}
+.search-field svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.search-field .input {
+  padding-left: 36px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+.chars-bar .seg {
+  margin-left: auto;
+}
+.filters-toggle {
+  display: none;
+}
+.chars-count {
+  margin: 12px 0 10px;
+  font-family: var(--title);
+  font-size: 13px;
+  color: var(--text);
+}
+.chars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 16px 12px;
+}
+.chars-grid .ccard {
+  display: block;
+  width: auto;
+}
+.chars-grid .ccard .art {
+  height: auto;
+  aspect-ratio: 112 / 127;
+}
+.chars-grid .ccard b {
+  margin-top: 6px;
+  font-size: 14px;
+  text-align: center;
+}
+.chars-grid .ccard small {
+  margin-top: 0;
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  .chars {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .filters {
+    display: none;
+    position: static;
+    max-height: none;
+  }
+  .filters.open {
+    display: block;
+  }
+  .filters-toggle {
+    display: inline-flex;
+  }
+}
