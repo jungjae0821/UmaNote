@@ -191,7 +191,7 @@ export function Calculator({ today, targets, incomes, schedule }: Props) {
               { value: "", label: "픽업을 골라 주세요" },
               ...targets.map((g) => ({
                 value: String(g.id),
-                label: `${formatFull(g.start)} ${LANE_NAME[g.lane]} · ${pickupLabel(g)}${g.paidOnly ? " (유료 쥬얼 전용)" : ""}${g.estimated ? " (날짜 예상)" : ""}`,
+                label: `${formatFull(g.start)} ${LANE_NAME[g.lane]} · ${pickupLabel(g)}${g.estimated ? " (예상)" : ""}`,
               })),
             ]}
             onChange={(v) => update({ targetId: v ? Number(v) : null })}

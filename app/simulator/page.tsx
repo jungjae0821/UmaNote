@@ -22,7 +22,7 @@ export default async function SimulatorPage({ searchParams }: { searchParams: Pr
   const today = todayKr();
   const cards = await getCards();
   const idx = cardIndex(cards);
-  const banners = (await getBanners(cards)).filter((b) => b.lane === lane && !b.paidOnly);
+  const banners = (await getBanners(cards, { jpProjection: true })).filter((b) => b.lane === lane && !b.paidOnly);
   const newest = banners.slice().reverse();
   const wanted = Number(params.banner);
   const selected =
@@ -52,7 +52,7 @@ export default async function SimulatorPage({ searchParams }: { searchParams: Pr
             selected={selected.id}
             options={newest.map((b) => {
               const v = toViewBanner(b);
-              return { id: b.id, label: `${formatFull(b.start)} ~ ${formatMd(b.end)} · ${pickupLabel(v)}${b.estimated ? " (날짜 예상)" : ""}` };
+              return { id: b.id, label: `${formatFull(b.start)} ~ ${formatMd(b.end)} · ${pickupLabel(v)}${b.estimated ? " (예상)" : ""}` };
             })}
           />
           <Simulator key={`${lane}-${selected.id}`} lane={lane} banner={toViewBanner(selected)} pool={buildPool(selected, idx.get)} today={today} />

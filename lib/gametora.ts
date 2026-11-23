@@ -1,7 +1,7 @@
 // gametora 데이터를 가져와 화면에서 쓰는 모양으로 바꾼다.
 // 파일 이름에 해시가 붙어 있어서 manifest로 현재 파일을 찾는다. 날짜는 모두 한국(카카오) 서버 기준이다.
 import "server-only";
-import { bannerArt, outfitArt, storyEventArt, supportArt } from "./art";
+import { bannerArt, jpBannerArt, outfitArt, storyEventArt, supportArt } from "./art";
 import { dayFromTimestamp, SERVER_GAP_DAYS } from "./dates";
 import { fetchJson, logFailure } from "./fetchJson";
 import { fixKo, stripBrackets } from "./koName";
@@ -361,7 +361,7 @@ export async function getBanners(cards?: Card[], opts: { jpProjection?: boolean 
   );
 }
 
-/** 한국 일정의 마지막 배너보다 뒤에 오는 일본서버 배너를 +476일로 옮긴다. 이미지는 한국서버 것이 없어서 넣지 않는다 */
+/** 한국 일정의 마지막 배너보다 뒤에 오는 일본서버 배너를 +476일로 옮긴다. 이미지는 한국서버 것이 없어서 일본서버 배너를 쓴다 */
 async function jpProjectedBanners(kr: Banner[], toBanner: (b: RawBanner, lane: Lane, paidOnly: boolean) => Banner): Promise<Banner[]> {
   const gap = SERVER_GAP_DAYS * 86_400;
   const known = new Set(kr.map((b) => b.id));
@@ -371,7 +371,7 @@ async function jpProjectedBanners(kr: Banner[], toBanner: (b: RawBanner, lane: L
     const jp = await safe(`gametora 일본서버 ${lane} 배너`, () => load<RawBanner[]>(lane === "train" ? "gacha/char-standard" : "gacha/support-standard"), []);
     for (const b of jp) {
       if (known.has(b.id) || b.start + gap <= lastKr || b.start >= FAR_FUTURE) continue;
-      result.push({ ...toBanner({ ...b, start: b.start + gap, end: b.end + gap }, lane, false), estimated: true, art: null });
+      result.push({ ...toBanner({ ...b, start: b.start + gap, end: b.end + gap }, lane, false), estimated: true, art: jpBannerArt(b.id) });
     }
   }
   return result;

@@ -16,7 +16,7 @@ export default async function CalculatorPage() {
   const until = today + SERVER_GAP_DAYS;
   const cards = await getCards();
   const [banners, events, incomes] = await Promise.all([getBanners(cards, { jpProjection: true }), getEvents(cards), getJewelIncomes()]);
-  const targets = banners.filter((b) => b.start > today && b.start <= until && b.pickups.length > 0).map(toViewBanner);
+  const targets = banners.filter((b) => !b.paidOnly && b.start > today && b.start <= until && b.pickups.length > 0).map(toViewBanner);
 
   return (
     <>

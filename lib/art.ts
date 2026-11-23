@@ -27,6 +27,9 @@ export const charIcon = (charId: number) => `${GAMETORA_IMG}/characters/icons/ch
 /** 한국서버 게임 내 가챠 배너 */
 export const bannerArt = (bannerId: number) => `${GAMETORA_IMG}/ko/gacha/img_bnr_gacha_${bannerId}.png`;
 
+/** 일본서버 게임 내 가챠 배너. 한국서버에 아직 없는 배너에 쓴다 */
+export const jpBannerArt = (bannerId: number) => `${GAMETORA_IMG}/gacha/img_bnr_gacha_${bannerId}.png`;
+
 /** 홍보 문구가 없는 스토리 이벤트 일러스트. 이벤트 ID로 해당 그림을 불러온다. */
 export const storyEventArt = (eventId: number) =>
   `https://media.gametora.com/umamusume/story_events/hero/${eventId}.png`;
