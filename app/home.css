@@ -1,8 +1,54 @@
+/* 첫 줄은 배너와 생일 박스를 한 행에 두고 아래 끝을 맞춘다. 그 아래는 왼쪽·오른쪽 열이 따로 쌓인다 */
 .home {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 24px;
+  gap: 28px 24px;
   align-items: start;
+}
+.home-hero {
+  grid-column: 1;
+  grid-row: 1;
+}
+.home-bd {
+  grid-column: 2;
+  grid-row: 1;
+}
+.home-main {
+  grid-column: 1;
+  grid-row: 2;
+}
+.home-side {
+  grid-column: 2;
+  grid-row: 2;
+}
+.home:not(:has(.home-hero)) .home-main {
+  grid-row: 1 / span 2;
+}
+
+/* 생일 박스는 자기 내용 높이를 행에 보태지 않고(contain: size) 배너 높이만큼 늘어난다.
+   넘치는 생일은 열 줄바꿈으로 박스 밖 오른쪽에 밀려나 통째로 가려진다 */
+.home-bd.fit {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+.home-bd.fit .bd-list {
+  flex: 1;
+  min-height: 0;
+  contain: size;
+  display: flex;
+  flex-direction: column;
+}
+.home-bd.fit .bd-items {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+.home-bd.fit .bd {
+  width: 100%;
 }
 
 .hero {
@@ -43,27 +89,12 @@
   color: #fff;
   line-height: 1.3;
 }
-.hero-btns {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
 
 .panel-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-}
-.panel-head-side {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-.panel-head-side .chip {
-  margin-right: 4px;
 }
 .panel-head b {
   font-family: var(--title);
@@ -281,6 +312,24 @@
 @media (max-width: 1023px) {
   .home {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .home-hero,
+  .home-bd,
+  .home-main,
+  .home-side,
+  .home:not(:has(.home-hero)) .home-main {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .home-bd.fit .bd-list {
+    contain: none;
+  }
+  .home-bd.fit .bd-items {
+    flex-wrap: nowrap;
+  }
+  /* 한 줄로 쌓이면 높이를 맞출 배너가 옆에 없으니 5명까지만 */
+  .home-bd .bd:nth-child(n + 6) {
+    display: none;
   }
 }
 @media (max-width: 767px) {

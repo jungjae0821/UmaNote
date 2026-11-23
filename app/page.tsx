@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { HomeJewels } from "@/components/HomeJewels";
-import { Icon } from "@/components/Icon";
 import { Live } from "@/components/Live";
 import { PickupCard } from "@/components/PickupCard";
 import { charIcon } from "@/lib/art";
@@ -34,7 +33,7 @@ export default async function Home() {
   const races = events
     .filter((e) => e.kind !== "story" && e.end >= today && e.start <= today + 45)
     .slice(0, 4);
-  const birthdays = upcomingBirthdays(characters, today, 5);
+  const birthdays = upcomingBirthdays(characters, today, 12);
   // 히어로 바탕은 보너스 캐릭터의 대표색으로
   const colorOf = (charId?: number) => characters.find((c) => c.charId === charId)?.color;
   const heroColors = (heroStory?.bonusCards ?? []).slice(0, 2).map((c) => colorOf(c.charId)).filter(Boolean);
@@ -49,55 +48,57 @@ export default async function Home() {
       </div>
 
       <div className="home">
-        <div className="home-main stack">
-          {heroStory && (
-            <section>
-              <h2 className="section-title">이벤트</h2>
-              <article className="hero" style={heroStyle}>
-                <img
-                  className="hero-art"
-                  src={heroStory.art}
-                  alt={heroStory.name}
-                  fetchPriority="high"
-                />
-                <div className="hero-over">
-                  <div>
-                    <p className="hero-kind">
-                      {EVENT_KIND_NAME.story} · {formatMd(heroStory.start)} ~ {formatMd(heroStory.end)} ·{" "}
-                      <Live start={heroStory.start} end={heroStory.end} today={today} dark />
-                    </p>
-                    <h3 className="hero-name">{heroStory.name}</h3>
-                  </div>
-                  <div className="hero-btns">
-                    <Link href="/calculator" className="btn on-image">
-                      <Icon name="calc" />
-                      사료 계산기
-                    </Link>
-                    <Link href="/simulator" className="btn on-image">
-                      <Icon name="cards" />
-                      뽑기 시뮬레이션
-                    </Link>
-                  </div>
+        {heroStory && (
+          <section className="home-hero">
+            <h2 className="section-title">이벤트</h2>
+            <article className="hero" style={heroStyle}>
+              <img
+                className="hero-art"
+                src={heroStory.art}
+                alt={heroStory.name}
+                fetchPriority="high"
+              />
+              <div className="hero-over">
+                <div>
+                  <p className="hero-kind">
+                    {EVENT_KIND_NAME.story} · {formatMd(heroStory.start)} ~ {formatMd(heroStory.end)} ·{" "}
+                    <Live start={heroStory.start} end={heroStory.end} today={today} dark />
+                  </p>
+                  <h3 className="hero-name">{heroStory.name}</h3>
                 </div>
-              </article>
-            </section>
-          )}
+              </div>
+            </article>
+          </section>
+        )}
 
+        {/* 배너가 있으면 생일 박스 높이를 배너에 맞추고, 화면 폭에 따라 다 안 들어가는 생일은 숨긴다 */}
+        <section className={`home-bd${heroStory ? " fit" : ""}`}>
+          <h2 className="section-title">다가오는 생일</h2>
+          <div className="panel glass bd-list">
+            <div className="bd-items">
+              {birthdays.map((b) => (
+                <div key={b.charId} className="bd">
+                  <img src={charIcon(b.charId)} alt="" loading="lazy" />
+                  <div>
+                    <b>{b.name}</b>
+                    <span>
+                      {b.month}/{b.day}
+                    </span>
+                  </div>
+                  <span className={`chip${b.until === 0 ? " urgent" : ""}`}>{untilText(b.until)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <div className="home-main stack">
           <section>
             <h2 className="section-title">픽업 가챠</h2>
             <div className="panel glass">
               <div className="panel-head">
                 <b>진행 중 픽업</b>
-                {liveBanners.length > 0 && (
-                  <div className="panel-head-side">
-                    <Live start={today} end={pickupEnd} today={today} />
-                    {[...liveTrain, ...liveSupport].map((b) => (
-                      <Link key={b.id} href={`/simulator?lane=${b.lane}&banner=${b.id}`} className="btn">
-                        {b.lane === "train" ? "육성" : "서포트"} 시뮬레이션
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                {liveBanners.length > 0 && <Live start={today} end={pickupEnd} today={today} />}
               </div>
               {liveBanners.length === 0 ? (
                 <p className="empty">지금 진행 중인 픽업이 없습니다.</p>
@@ -200,27 +201,6 @@ export default async function Home() {
         </div>
 
         <aside className="home-side stack">
-          <section>
-            <h2 className="section-title">다가오는 생일</h2>
-            <div className="panel glass bd-list">
-              {birthdays.map((b) => (
-                <div key={b.charId} className="bd">
-                  <img src={charIcon(b.charId)} alt="" loading="lazy" />
-                  <div>
-                    <b>{b.name}</b>
-                    <span>
-                      {b.month}/{b.day}
-                    </span>
-                  </div>
-                  <span className={`chip${b.until === 0 ? " urgent" : ""}`}>{untilText(b.until)}</span>
-                </div>
-              ))}
-              <Link href="/birthdays" className="more">
-                생일달력
-                <Icon name="chevronRight" />
-              </Link>
-            </div>
-          </section>
           <section>
             <h2 className="section-title">내 쥬얼</h2>
             <HomeJewels today={today} />
