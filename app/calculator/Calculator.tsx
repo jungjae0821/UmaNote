@@ -54,9 +54,12 @@ const SOURCE_NAME: Record<Income["source"], string> = {
 
 const GIFT_INCOMES = giftIncomes();
 
+/** 게임에서 실제로 가질 수 있는 양보다 넉넉한 상한. 숫자를 잘못 눌러 결과가 터무니없이 커지는 것을 막는다 */
+const MAX_COUNT = 9_999_999;
+
 function toCount(value: string): number {
   const n = Math.floor(Number(value.replace(/[^\d]/g, "")));
-  return Number.isFinite(n) ? n : 0;
+  return Number.isFinite(n) ? Math.min(n, MAX_COUNT) : 0;
 }
 
 function NumberField({ id, label, unit, value, onChange }: { id: string; label: string; unit: string; value: number; onChange: (n: number) => void }) {
