@@ -71,7 +71,9 @@ test("시트의 대회 일정과 선택 보상을 연결하고 레전드는 회�
 
 test("트레이닝 패스 총량은 시트 값이며 일일·로그인·월정액·경기장 수입을 유지한다", () => {
   for (const pass of ["standard", "premium"] as const) {
-    const p = plan({ ...base, pass, monthly: true, teamClass: 6 });
+    const first = SHEET_REWARDS.trainingPass.datesKr[0];
+    // 시트의 첫 패스 시작일 하나만 들어가는 30일
+    const p = plan({ ...base, today: first - 1, target: first + 29, pass, monthly: true, teamClass: 6 });
     const expected = SHEET_REWARDS.trainingPass[pass];
     assert.equal(p.passFree, expected.free);
     assert.equal(p.passTrainTickets, expected.trainTickets);
@@ -82,4 +84,13 @@ test("트레이닝 패스 총량은 시트 값이며 일일·로그인·월정�
     assert.ok(p.teamTrials > 0);
     assert.equal(p.passPaid, pass === "premium" ? 350 : 0);
   }
+});
+
+test("시트 챔미 행은 보상일(종료일)이 같은 회차에 붙고, 시작일이 더 가까운 다른 회차를 가져가지 않는다", () => {
+  const row = SHEET_REWARDS.rows.find(r => r.id === "sheet-cm-21")!;
+  // 일본 2026-09-18 시작 MILE(종료일 = 시트 보상일)과 2026-09-29 시작 CLASSIC
+  const mile = { id: "cm-48", kind: "cm" as const, name: "MILE", startKr: row.startKr - 6, endKr: row.startKr };
+  const classic = { id: "cm-49", kind: "cm" as const, name: "CLASSIC", startKr: row.startKr + 5, endKr: row.startKr + 11 };
+  const schedule = applySheetSchedule([mile, classic]).filter(s => s.startKr >= mile.startKr && s.startKr <= classic.endKr);
+  assert.deepEqual(schedule.map(s => [s.id, s.sheetRewardId ?? null]), [["cm-48", "sheet-cm-21"], ["cm-49", null]]);
 });

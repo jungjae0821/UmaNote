@@ -283,7 +283,11 @@ async function existing(url: string): Promise<string | null> {
 /** 날짜가 정해지지 않은 자리표시 배너(2099년 등)를 거른다 */
 const FAR_FUTURE = Date.UTC(2035, 0, 1) / 1000;
 
-export async function getBanners(cards?: Card[]): Promise<Banner[]> {
+/**
+ * jpProjection: 한국서버 일정이 아직 없는 일본서버 배너(현재 일본에서 진행 중인 것까지)를
+ * 일본 날짜 + 476일로 옮겨 덧붙인다. 같은 배너는 한일 ID가 같다.
+ */
+export async function getBanners(cards?: Card[], opts: { jpProjection?: boolean } = {}): Promise<Banner[]> {
   const list = cards ?? (await getCards());
   const idx = cardIndex(list);
   return safe(
@@ -339,8 +343,11 @@ export async function getBanners(cards?: Card[]): Promise<Banner[]> {
           }
           return banner;
         });
-      const all = [...charStd.map((b) => toBanner(b, "train", false)), ...supStd.map((b) => toBanner(b, "support", false)), ...paid]
-        .filter((b) => b.startTs < FAR_FUTURE)
+      const kr = [...charStd.map((b) => toBanner(b, "train", false)), ...supStd.map((b) => toBanner(b, "support", false)), ...paid].filter(
+        (b) => b.startTs < FAR_FUTURE,
+      );
+      const projected = opts.jpProjection ? await jpProjectedBanners(kr, toBanner) : [];
+      const all = [...kr, ...projected]
         .sort((a, b) => a.startTs - b.startTs || a.id - b.id);
       const now = Date.now() / 1000;
       await Promise.all(
@@ -352,6 +359,22 @@ export async function getBanners(cards?: Card[]): Promise<Banner[]> {
     },
     [],
   );
+}
+
+/** 한국 일정의 마지막 배너보다 뒤에 오는 일본서버 배너를 +476일로 옮긴다. 이미지는 한국서버 것이 없어서 넣지 않는다 */
+async function jpProjectedBanners(kr: Banner[], toBanner: (b: RawBanner, lane: Lane, paidOnly: boolean) => Banner): Promise<Banner[]> {
+  const gap = SERVER_GAP_DAYS * 86_400;
+  const known = new Set(kr.map((b) => b.id));
+  const result: Banner[] = [];
+  for (const lane of ["train", "support"] as const) {
+    const lastKr = Math.max(0, ...kr.filter((b) => b.lane === lane && !b.paidOnly).map((b) => b.startTs));
+    const jp = await safe(`gametora 일본서버 ${lane} 배너`, () => load<RawBanner[]>(lane === "train" ? "gacha/char-standard" : "gacha/support-standard"), []);
+    for (const b of jp) {
+      if (known.has(b.id) || b.start + gap <= lastKr || b.start >= FAR_FUTURE) continue;
+      result.push({ ...toBanner({ ...b, start: b.start + gap, end: b.end + gap }, lane, false), estimated: true, art: null });
+    }
+  }
+  return result;
 }
 
 // ── 이벤트 ────────────────────────────────────────────

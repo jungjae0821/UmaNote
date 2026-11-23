@@ -185,7 +185,7 @@ export function Calculator({ today, targets, incomes, schedule }: Props) {
           <h2 className="calc-h">목표 픽업</h2>
           <SelectField
             id="c-target"
-            label={`오늘부터 240일 안에 시작하는 픽업 ${targets.length}개`}
+            label={`일본서버에서 진행 중인 픽업까지 ${targets.length}개`}
             value={target ? String(target.id) : ""}
             options={[
               { value: "", label: "픽업을 골라 주세요" },

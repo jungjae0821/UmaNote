@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { toViewBanner } from "@/lib/bannerView";
-import { todayKr } from "@/lib/dates";
+import { SERVER_GAP_DAYS, todayKr } from "@/lib/dates";
 import { getBanners, getCards, getEvents } from "@/lib/gametora";
 import { competitionSchedule, getJewelIncomes } from "@/lib/jewelIncome";
 import { Calculator } from "./Calculator";
@@ -9,14 +9,13 @@ import "./calculator.css";
 export const metadata: Metadata = { title: "사료계산기" };
 export const revalidate = 3600;
 
-// 목표로 고를 수 있는 범위: 오늘부터 이 날 수 안에 시작하는 픽업
-const RANGE_DAYS = 240;
 
 export default async function CalculatorPage() {
   const today = todayKr();
-  const until = today + RANGE_DAYS;
+  // 목표로 고를 수 있는 범위: 지금 일본서버에서 진행 중인 픽업까지 (한국 예상일 = 일본 날짜 + 476일)
+  const until = today + SERVER_GAP_DAYS;
   const cards = await getCards();
-  const [banners, events, incomes] = await Promise.all([getBanners(cards), getEvents(cards), getJewelIncomes()]);
+  const [banners, events, incomes] = await Promise.all([getBanners(cards, { jpProjection: true }), getEvents(cards), getJewelIncomes()]);
   const targets = banners.filter((b) => b.start > today && b.start <= until && b.pickups.length > 0).map(toViewBanner);
 
   return (

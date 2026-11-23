@@ -107,7 +107,8 @@ export function sheetLohReward(rank: number, table: "before" | "after") {
 export function applySheetSchedule(schedule: Scheduled[]): Scheduled[] {
   const remaining = [...schedule];
   const imported = data.rows.filter(competition).map(r => {
-    const candidates = remaining.map((s, index) => ({ s, index, delta: Math.abs(s.startKr - SERVER_GAP_DAYS - r.startJp) }))
+    // 시트 날짜는 보상일이라 챔미처럼 종료일에 받는 대회는 종료일과 맞는다. 시작·종료 중 가까운 쪽으로 비교한다
+    const candidates = remaining.map((s, index) => ({ s, index, delta: Math.min(Math.abs(s.startKr - SERVER_GAP_DAYS - r.startJp), Math.abs(s.endKr - SERVER_GAP_DAYS - r.startJp)) }))
       .filter(x => x.s.kind === r.category && x.delta <= 18).sort((a, b) => a.delta - b.delta);
     const match = candidates[0];
     if (match) remaining.splice(match.index, 1);

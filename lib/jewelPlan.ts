@@ -33,6 +33,17 @@ export const TRAINING_PASS = {
   },
 } as const;
 
+/**
+ * 트레이닝 패스 시작일(한국서버 날짜). 시트 '트레이닝 패스' A열의 회차별 한섭 날짜를 쓰고,
+ * 시트의 마지막 회차 뒤로는 30일 간격으로 이어 붙인다. 시트처럼 (오늘, 목표 시작일) 사이에 시작하는 회차만 센다.
+ */
+export function passStartsBetween(today: number, target: number, dates: readonly number[] = SHEET_REWARDS.trainingPass.datesKr): number[] {
+  const starts = dates.filter((d) => d > today && d < target);
+  const last = dates[dates.length - 1];
+  if (last !== undefined) for (let d = last + TRAINING_PASS.days; d < target; d += TRAINING_PASS.days) if (d > today) starts.push(d);
+  return starts;
+}
+
 /** none: 패스 보상을 넣지 않음, standard: 무료 보상만 끝까지, premium: 프리미엄 패스를 사고 끝까지 */
 export type PassPlan = "none" | "standard" | "premium";
 
@@ -135,7 +146,7 @@ export function plan(input: PlanInput): Plan {
   const teamWeeks = input.teamClass === 0 ? 0 : mondaysBetween(input.today, input.target);
   const teamTrials = teamWeeks * TEAM_TRIALS_WEEKLY[input.teamClass];
 
-  const passPeriods = input.pass === "none" ? 0 : Math.ceil(days / TRAINING_PASS.days);
+  const passPeriods = input.pass === "none" ? 0 : passStartsBetween(input.today, input.target).length;
   const std = TRAINING_PASS.standard;
   const pre = input.pass === "premium" ? TRAINING_PASS.premium : { paidOnBuy: 0, free: 0, trainTickets: 0, supportTickets: 0 };
   const passFree = passPeriods * (std.free + pre.free);

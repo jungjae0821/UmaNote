@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { plan, pullsFor, type Income, type PlanInput } from "../lib/jewelPlan.ts";
+import { passStartsBetween, plan, pullsFor, type Income, type PlanInput } from "../lib/jewelPlan.ts";
+import { SHEET_REWARDS } from "../lib/sheetRewards.ts";
 import { cmJewels, competitionIncomes, giftIncomes, EMPTY_COMPETITION, lohJewels, mondaysBetween, type Scheduled } from "../lib/jewelSources.ts";
 
 const income = (id: string, startKr: number, free: number, trainTickets = 0, supportTickets = 0): Income => ({
@@ -68,20 +69,34 @@ test("유료 전용 가챠는 유료 쥬얼만 쓰고 티켓은 못 쓴다", () 
   assert.equal(pullsFor(p, "support", false).fromTickets, 0);
 });
 
-test("트레이닝 패스는 30일마다 무료 보상, 프리미엄은 유료 350과 추가 보상", () => {
-  const std = plan({ ...base, target: 131, pass: "standard" });
+test("트레이닝 패스는 시트의 회차 시작일마다 무료 보상, 프리미엄은 유료 350과 추가 보상", () => {
+  const [first, second] = SHEET_REWARDS.trainingPass.datesKr;
+  const window = { today: first - 1, target: second + 1 };
+  const std = plan({ ...base, ...window, pass: "standard" });
   assert.equal(std.passPeriods, 2);
   assert.equal(std.passFree, 1000);
   assert.equal(std.passPaid, 0);
   assert.equal(std.trainTickets, 4);
 
-  const pre = plan({ ...base, target: 131, pass: "premium" });
+  const pre = plan({ ...base, ...window, pass: "premium" });
   assert.equal(pre.passFree, 2 * (500 + 1350));
   assert.equal(pre.passPaid, 700);
   assert.equal(pre.supportTickets, 8);
   assert.equal(pre.paid, 700);
 
-  assert.equal(plan({ ...base, pass: "none" }).passFree, 0);
+  assert.equal(plan({ ...base, ...window, pass: "none" }).passFree, 0);
+});
+
+test("트레이닝 패스는 오늘·목표 시작일에 시작하는 회차를 빼고, 시트 마지막 회차 뒤로는 30일 간격으로 잇는다", () => {
+  const dates = SHEET_REWARDS.trainingPass.datesKr;
+  const [first, second] = dates;
+  assert.deepEqual(passStartsBetween(first, second), []);
+  assert.deepEqual(passStartsBetween(first - 1, first + 1), [first]);
+  // 회차 시작 직전이 목표면 30일이 안 돼도 패스를 더하지 않는다
+  assert.equal(plan({ ...base, today: first + 1, target: first + 10, pass: "premium" }).passPeriods, 0);
+  assert.deepEqual(passStartsBetween(0, 10, []), []);
+  const last = dates[dates.length - 1];
+  assert.deepEqual(passStartsBetween(last, last + 61), [last + 30, last + 60]);
 });
 
 test("로그인 보너스는 7일마다 110", () => {

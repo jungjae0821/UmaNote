@@ -7,12 +7,15 @@ import { supplementalIncomes } from "../lib/rewardSupplement.ts";
 import { cmJewels, competitionIncomes, EMPTY_COMPETITION, giftIncomes, lohJewels, LEGEND_RACE_FIRST_WIN, LEGEND_RACE_WIN_REWARD, LEGEND_RACE_TROPHY_REWARD } from "../lib/jewelSources.ts";
 import { monthStart, SERVER_GAP_DAYS } from "../lib/dates.ts";
 import { plan, pullsFor, type PlanInput } from "../lib/jewelPlan.ts";
+import { SHEET_REWARDS } from "../lib/sheetRewards.ts";
 import { isEventReward } from "../lib/rewardScope.ts";
 
 const data=JSON.parse(readFileSync(new URL("../lib/data/rewards.json",import.meta.url),"utf8")) as {checkedAt:string; rows:RewardRecord[]};
 const rows=mergeIncomes(catalogIncomes(data.rows),supplementalIncomes());
 const jp=(y:number,m:number,d:number)=>monthStart(y,m)+d-1+SERVER_GAP_DAYS;
-const base:PlanInput={today:0,target:10,paid:0,free:0,trainTickets:0,supportTickets:0,monthly:false,pass:"none",teamClass:0,incomes:[]};
+// 시트의 첫 트레이닝 패스 시작일이 들어가는 10일
+const PASS0=SHEET_REWARDS.trainingPass.datesKr[0];
+const base:PlanInput={today:PASS0-2,target:PASS0+8,paid:0,free:0,trainTickets:0,supportTickets:0,monthly:false,pass:"none",teamClass:0,incomes:[]};
 
 test("일본 아이템 ID별로 결정·조각을 구분하고 확정 티켓을 일반 뽑기에 더하지 않는다",()=>{
  const r=itemRewards([{id:144,num:2},{id:145,num:1},{id:149,num:19},{id:150,num:4},{id:41,num:2},{id:111,num:3},{id:999,num:1,name:"SSR確定ガチャチケット"}]);
@@ -24,7 +27,7 @@ test("일본 아이템 ID별로 결정·조각을 구분하고 확정 티켓을 
 });
 
 test("보유 결정·조각, 이벤트 획득, 프리미엄 패스 조각을 별도로 더한다",()=>{
- const event={id:"research",name:"research",source:"limited" as const,startKr:2,endKr:4,free:1200,trainTickets:0,supportTickets:0,rainbowShards:1,goldShards:1};
+ const event={id:"research",name:"research",source:"limited" as const,startKr:PASS0,endKr:PASS0+2,free:1200,trainTickets:0,supportTickets:0,rainbowShards:1,goldShards:1};
  const p=plan({...base,rainbowCrystals:2,rainbowShards:19,pass:"premium",incomes:[event,event]});
  assert.equal(p.rainbowCrystals,2);assert.equal(p.rainbowShards,21);assert.equal(p.goldShards,1);
  assert.equal(p.earnedMaterials.rainbowShards,2);assert.equal(p.eventFree,1200);
@@ -101,7 +104,7 @@ test("레전드 레이스는 최초 승리 150과 트로피 100을 합쳐 상대
  const schedule=[{kind:'legend' as const,id:'legend-test',name:'테스트',startKr:2,endKr:8,raceStartsKr:[2,5]}];
  const rewards=competitionIncomes(schedule,{...EMPTY_COMPETITION,legendRace:true});
  assert.deepEqual(rewards.map(r=>r.free),[250,250]);
- assert.equal(plan({...base,incomes:rewards}).competitionFree,500);
+ assert.equal(plan({...base,today:0,target:10,incomes:rewards}).competitionFree,500);
  assert.equal(competitionIncomes(schedule,EMPTY_COMPETITION).length,0);
 });
 
@@ -121,7 +124,7 @@ test("추가 수집 데이터는 이벤트 보상만 포함하고 월간 교환�
 });
 
 test("기존 정기 수입에 이벤트·운영 지급을 더하고 추가 수집의 상시 교환소·성장 보상은 제외한다",()=>{
- const event={id:'lab',name:'아그네스 타키온의 인자연구',source:'limited' as const,startKr:2,endKr:4,free:1200,trainTickets:1,supportTickets:2,rainbowShards:1};
+ const event={id:'lab',name:'아그네스 타키온의 인자연구',source:'limited' as const,startKr:PASS0,endKr:PASS0+2,free:1200,trainTickets:1,supportTickets:2,rainbowShards:1};
  const unrelated=[
   {...event,id:'shop',name:'월간 교환소',category:'monthly-shop'},
   {...event,id:'growth',name:'성장 업적',category:'achievement'},
