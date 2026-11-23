@@ -2,6 +2,10 @@
 // 날짜는 모두 한국서버 예상일(일 번호)이다.
 
 import { LOGIN_BONUS, mondaysBetween, TEAM_TRIALS_WEEKLY, type TeamClass } from "./jewelSources.ts";
+import { addRewards, type Materials, type Rewards } from "./rewards.ts";
+import { isEventReward } from "./rewardScope.ts";
+import { SHEET_REWARDS } from "./sheetRewards.ts";
+import { uniqueIncomes } from "./incomeIdentity.ts";
 
 export const JEWELS_PER_PULL = 150;
 export const CEILING = 200;
@@ -14,36 +18,54 @@ export const MONTHLY = { paidOnBuy: 500, freePerDay: 50, days: 30 } as const;
 
 /**
  * 트레이닝 패스: 육성으로 모은 포인트(최종 120,000pt)에 따라 받는 보상. 약 한 달마다 새 기간이 열린다.
- * 일본서버 2024년 2월 시작. 숫자는 wikiwiki.jp/vip_umamusu 「トレーニングパス」 보상표, game8.jp/umamusume/456096
+ * 사용자 시트 '트레이닝 패스' C2:F3의 무료·프리미엄 총량을 사용한다.
  * standard: 누구나 받는 보상, premium: 프리미엄 패스(800엔, 기간마다 1회)를 사면 더 받는 보상
  */
 export const TRAINING_PASS = {
   days: 30,
-  standard: { free: 500, trainTickets: 2, supportTickets: 2 },
-  premium: { paidOnBuy: 350, free: 1350, trainTickets: 2, supportTickets: 2 },
+  standard: SHEET_REWARDS.trainingPass.standard,
+  premium: {
+    paidOnBuy: 350,
+    free: SHEET_REWARDS.trainingPass.premium.free - SHEET_REWARDS.trainingPass.standard.free,
+    trainTickets: SHEET_REWARDS.trainingPass.premium.trainTickets - SHEET_REWARDS.trainingPass.standard.trainTickets,
+    supportTickets: SHEET_REWARDS.trainingPass.premium.supportTickets - SHEET_REWARDS.trainingPass.standard.supportTickets,
+    rainbowShards: SHEET_REWARDS.trainingPass.premium.rainbowShards - SHEET_REWARDS.trainingPass.standard.rainbowShards,
+  },
 } as const;
 
 /** none: 패스 보상을 넣지 않음, standard: 무료 보상만 끝까지, premium: 프리미엄 패스를 사고 끝까지 */
 export type PassPlan = "none" | "standard" | "premium";
 
 /** limited·story: 기간 한정 미션과 스토리 이벤트, cm·legend·loh: 고른 단계에 따른 대회 보상, gift·login: 운영 선물과 특별 로그인 보너스 */
+// Keep the existing UI source groups; detailed event categories live in category.
 export type IncomeSource = "limited" | "story" | "cm" | "legend" | "loh" | "gift" | "login";
 const COMPETITION: IncomeSource[] = ["cm", "legend", "loh"];
 const GIFT: IncomeSource[] = ["gift", "login"];
 
 /** 기간이 정해진 쥬얼·티켓 보상 묶음 하나 (기간 한정 미션, 스토리 이벤트 포인트 보상) */
-export type Income = {
+export type Income = Rewards & {
   id: string;
   source: IncomeSource;
   name: string;
   startKr: number;
   endKr: number;
+  /** Original JP dates let split rewards match even when KR dates are confirmed. */
+  startJp?: number;
+  endJp?: number;
+  /** Native limited mission group; distinguishes simultaneous campaigns. */
+  eventGroupId?: number;
+  loginDay?: number;
   free: number;
   trainTickets: number;
   supportTickets: number;
+  category?: string;
+  reference?: string;
+  condition?: string;
+  /** Optional receipt date. Legacy rows are counted on their start date. */
+  claimKr?: number;
 };
 
-export type PlanInput = {
+export type PlanInput = Materials & {
   today: number;
   /** 목표 픽업 시작일. 그 전날까지 모은 쥬얼로 계산한다 */
   target: number;
@@ -56,9 +78,11 @@ export type PlanInput = {
   /** 팀 경기장 클래스. 0이면 넣지 않음 */
   teamClass: TeamClass;
   incomes: Income[];
+  /** Already received or deliberately omitted rewards, by stable ID. */
+  excludedIncomeIds?: string[];
 };
 
-export type Plan = {
+export type Plan = Materials & {
   days: number;
   daily: number;
   monthlyFree: number;
@@ -79,6 +103,8 @@ export type Plan = {
   competitionFree: number;
   /** 운영 선물과 특별 로그인 보너스 */
   giftFree: number;
+  /** Materials earned in this plan, separate from the starting inventory. */
+  earnedMaterials: Materials;
   /** 목표 시작일의 예상 보유량 */
   free: number;
   paid: number;
@@ -88,17 +114,17 @@ export type Plan = {
 
 /** 오늘 이미 시작한 보상은 받았을 수도 있어서 넣지 않는다. 목표 시작일에 시작하는 보상도 그 픽업에는 늦어서 뺀다 */
 export function incomesBetween(incomes: Income[], today: number, target: number): Income[] {
-  return incomes.filter((i) => i.startKr > today && i.startKr < target).sort((a, b) => a.startKr - b.startKr);
+  return uniqueIncomes(incomes).filter((i) => (i.claimKr ?? i.startKr) > today && (i.claimKr ?? i.startKr) < target).sort((a, b) => (a.claimKr ?? a.startKr) - (b.claimKr ?? b.startKr));
 }
 
 export function plan(input: PlanInput): Plan {
   const days = Math.max(0, input.target - input.today);
-  const incomes = incomesBetween(input.incomes, input.today, input.target);
+  const excluded = new Set(input.excludedIncomeIds ?? []);
+  const incomes = incomesBetween(input.incomes, input.today, input.target).filter(i => isEventReward(i) && !excluded.has(i.id));
   const sum = (key: "free" | "trainTickets" | "supportTickets") => incomes.reduce((a, i) => a + i[key], 0);
 
   const daily = days * DAILY_MISSION_JEWELS;
   const monthlyFree = input.monthly ? days * MONTHLY.freePerDay : 0;
-  // 오늘 사거나 갱신한다고 보고 30일마다 한 번씩 산다
   const monthlyPaid = input.monthly ? Math.ceil(days / MONTHLY.days) * MONTHLY.paidOnBuy : 0;
   const freeOf = (sources: IncomeSource[]) => incomes.filter((i) => sources.includes(i.source)).reduce((a, i) => a + i.free, 0);
   const competitionFree = freeOf(COMPETITION);
@@ -109,7 +135,6 @@ export function plan(input: PlanInput): Plan {
   const teamWeeks = input.teamClass === 0 ? 0 : mondaysBetween(input.today, input.target);
   const teamTrials = teamWeeks * TEAM_TRIALS_WEEKLY[input.teamClass];
 
-  // 월정액과 같이, 지금 기간부터 30일마다 한 기간씩 보상을 끝까지 받는다고 본다
   const passPeriods = input.pass === "none" ? 0 : Math.ceil(days / TRAINING_PASS.days);
   const std = TRAINING_PASS.standard;
   const pre = input.pass === "premium" ? TRAINING_PASS.premium : { paidOnBuy: 0, free: 0, trainTickets: 0, supportTickets: 0 };
@@ -117,8 +142,16 @@ export function plan(input: PlanInput): Plan {
   const passPaid = passPeriods * pre.paidOnBuy;
   const passTrainTickets = passPeriods * (std.trainTickets + pre.trainTickets);
   const passSupportTickets = passPeriods * (std.supportTickets + pre.supportTickets);
+  const earnedMaterials = addRewards([...incomes, { free: 0, trainTickets: 0, supportTickets: 0, rainbowShards: input.pass === "premium" ? passPeriods * TRAINING_PASS.premium.rainbowShards : 0 }]);
+  const materialTotals = addRewards([earnedMaterials, { ...input, free: 0, trainTickets: 0, supportTickets: 0 }]);
 
   return {
+    rainbowCrystals: materialTotals.rainbowCrystals,
+    rainbowShards: materialTotals.rainbowShards,
+    goldCrystals: materialTotals.goldCrystals,
+    goldShards: materialTotals.goldShards,
+    specialTickets: materialTotals.specialTickets,
+    earnedMaterials,
     days,
     daily,
     monthlyFree,

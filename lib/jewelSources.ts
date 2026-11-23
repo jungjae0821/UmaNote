@@ -5,6 +5,8 @@ import { monthStart, SERVER_GAP_DAYS } from "./dates.ts";
 
 const jpToKr = (jpDay: number) => jpDay + SERVER_GAP_DAYS;
 import type { Income } from "./jewelPlan.ts";
+import { sheetCmReward, sheetCompetitionIncome, sheetLohReward } from "./sheetRewards.ts";
+import { removeAdditionalSheetDuplicates } from "./additionalSheetRewards.ts";
 
 /** 통상 로그인 보너스: 7일 주기로 1·3·5일째 20, 7일째 50 = 7일마다 110 (melos003.com/entry/uma-jewel, kamigame.jp 2024-04) */
 export const LOGIN_BONUS = { days: 7, jewels: 110 } as const;
@@ -17,45 +19,38 @@ export type TeamClass = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type CmLeague = "grade" | "open";
 export type CmResult = "none" | "out" | "B3" | "B2" | "B1" | "A3" | "A2" | "A1";
 
-type CmTable = Record<CmLeague, Record<Exclude<CmResult, "none" | "out">, number>>;
-
-/** 2026년 3월(일본) 개최분까지 (game8.jp/umamusume/390471) */
-const CM_BEFORE_2026_04: CmTable = {
-  grade: { A1: 2200, A2: 1800, A3: 1200, B1: 1200, B2: 900, B3: 700 },
-  open: { A1: 1000, A2: 850, A3: 700, B1: 700, B2: 600, B3: 500 },
-};
-/** 2026년 4월(일본) 개최분부터 (gamewith.jp/uma-musume/article/show/272329). 오픈 B 2위 600은 출처 표기 그대로 */
-const CM_FROM_2026_04: CmTable = {
-  grade: { A1: 3000, A2: 2400, A3: 1800, B1: 1800, B2: 1500, B3: 1200 },
-  open: { A1: 1500, A2: 1350, A3: 1200, B1: 1200, B2: 600, B3: 900 },
-};
-const CM_TABLE_CHANGE_KR = jpToKr(monthStart(2026, 4));
+/** 사용자 시트 'PVP 보상'의 인상 전·후 표를 사용한다. */
+const CM_TABLE_CHANGE_KR = jpToKr(monthStart(2024, 4));
 
 /** 결승 보상만 센다. 예선 라운드 승리 보상은 개최마다 표가 달라 넣지 않는다 */
 export function cmJewels(league: CmLeague, result: CmResult, startKr: number): number {
   if (result === "none" || result === "out") return 0;
-  return (startKr >= CM_TABLE_CHANGE_KR ? CM_FROM_2026_04 : CM_BEFORE_2026_04)[league][result];
+  return sheetCmReward(league, result, startKr >= CM_TABLE_CHANGE_KR ? "after" : "before").free;
 }
 
 /**
  * 레전드 레이스 첫 1착 보상 (game8.jp/umamusume/376819).
  * 개최 하나에 상대 레전드마다 기간이 따로 열리는 레이스가 있어서(2022년부터 2명), 레이스마다 한 번씩 센다.
- * 출처는 상대마다 주는지 밝히지 않는다
+ * 최초 승리 150 + 트로피 최초 획득 100 = 상대별 총 250쥬얼.
+ * https://cdn.inside-games.jp/article/2021/04/15/131890.html
  */
-export const LEGEND_RACE_FIRST_WIN = 150;
+export const LEGEND_RACE_WIN_REWARD = 150;
+export const LEGEND_RACE_TROPHY_REWARD = 100;
+/** 기존 UI에서 쓰는 이름을 유지한다. 값은 승리·트로피를 합친 총획득량이다. */
+export const LEGEND_RACE_FIRST_WIN = LEGEND_RACE_WIN_REWARD + LEGEND_RACE_TROPHY_REWARD;
 
 /** 리그 오브 히어로즈 랭크 도달 보상 (gamewith.jp/uma-musume/article/show/396435). 고른 랭크까지 앞 랭크 보상을 모두 받는다 */
 export const LOH_RANKS = [
   { id: "BRONZE1", name: "브론즈 1", jewels: 0 },
-  { id: "BRONZE2", name: "브론즈 2", jewels: 30 },
-  { id: "BRONZE3", name: "브론즈 3", jewels: 30 },
-  { id: "BRONZE4", name: "브론즈 4", jewels: 30 },
-  { id: "SILVER1", name: "실버 1", jewels: 50 },
-  { id: "SILVER2", name: "실버 2", jewels: 50 },
+  { id: "BRONZE2", name: "브론즈 2", jewels: 50 },
+  { id: "BRONZE3", name: "브론즈 3", jewels: 50 },
+  { id: "BRONZE4", name: "브론즈 4", jewels: 50 },
+  { id: "SILVER1", name: "실버 1", jewels: 100 },
+  { id: "SILVER2", name: "실버 2", jewels: 100 },
   { id: "SILVER3", name: "실버 3", jewels: 100 },
   { id: "SILVER4", name: "실버 4", jewels: 100 },
-  { id: "GOLD1", name: "골드 1", jewels: 150 },
-  { id: "GOLD2", name: "골드 2", jewels: 150 },
+  { id: "GOLD1", name: "골드 1", jewels: 300 },
+  { id: "GOLD2", name: "골드 2", jewels: 300 },
   { id: "GOLD3", name: "골드 3", jewels: 300 },
   { id: "GOLD4", name: "골드 4", jewels: 300 },
   { id: "PLATINUM1", name: "플래티넘 1", jewels: 500 },
@@ -66,7 +61,7 @@ export const LOH_RANKS = [
 
 /** 고른 랭크(LOH_RANKS 순번)까지 받는 쥬얼 합계. -1이면 참가하지 않음 */
 export function lohJewels(rank: number): number {
-  return LOH_RANKS.slice(0, rank + 1).reduce((a, r) => a + r.jewels, 0);
+  return sheetLohReward(rank, "after")?.free ?? LOH_RANKS.slice(0, rank + 1).reduce((a, r) => a + r.jewels, 0);
 }
 
 /** 대회·경기 보상 중 사용자가 고르는 단계 */
@@ -96,6 +91,8 @@ export type Scheduled = {
   endKr: number;
   /** 레전드 레이스만: 개최 안의 레이스(상대 레전드)마다 열리는 날. 없으면 개최 시작일 하나로 본다 */
   raceStartsKr?: number[];
+  /** 원본 시트의 개최별 보상 행. */
+  sheetRewardId?: string;
 };
 
 /** 레전드 레이스 보상 id는 `개최 id#레이스 순번`이다. 개최 id만 꺼낸다 */
@@ -108,6 +105,8 @@ const KIND_NAME = { cm: "챔피언스 미팅", legend: "레전드 레이스", lo
 /** 고른 단계로 대회 보상을 기간 보상 목록에 끼워 넣을 수 있는 모양으로 바꾼다. 0쥬얼인 대회는 뺀다 */
 export function competitionIncomes(schedule: Scheduled[], c: CompetitionInput): Income[] {
   return schedule.flatMap((s): Income[] => {
+    const sheet = sheetCompetitionIncome(s, c);
+    if (sheet) return sheet;
     if (s.kind === "legend") {
       if (!c.legendRace) return [];
       const starts = s.raceStartsKr?.length ? s.raceStartsKr : [s.startKr];
@@ -127,7 +126,13 @@ export function competitionIncomes(schedule: Scheduled[], c: CompetitionInput): 
       s.kind === "cm" ? cmJewels(c.cmLeague, c.cmResult, s.startKr) : lohJewels(c.lohRank);
     if (free === 0) return [];
     // 챔피언스 미팅은 결승이 끝나야 보상이 나오므로 마지막 날을 기준으로 센다
-    const day = s.kind === "cm" ? s.endKr : s.startKr;
+    const day = s.endKr;
+    const cmTickets = c.cmResult === "none" || c.cmResult === "out" ? [0, 0] : c.cmLeague === "grade"
+      ? ({ A1: [5, 5], A2: [4, 4], A3: [3, 3], B1: [3, 3], B2: [2, 2], B3: [1, 1] }[c.cmResult])
+      : ({ A1: [3, 3], A2: [2, 2], A3: [1, 1], B1: [2, 1], B2: [2, 0], B3: [1, 0] }[c.cmResult]);
+    // JP LOH Gold 1/2/3/4: support/train/support/train tickets; Gold 4 and Platinum 1: rainbow shards.
+    const lohTrain = (c.lohRank >= 9 ? 1 : 0) + (c.lohRank >= 11 ? 1 : 0);
+    const lohSupport = (c.lohRank >= 8 ? 1 : 0) + (c.lohRank >= 10 ? 1 : 0);
     return [
       {
         id: s.id,
@@ -136,8 +141,11 @@ export function competitionIncomes(schedule: Scheduled[], c: CompetitionInput): 
         startKr: day,
         endKr: s.endKr,
         free,
-        trainTickets: 0,
-        supportTickets: 0,
+        trainTickets: s.kind === "cm" ? cmTickets[0] : lohTrain,
+        supportTickets: s.kind === "cm" ? cmTickets[1] : lohSupport,
+        rainbowShards: s.kind === "loh" ? (c.lohRank >= 11 ? 1 : 0) + (c.lohRank >= 12 ? 1 : 0) : 0,
+        goldShards: s.kind === "loh" ? (c.lohRank >= 9 ? 1 : 0) + (c.lohRank >= 10 ? 1 : 0) : 0,
+        reference: s.kind === "cm" ? "https://gamewith.jp/uma-musume/article/show/272329" : "https://gamewith.jp/uma-musume/article/show/396435",
       },
     ];
   });
@@ -157,7 +165,7 @@ type Gift = { jp: [number, number, number]; name: string; jewels: number; kind: 
  * ぱかライブTV 방송 기념 선물과 같은 공지의 챌린지 보상은 한 줄로 합쳤다.
  * 점검·오류 보상(お詫び)은 찾은 것이 모두 쥬얼이 아니었고, 한일 동시 진행이었던 신데렐라 그레이 방영 캠페인도 뺐다.
  * 2026-11-05 기준으로 공식 공지·공략 사이트를 교차 확인했다. 공지가 지워진 2026년 7월 초는 방송 요약으로만 확인했다.
- * 개인 성적에 따라 달라지는 보상(마스터즈 챌린지, Beyond Memories 이벤트, 시험 코인 교환)은 수량이 공개되지 않아 넣지 않았다.
+ * 마스터즈 챌린지·협동 이벤트·시험 교환소 등은 별도 이벤트 보상 목록에서 합산한다.
  */
 const GIFTS: Gift[] = [
   { jp: [2025, 7, 31], name: "ぱかライブTV Vol.55 방송 기념 선물", jewels: 150 + 200, kind: "gift", source: "id=2693" },
@@ -209,19 +217,23 @@ const GIFTS: Gift[] = [
   ),
 ];
 
-/** 운영 선물과 특별 로그인 보너스를 한국서버 예상일의 기간 보상으로 */
+/** 운영팀 별도 지급 선물. 특별 로그인은 일차별 보상 목록에서 합산한다. */
 export function giftIncomes(): Income[] {
-  return GIFTS.map((g, i) => {
+  // Special login rewards now come from the day-by-day game-data catalog.
+  return removeAdditionalSheetDuplicates(GIFTS.flatMap((g, i) => {
+    if (g.kind !== "gift") return [];
     const day = jpToKr(monthStart(g.jp[0], g.jp[1]) + g.jp[2] - 1);
     return {
       id: `gift-${i}`,
       source: g.kind,
+      category: /주년 기념 쥬얼 선물/.test(g.name) ? "anniversary-gift" : "operator-gift",
       name: g.name,
       startKr: day,
       endKr: day,
       free: g.jewels,
+      reference: g.source.match(/id=(\d+)/) ? `https://umamusume.jp/news/detail?id=${g.source.match(/id=(\d+)/)![1]}` : undefined,
       trainTickets: 0,
       supportTickets: 0,
     };
-  });
+  }));
 }

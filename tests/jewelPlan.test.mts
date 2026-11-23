@@ -31,7 +31,7 @@ test("오늘부터 목표 시작 전날까지 데일리 미션 쥬얼을 모은�
   const p = plan({ ...base, free: 1000 });
   assert.equal(p.days, 30);
   assert.equal(p.daily, 1500);
-  assert.equal(p.free, 2500 + 440); // 로그인 보너스 4주
+  assert.equal(p.free, 2500 + 440);
 });
 
 test("오늘 시작한 보상과 목표 시작일 이후 보상은 넣지 않는다", () => {
@@ -89,7 +89,7 @@ test("로그인 보너스는 7일마다 110", () => {
   assert.equal(p.login, 4 * 110);
 });
 
-test("운영 선물은 이벤트 보상과 따로 합친다", () => {
+test("운영팀 별도 선물도 이벤트 보상에 더한다", () => {
   const gifts = giftIncomes();
   assert.ok(gifts.every((g) => g.free > 0));
   const first = gifts[0];
@@ -98,16 +98,13 @@ test("운영 선물은 이벤트 보상과 따로 합친다", () => {
   assert.equal(p.eventFree, 100);
 });
 
-test("운영 선물 목록은 겹치지 않고, 주년마다 카운트다운·쥬얼 선물·로그인 보너스가 다 있다", () => {
+test("운영 선물은 중복 없이 합산하고 이벤트 로그인과 구분한다", () => {
   const gifts = giftIncomes();
   const keys = gifts.map((g) => `${g.startKr}|${g.name}`);
   assert.equal(new Set(keys).size, keys.length);
-  for (const year of ["4.5주년", "5주년", "5.5주년"]) {
-    const names = gifts.filter((g) => g.name.startsWith(year)).map((g) => g.name);
-    assert.ok(names.some((n) => n.includes("카운트다운")), `${year} 카운트다운`);
-    assert.ok(names.some((n) => n.includes("쥬얼 선물")), `${year} 쥬얼 선물`);
-    assert.ok(names.some((n) => n.includes("기념 로그인 보너스")), `${year} 로그인 보너스`);
-  }
+  // Anniversary jewels now come from the user's sheet; don't also return manual copies.
+  assert.ok(!gifts.some(g => /^(4\.5|5|5\.5)주년 기념 쥬얼 선물/.test(g.name)));
+  assert.ok(gifts.every(g=>g.source==="gift"&&['anniversary-gift','operator-gift'].includes(g.category??'')));
 });
 
 test("팀 경기장은 사이에 낀 월요일마다 클래스 보상", () => {
@@ -135,11 +132,15 @@ test("대회 보상은 고른 단계대로, 챔피언스 미팅은 끝나는 날
   const p = plan({ ...base, incomes });
   assert.deepEqual(
     p.incomes.map((i) => i.id),
-    ["cm-2", "loh-1", "lr-1#1", "lr-1#2"],
+    ["cm-2", "lr-1#1", "lr-1#2", "loh-1"],
   );
-  // 레전드 레이스는 개최 안의 레이스(상대 레전드)마다 150
-  assert.equal(p.competitionFree, cmJewels("grade", "A1", 105) + lohJewels(11) + 150 * 2);
-  assert.equal(lohJewels(11), 1290); // 브론즈 2 ~ 골드 4
+  // 상대마다 최초 승리 150 + 트로피 최초 획득 100.
+  assert.equal(p.competitionFree, cmJewels("grade", "A1", 105) + lohJewels(11) + 250 * 2);
+  assert.equal(lohJewels(11), 1750); // 일본 브론즈 2 ~ 골드 4
+  assert.equal(p.trainTickets,7); // CM 5 + LOH 2
+  assert.equal(p.supportTickets,7);
+  assert.equal(p.rainbowShards,1);
+  assert.equal(p.goldShards,2);
   assert.equal(p.eventFree, 0);
   assert.equal(competitionIncomes(schedule, EMPTY_COMPETITION).length, 0);
 });
