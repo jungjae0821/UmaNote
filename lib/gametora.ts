@@ -13,7 +13,8 @@ import sheetRewards from "./data/sheetRewards.json";
 import eventBanners from "./data/eventBanners.json";
 
 const BASE = "https://gametora.com/data";
-const REVALIDATE = 3600;
+const REVALIDATE = 43_200; // GameTora 12시간
+const PLANNER_REVALIDATE = 3600;
 
 type Manifest = Record<string, string>;
 
@@ -453,7 +454,7 @@ const getPlannerEditions = unstable_cache(
     return plannerEditions(app, source);
   }, [] as PlannerEdition[]),
   ["planner-editions-v1"],
-  { revalidate: REVALIDATE },
+  { revalidate: PLANNER_REVALIDATE },
 );
 
 const TRACK_NAME: Record<number, string> = {

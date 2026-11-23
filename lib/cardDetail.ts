@@ -31,7 +31,7 @@ type RawSkill = {
   jpdesc: string;
 };
 
-const SKILLS_TTL = 3600 * 1000;
+const SKILLS_TTL = 43_200 * 1000;
 let skillsCache: { at: number; data: Promise<Map<number, Skill>> } | null = null;
 
 // 스킬 파일은 2MB가 넘어 Next.js 데이터 캐시에 그대로 들어가지 않는다. 쓰는 칸만 남겨(약 1MB) 캐시한다.
@@ -44,10 +44,10 @@ const rawSkills = unstable_cache(
     return raw.map(({ id, iconid, rarity, name_ko, desc_ko, jpname, jpdesc }) => ({ id, iconid, rarity, name_ko, desc_ko, jpname, jpdesc }));
   },
   ["gametora-skills-v1"],
-  { revalidate: 3600 },
+  { revalidate: 43_200 },
 );
 
-// 가공한 Map은 서버 메모리에 한 시간 둔다
+// 가공한 Map은 서버 메모리에 12시간 둔다
 function getSkills(): Promise<Map<number, Skill>> {
   if (skillsCache && Date.now() - skillsCache.at < SKILLS_TTL) return skillsCache.data;
   const data = (async () => {

@@ -20,6 +20,7 @@ import { futureScenarioRewards } from "./futureCampaignRewards";
 
 const BASE = "https://gametora.com/data";
 const REVALIDATE = 3600;
+const GAMETORA_REVALIDATE = 43_200; // GameTora 12시간
 type Mission = { id: number; itemId: number; itemNumber: number; originalText?: string; startDate?: number; endDate?: number; subMissions?: Mission[] };
 type Group = { eventId?: number; eventOriginal?: string; startDate?: number; endDate?: number; missions: Mission[] };
 const EXCLUDED = /シンデレラグレイ|Cinderella Gray|신데렐라 그레이/i;
@@ -63,13 +64,13 @@ export async function getJewelIncomes(): Promise<Income[]> {
   const fresh = planner.filter(r => r.category !== "limited" || existing.has(r.id) || (r.startJp ?? r.startKr - SERVER_GAP_DAYS) >= checkpoint);
   let baseline = mergeIncomes(mergeIncomes(mergeIncomes(catalogIncomes(snapshot.rows as RewardRecord[]), supplement), fresh), operator);
   try {
-    const manifest = await fetchJson<Record<string,string>>(`${BASE}/manifests/umamusume.json`,REVALIDATE);
-    const names = new Map((await fetchJson<{id:number;name_ko?:string;name_jp?:string}[]>(`${BASE}/umamusume/items.${manifest.items}.json`,REVALIDATE)).map(i=>[i.id,i.name_ko??i.name_jp]));
+    const manifest = await fetchJson<Record<string,string>>(`${BASE}/manifests/umamusume.json`,GAMETORA_REVALIDATE);
+    const names = new Map((await fetchJson<{id:number;name_ko?:string;name_jp?:string}[]>(`${BASE}/umamusume/items.${manifest.items}.json`,GAMETORA_REVALIDATE)).map(i=>[i.id,i.name_ko??i.name_jp]));
     const keys = ["missions/limited","missions/trainerexam-limited","missions/legendrace-limited","missions/teamscout-limited","missions/racingcarnival-limited","missions/collectraid-limited","missions/story-limited"];
     const [results,stories,cards] = await Promise.all([
-      Promise.allSettled(keys.map(key=>fetchJson<Group[] | Group>(`${BASE}/umamusume/${key}.${manifest[key]}.json`,REVALIDATE))),
-      fetchJson<StorySchedule[]>(`${BASE}/umamusume/events/story-events.${manifest["events/story-events"]}.json`,REVALIDATE).catch(err=>{logFailure("스토리 이벤트 일정",err);return [] as StorySchedule[];}),
-      fetchJson<Parameters<typeof characterScheduleIncomes>[0]>(`${BASE}/umamusume/character-cards.${manifest["character-cards"]}.json`,REVALIDATE).catch(err=>{logFailure("신캐 스토리 일정",err);return [];}),
+      Promise.allSettled(keys.map(key=>fetchJson<Group[] | Group>(`${BASE}/umamusume/${key}.${manifest[key]}.json`,GAMETORA_REVALIDATE))),
+      fetchJson<StorySchedule[]>(`${BASE}/umamusume/events/story-events.${manifest["events/story-events"]}.json`,GAMETORA_REVALIDATE).catch(err=>{logFailure("스토리 이벤트 일정",err);return [] as StorySchedule[];}),
+      fetchJson<Parameters<typeof characterScheduleIncomes>[0]>(`${BASE}/umamusume/character-cards.${manifest["character-cards"]}.json`,GAMETORA_REVALIDATE).catch(err=>{logFailure("신캐 스토리 일정",err);return [];}),
     ]);
     const byId=new Map(stories.map(s=>[`story-${s.id}`,s]));
     baseline=baseline.map(r=>{
