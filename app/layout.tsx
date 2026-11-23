@@ -7,6 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "우마노트", template: "%s | 우마노트" },
   description: "우마무스메 한국서버 픽업·이벤트 일정, 뽑기 시뮬레이터, 사료계산기",
+  appleWebApp: { title: "우마노트" },
 };
 
 // 처음 그리기 전에 저장된 테마를 적용한다. 기본은 다크
