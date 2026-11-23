@@ -27,6 +27,21 @@
   gap: 6px;
   flex-wrap: wrap;
 }
+.month-nav .icon-btn {
+  width: 40px;
+  height: 40px;
+}
+.month-nav .btn,
+.fut-filters .filter-chip {
+  height: 40px;
+}
+.fut-filters .filter-chip {
+  padding: 0 14px;
+}
+.fut-filters .seg button {
+  height: 30px;
+  padding-block: 0;
+}
 
 .cal {
   border-radius: 18px;

@@ -86,6 +86,14 @@
 .chars-bar .seg {
   margin-left: auto;
 }
+.chars-bar .input,
+.chars-bar .btn {
+  height: 40px;
+}
+.chars-bar .seg button {
+  height: 30px;
+  padding-block: 0;
+}
 .filters-toggle {
   display: none;
 }

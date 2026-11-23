@@ -2,7 +2,7 @@
   margin-bottom: 14px;
 }
 .sim-select {
-  max-width: 640px;
+  max-width: calc(100% - 340px);
   margin-bottom: 16px;
 }
 .sim-select .input {
@@ -280,6 +280,9 @@
 @media (max-width: 1023px) {
   .sim {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .sim-select {
+    max-width: none;
   }
 }
 @media (max-width: 767px) {
