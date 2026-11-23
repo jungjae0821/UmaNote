@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import horseshoe from "@/app/icon.png";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon, type IconName } from "./Icon";
@@ -76,7 +78,8 @@ export function Sidebar() {
           <Icon name="menu" />
         </button>
         <Link href="/" className="logo">
-          우마노트
+          <Image src={horseshoe} alt="" width={36} height={36} className="logo-mark" />
+          <span>우마노트</span>
         </Link>
         <button type="button" className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="검색">
           <Icon name="search" />
@@ -88,7 +91,8 @@ export function Sidebar() {
       <nav className={`side-nav${open ? " open" : ""}`} aria-label="주 메뉴">
         <div className="nav-head">
           <Link href="/" className="logo">
-            우마노트
+            <Image src={horseshoe} alt="" width={36} height={36} className="logo-mark" />
+            <span>우마노트</span>
           </Link>
           <button type="button" className="icon-btn nav-close" onClick={() => setOpen(false)} aria-label="메뉴 닫기">
             <Icon name="close" />
