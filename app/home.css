@@ -152,7 +152,6 @@
   object-fit: cover;
   object-position: top;
   background: var(--glass-strong);
-  box-shadow: 0 0 0 2px var(--solid);
 }
 .race > div {
   flex: 1 160px;
