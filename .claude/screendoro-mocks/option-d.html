@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>우마노트 시안 D</title>
+<style>
+@font-face{font-family:"경기천년제목";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/GyeonggiTitleM.woff") format("woff");font-display:swap}
+@font-face{font-family:"경기천년바탕";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/GyeonggiBatang.woff") format("woff");font-display:swap}
+:root{--title:"경기천년제목","Pretendard",system-ui,sans-serif;--body:"경기천년바탕","Pretendard",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);word-break:keep-all;line-height:1.5;font-variant-numeric:tabular-nums;font-size:14px}
+a{color:inherit;text-decoration:none}
+figure{margin:0}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+nav{background:var(--nav);padding:14px 12px;position:sticky;top:0;height:100vh;border-right:1px solid var(--line)}
+.logo{font-family:var(--title);font-size:20px;padding:6px 10px 22px;color:var(--ink)}
+nav a{display:flex;align-items:center;gap:10px;font-family:var(--title);font-size:14px;padding:8px 10px;border-radius:8px;color:var(--sub)}
+nav a svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+nav a.on{background:var(--panel2);color:var(--ink)}
+main{padding:24px 32px 64px;max-width:1240px}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+h1{font-family:var(--title);font-size:24px;font-weight:400}
+.today{font-family:var(--title);font-size:14px;color:var(--sub)}
+h2{font-family:var(--title);font-size:19px;font-weight:400;margin:32px 0 12px}
+section:first-of-type h2{margin-top:0}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.btn{font-family:var(--title);font-size:13px;padding:7px 12px;border-radius:8px;background:var(--panel2);color:var(--ink);white-space:nowrap}
+.btn.main{background:var(--accent);color:var(--on-accent)}
+.left{display:inline-flex;align-items:center;gap:6px;font-family:var(--title);font-size:12px;padding:4px 10px;border-radius:999px;background:var(--badge-bg);color:var(--badge-ink)}
+.left i{width:6px;height:6px;border-radius:50%;background:var(--live)}
+.kind{font-family:var(--title);font-size:15px}
+.period{font-size:12px;color:var(--sub)}
+.pk .art{position:relative;border-radius:8px;overflow:hidden;background:var(--art)}
+.pk .art img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+.pk .tag{position:absolute;top:6px;right:6px;font-family:var(--title);font-size:11px;padding:2px 7px;border-radius:999px;background:var(--tag-bg);color:var(--tag-ink)}
+.pk figcaption{padding-top:6px}
+.pk small{display:block;font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk b{display:block;font-family:var(--title);font-weight:400;font-size:15px}
+.pk em{font-style:normal;font-size:12px;color:var(--sub)}
+.next{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.nx{background:var(--panel);border-radius:10px;padding:10px 14px 10px 10px;display:flex;gap:12px;align-items:center}
+.nx img{width:52px;height:52px;object-fit:cover;object-position:top;border-radius:8px;background:var(--art)}
+.nx .meta{font-size:12px;color:var(--sub)}
+.nx .who{font-family:var(--title);font-size:15px}
+.nx .when{margin-left:auto;font-family:var(--title);font-size:12px;padding:4px 10px;border-radius:999px;background:var(--panel2);white-space:nowrap}
+.tl{background:var(--panel);border-radius:10px;padding:14px 18px}
+.ticks{position:relative;height:18px;margin-left:52px;font-size:11px;color:var(--sub)}
+.ticks span{position:absolute;transform:translateX(-50%)}
+.ticks .t{color:var(--ink);font-family:var(--title)}
+.rows{position:relative}
+.lane{display:grid;grid-template-columns:52px 1fr;align-items:center;margin-top:8px}
+.lane b{font-family:var(--title);font-weight:400;font-size:12px;color:var(--sub)}
+.track{position:relative;height:26px}
+.track+.track{margin-top:3px}
+.seg{position:absolute;top:0;bottom:0;border-radius:6px;font-family:var(--title);font-size:11px;padding:0 8px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;background:var(--seg);color:var(--sub)}
+.train .seg.now{background:var(--train);color:var(--on-train)}
+.sup .seg.now{background:var(--support);color:var(--on-support)}
+.todayline{position:absolute;top:-4px;bottom:-4px;left:calc(52px + (100% - 52px)*.25);width:2px;background:var(--live)}
+.jewel{background:var(--panel);border-radius:10px;padding:16px 20px;display:flex;gap:32px;align-items:flex-end;flex-wrap:wrap}
+.jewel dt{font-size:12px;color:var(--sub)}
+.jewel dd{font-family:var(--title);font-size:20px}
+.jewel .goal{margin-left:auto;text-align:right}
+.jewel .goal dd{font-size:26px;color:var(--accent-text)}
+
+:root{--bg:#262626;--nav:#262626;--panel:#333333;--panel2:#404040;--line:#363636;--ink:#f5f5f5;--sub:#bdbdbd;--art:#404040;
+--accent:#f5f5f5;--on-accent:#1f1f1f;--accent-text:#f5f5f5;--live:#ff6b6b;--badge-bg:rgba(0,0,0,.72);--badge-ink:#fff;--tag-bg:rgba(0,0,0,.7);--tag-ink:#fff;
+--train:#ff8a8a;--on-train:#2b0a0a;--support:#7fb2ff;--on-support:#071a36;--seg:#404040}
+.banners{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bn{background:var(--panel);border-radius:10px;overflow:hidden}
+.bnimg{position:relative;aspect-ratio:2/1}
+.bnimg>img{width:100%;height:100%;object-fit:cover;display:block}
+.bnimg .left{position:absolute;top:10px;right:10px}
+.bnbody{padding:14px}
+.bnhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.train .kind{color:var(--train)}.sup .kind{color:var(--support)}
+.picks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pk .art{aspect-ratio:112/127}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+  <div class="logo">우마노트</div>
+  <a class="on" href="#"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>홈</a>
+  <a href="#"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>가챠 일정</a>
+  <a href="#"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M9 21h9a2 2 0 0 0 2-2V8"/></svg>뽑기 시뮬레이터</a>
+  <a href="#"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 12h2M13 12h2M9 16h2M13 16h2"/></svg>사료계산기</a>
+  <a href="#"><svg viewBox="0 0 24 24"><path d="M4 21V11h16v10zM12 11V7M12 7c-1.5 0-2-1.2-2-2s2-3 2-3 2 2.2 2 3-.5 2-2 2zM4 15c2.7 0 2.7 1.5 5.3 1.5S12 15 14.7 15s2.6 1.5 5.3 1.5"/></svg>생일달력</a>
+</nav>
+<main>
+  <div class="head"><h1>홈</h1><div class="today">2026년 11월 23일 (월)</div></div>
+
+  <section class="now">
+    <h2>진행 중 픽업</h2>
+    <div class="banners">
+      <article class="bn train">
+        <div class="bnimg"><img src="https://gametora.com/images/umamusume/ko/gacha/img_bnr_gacha_30356.png" alt="육성 우마무스메 픽업 배너"><span class="left"><i></i>10일 남음</span></div>
+        <div class="bnbody">
+          <div class="bnhead"><div><div class="kind">육성 우마무스메</div><div class="period">11/19 12:00 ~ 12/3 11:59</div></div><div class="btns"><a class="btn" href="#">뽑기 시뮬레이션</a><a class="btn main" href="#">목표로 계산</a></div></div>
+          <div class="picks">
+            <figure class="pk"><div class="art"><img src="https://gametora.com/images/umamusume/characters/thumb/chara_stand_1088_108802.png" alt=""><span class="tag">신규</span></div><figcaption><small>맑은 섬에 핀 아름다운 꽃</small><b>사토노 크라운</b><em>0.75%</em></figcaption></figure>
+            <figure class="pk"><div class="art"><img src="https://gametora.com/images/umamusume/characters/thumb/chara_stand_1089_108902.png" alt=""><span class="tag">신규</span></div><figcaption><small>잔잔한 여름의 네이비 드롭</small><b>슈발 그랑</b><em>0.75%</em></figcaption></figure>
+          </div>
+        </div>
+      </article>
+      <article class="bn sup">
+        <div class="bnimg"><img src="https://gametora.com/images/umamusume/ko/gacha/img_bnr_gacha_30357.png" alt="서포트 카드 픽업 배너"><span class="left"><i></i>10일 남음</span></div>
+        <div class="bnbody">
+          <div class="bnhead"><div><div class="kind">서포트 카드</div><div class="period">11/19 12:00 ~ 12/3 11:59</div></div><div class="btns"><a class="btn" href="#">뽑기 시뮬레이션</a><a class="btn main" href="#">목표로 계산</a></div></div>
+          <div class="picks">
+            <figure class="pk card"><div class="art"><img src="https://gametora.com/images/umamusume/supports/tex_support_card_30261.png" alt=""><span class="tag">SSR</span></div><figcaption><small>수면의 프린시펄</small><b>윈 바리아시옹</b><em>0.75%</em></figcaption></figure>
+            <figure class="pk card"><div class="art"><img src="https://gametora.com/images/umamusume/supports/tex_support_card_30262.png" alt=""><span class="tag">SSR</span></div><figcaption><small>Tranquillo</small><b>두라멘테</b><em>0.75%</em></figcaption></figure>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="nextsec">
+    <h2>다음 픽업</h2>
+    <div class="next">
+      <div class="nx train"><img src="https://gametora.com/images/umamusume/characters/thumb/chara_stand_1091_109102.png" alt=""><div><div class="meta">육성 우마무스메 · 12/3 ~ 12/13</div><div class="who">비블로스</div></div><span class="when">10일 후 시작</span></div>
+      <div class="nx sup"><img src="https://gametora.com/images/umamusume/supports/tex_support_card_30264.png" alt=""><div><div class="meta">서포트 카드 · 12/13 ~ 1/8</div><div class="who">스테이 골드, 어드마이어 그루브</div></div><span class="when">20일 후 시작</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>오늘 앞뒤 픽업</h2>
+    <div class="tl">
+      <div class="ticks"><span style="left:0%">11/9</span><span style="left:12.5%">11/16</span><span style="left:25%" class="t">오늘</span><span style="left:37.5%">11/30</span><span style="left:50%">12/7</span><span style="left:62.5%">12/14</span><span style="left:75%">12/21</span><span style="left:87.5%">12/28</span><span style="left:100%">1/4</span></div>
+      <div class="rows">
+        <div class="lane train"><b>육성</b><div><div class="track"><div class="seg" style="left:1.8%;width:16.1%">후사이치 판도라</div><div class="seg now" style="left:17.9%;width:25%">사토노 크라운 · 슈발 그랑</div><div class="seg" style="left:42.9%;width:17.8%">비블로스</div><div class="seg" style="left:60.7%;width:39.3%">스틸 인 러브</div></div><div class="track"><div class="seg" style="left:69.6%;width:19.7%">케이에스 미라클 · 히시 미라클</div><div class="seg" style="left:89.3%;width:10.7%">에스푸아르</div></div></div></div>
+        <div class="lane sup"><b>서포트</b><div><div class="track"><div class="seg now" style="left:17.9%;width:25%">윈 바리아시옹 · 두라멘테</div><div class="seg" style="left:60.7%;width:39.3%">스테이 골드 · 어드마이어 그루브</div></div><div class="track"><div class="seg" style="left:69.6%;width:19.7%">칼스톤 라이트 오 · 뒤랑달</div><div class="seg" style="left:89.3%;width:10.7%">비코 페가수스</div></div></div></div>
+        <div class="todayline"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>보유 쥬얼</h2>
+    <dl class="jewel"><div><dt>무료 쥬얼</dt><dd>12,450</dd></div><div><dt>유료 쥬얼</dt><dd>1,200</dd></div><div><dt>육성 티켓</dt><dd>8장</dd></div><div><dt>서포트 티켓</dt><dd>5장</dd></div><div class="goal"><dt>비블로스 픽업(12/3)까지 모이는 쥬얼</dt><dd>16,830</dd></div></dl>
+  </section>
+</main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+.calc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 20px;
+  align-items: start;
+}
+.calc-h {
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+.calc-grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px 14px;
+}
+.num-input {
+  position: relative;
+  display: block;
+}
+.num-input .input {
+  padding-right: 36px;
+  text-align: right;
+}
+.num-input em {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-style: normal;
+  font-size: 12px;
+  color: var(--sub);
+}
+.check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--glass-strong);
+  cursor: pointer;
+}
+.check input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--support);
+}
+.check span {
+  font-family: var(--title);
+  font-size: 13px;
+  color: var(--ink);
+}
+.check small {
+  display: block;
+  font-family: var(--body);
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.calc-result {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+.res-target {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.res-faces {
+  display: flex;
+}
+.res-faces img {
+  width: 44px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+  object-position: top;
+  background: var(--glass-strong);
+}
+.res-faces img + img {
+  margin-left: -10px;
+}
+.res-name {
+  font-family: var(--title);
+  font-size: 16px;
+  color: var(--ink);
+}
+.res-when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--sub);
+}
+.res-big {
+  display: flex;
+  gap: 20px;
+  align-items: baseline;
+  margin: 16px 0 4px;
+  flex-wrap: wrap;
+}
+.res-big p {
+  font-family: var(--title);
+  font-size: 15px;
+  color: var(--text);
+}
+.res-big b {
+  font-weight: 400;
+  font-size: 36px;
+  color: var(--ink);
+}
+.res-how,
+.res-ceil {
+  font-size: 13px;
+  color: var(--text);
+}
+.res-ceil {
+  color: var(--sub);
+}
+.res-sum {
+  margin-top: 14px;
+  border-top: 1px solid var(--glass-line);
+}
+.res-sum > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+}
+.res-sum dt {
+  font-size: 13px;
+  color: var(--text);
+}
+.res-sum dt small {
+  display: block;
+  font-size: 11px;
+  color: var(--sub);
+}
+.res-sum dd {
+  font-family: var(--title);
+  font-size: 14px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.res-total {
+  border-top: 1px solid var(--glass-line);
+}
+.res-total dd {
+  font-size: 18px;
+}
+.res-h {
+  font-size: 15px;
+  margin: 16px 0 6px;
+}
+.res-route li {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+.res-route li + li {
+  border-top: 1px solid var(--glass-line);
+}
+.rr-date {
+  font-family: var(--title);
+  color: var(--text);
+}
+.rr-name {
+  color: var(--ink);
+}
+.rr-name small {
+  display: block;
+  color: var(--sub);
+}
+.rr-gain {
+  color: var(--text);
+  text-align: right;
+}
+.rr-none {
+  color: var(--sub);
+}
+.res-note {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--sub);
+}
+.calc-sticky {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .calc {
+    grid-template-columns: minmax(0, 1fr);
+    padding-bottom: 72px;
+  }
+  .calc-result {
+    position: static;
+    max-height: none;
+  }
+  .calc-sticky {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .calc-sticky b {
+    font-family: var(--title);
+    font-weight: 400;
+    font-size: 15px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .calc-sticky span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.res-route li.rr-none {
+  display: block;
+}

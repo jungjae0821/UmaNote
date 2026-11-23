@@ -1,0 +1,124 @@
+.ev-live {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.ev-card h3 {
+  font-size: 19px;
+  margin: 8px 0 2px;
+}
+.ev-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.ev-card .tags-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.ev-kind {
+  font-family: var(--title);
+  font-size: 12px;
+  color: var(--sub);
+  white-space: nowrap;
+}
+.ev-kind.k-story {
+  color: var(--new);
+}
+.ev-kind.k-cm {
+  color: var(--train);
+}
+.ev-kind.k-loh {
+  color: var(--support);
+}
+.ev-period {
+  font-size: 12px;
+  color: var(--sub);
+}
+.ev-faces {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ev-faces span {
+  font-family: var(--title);
+  font-size: 12px;
+  color: var(--sub);
+  width: 40px;
+}
+.ev-faces img {
+  width: 44px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+  object-position: top;
+  background: var(--glass-strong);
+}
+.ev-filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.ev-month + .ev-month {
+  margin-top: 18px;
+}
+.ev-month h3 {
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.ev-list {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.ev-item {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  scroll-margin-top: 80px;
+}
+.ev-item + .ev-item {
+  border-top: 1px solid var(--glass-line);
+}
+.ev-item:target {
+  background: var(--glass-strong);
+  border-radius: 10px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.ev-main b {
+  display: block;
+  font-family: var(--title);
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--ink);
+}
+.ev-extra {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.ev-past-title {
+  margin-top: 32px;
+}
+
+@media (max-width: 767px) {
+  .ev-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .ev-item .ev-kind {
+    grid-column: 1 / -1;
+  }
+  .ev-extra {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    order: 3;
+  }
+}

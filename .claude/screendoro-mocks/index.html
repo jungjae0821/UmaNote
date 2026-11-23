@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우마노트 시안 비교</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#e9eaee;color:#15171c}
+header{position:sticky;top:0;background:#fff;padding:12px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+button{font:inherit;font-size:15px;padding:8px 16px;border-radius:999px;border:0;background:#eef0f3;cursor:pointer}
+button[aria-selected=true]{background:#15171c;color:#fff}
+.desc{padding:14px 20px 0;max-width:1100px;font-size:14px;line-height:1.6}
+.desc b{font-size:16px}
+.note{color:#5a6070;font-size:13px}
+iframe{display:block;width:calc(100% - 40px);height:1500px;margin:14px 20px 40px;border:0;border-radius:12px;background:#fff}
+</style>
+</head>
+<body>
+<header role="tablist">
+  <strong style="margin-right:8px">우마노트 시안</strong>
+  <button role="tab" aria-selected="true" data-k="i">I H + 리퀴드 글라스</button>
+  <button role="tab" aria-selected="false" data-k="h">H 몰루로그 그대로 (구조 무시)</button>
+  <button role="tab" aria-selected="false" data-k="g">G 몰루로그 느낌 그대로</button>
+  <button role="tab" aria-selected="false" data-k="d">D 몰루로그 다크</button>
+  <button role="tab" aria-selected="false" data-k="e">E 몰루로그 라이트</button>
+  <button role="tab" aria-selected="false" data-k="f">F 블루그레이 목록형</button>
+</header>
+<div class="desc" id="desc"></div>
+<iframe id="f" title="시안 미리보기" src="option-i.html"></iframe>
+<script>
+const D={
+ i:"<b>I H + 리퀴드 글라스</b> — 시안 H의 배치 그대로, 뒤에 진행 중 픽업 배너를 크게 흐리게 깔고 사이드바·패널을 반투명 유리(배경 흐림 24px, 채도 180%)로. 이중 테두리 금지 규칙 때문에 유리 가장자리는 1px 반투명 선 한 겹만. 버튼은 알약형. 왼쪽 아래 해 아이콘으로 라이트/다크 전환.<br>장점: 진행 중 픽업의 색이 화면 전체 분위기가 됨 · 위험: 배경이 바뀔 때마다 글자 대비가 달라지고, 저사양 폰에서 흐림 효과가 무거움",
+ h:"<b>H 몰루로그 그대로 (확정 구조 무시)</b> — 근거: 레퍼런스 1. 홈을 \"진행 중인 컨텐츠\" 대시보드로: 왼쪽 넓은 열에 이벤트(스토리 이벤트 큰 배너) → 픽업 가챠(세로 카드 + 다음 픽업 줄) → 경기(레전드 레이스, 리그 오브 히어로즈) → 그 외 컨텐츠, 오른쪽 열에 다가오는 생일과 내 쥬얼. 사이드바 검색·접는 묶음·테마 전환(왼쪽 아래 해 아이콘, 눌러 보면 라이트로 바뀜). 데이터는 GameTora 한국서버 데이터로 실제 값.<br>주의: 사이드바의 미래시·이벤트·캐릭터는 확정한 5개 화면에 없는 메뉴이고, 오늘 앞뒤 타임라인은 빠짐.",
+ g:"<b>G 몰루로그 느낌 그대로</b> — 근거: 레퍼런스 1(몰루로그) 측정값. 무채색 다크(사이드바 #1c1c1c, 본문 #262626, 패널 #333), 일정·도구로 묶은 사이드바와 선 아이콘, 배너 위 그라디언트에 제목·버튼 얹기, 오른쪽 위 ● 남은 기간 배지, 112×127 세로 카드와 신규·SSR 배지, 12px 라벨, 8px 모서리, 0.12초 전환.<br>확정 구조는 그대로 둠: 몰루로그의 오른쪽 열(피드)은 없고 보유 쥬얼은 맨 아래.",
+ d:"<b>D 몰루로그 다크</b> — 근거: 레퍼런스 1(몰루로그). 무채색 다크 바탕, 진행 중 배너를 크게 올리고 오른쪽 위에 남은 기간 배지, 아래에 픽업 대상 세로 카드(신규·SSR 배지)를 나열. 육성·서포트 두 배너를 나란히.<br>장점: 레퍼런스와 가장 가까움, 배너가 가장 크게 보임 · 위험: 배너 이미지 속 일본어 로고가 크게 드러남",
+ e:"<b>E 몰루로그 라이트</b> — 근거: 레퍼런스 1(몰루로그)의 배치·밀도를 밝은 바탕으로. 배너를 왼쪽, 픽업 대상 카드와 버튼을 오른쪽에 두는 가로 줄을 위아래로 쌓음. 강조는 검정 버튼과 빨강(육성)·파랑(서포트).<br>장점: 낮에 읽기 쉽고 표·입력이 많은 계산기 화면과 잘 맞음 · 위험: 무채색이 많아 심심해 보일 수 있음",
+ f:"<b>F 블루그레이 목록형</b> — 근거: 레퍼런스 1(몰루로그)의 다크·배지·카드 패턴 + 미래시 타임라인의 한 줄 목록 방식. 배너는 작은 썸네일로 줄이고 캐릭터 카드와 이름을 크게. 청록 강조.<br>장점: 한 화면에 정보가 가장 많이 들어감 · 위험: 배너 이미지가 작아 진행 중 픽업의 인상이 약함",
+ a:'<b>A 출주표</b> — 경마 출주표처럼 픽업을 한 줄씩 늘어놓은 밝은 화면. 육성은 빨강, 서포트는 파랑으로 고정해 어디서든 같은 색으로 구분하고, 남은 일수를 큰 숫자로 오른쪽에 둔다.<br>장점: 정보가 촘촘하고 훑기 쉬움, 다른 화면(일정표·계산기)으로 넓히기 쉬움 · 위험: 일러스트가 작아서 캐릭터 게임다운 들뜬 느낌이 약함',
+ b:'<b>B 나이터</b> — 야간 경주장의 짙은 잔디색 바탕에 조명색(호박색)으로 남은 시간과 오늘을 밝힌다. 진행 중 픽업은 캐릭터 일러스트를 무대처럼 크게 세운다.<br>장점: 진행 중 픽업이 가장 강하게 보임, 밤에 보기 편함 · 위험: 어두운 면이 넓어 표·입력이 많은 계산기 화면에서 답답할 수 있음',
+ c:'<b>C 포토카드 앨범</b> — 앨범 속지에 포토카드를 꽂은 것처럼 픽업 대상을 세로 카드로 크게 보여주는 밝은 화면. 좁은 아이콘형 사이드바로 본문 폭을 넓게 쓴다.<br>장점: 캐릭터가 주인공, 모바일에서 카드가 자연스럽게 한 줄로 쌓임 · 위험: 카드가 커서 한 화면에 보이는 정보량이 적음'
+};
+const note='<div class="note">공통: 확정 구조(오늘 날짜 → 진행 중 → 다음 → 오늘 앞뒤 → 보유 쥬얼)와 실제 GameTora 한국서버 픽업 데이터(2026-11-23 기준)를 씀. 보유 쥬얼 숫자는 예시 입력값. 이전 시안 A·B·C 파일은 그대로 남아 있음. 폰트는 경기천년제목 M·경기천년바탕.</div>';
+const f=document.getElementById('f'),d=document.getElementById('desc');
+function show(k){f.src='option-'+k+'.html';d.innerHTML=D[k]+note;document.querySelectorAll('[role=tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.k===k))}
+document.querySelectorAll('[role=tab]').forEach(b=>b.onclick=()=>show(b.dataset.k));show('i');
+</script>
+</body>
+</html>

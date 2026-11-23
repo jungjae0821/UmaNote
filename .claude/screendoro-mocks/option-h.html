@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>우마노트 시안 H</title>
+<style>
+@font-face{font-family:"경기천년제목";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/GyeonggiTitleM.woff") format("woff");font-display:swap}
+@font-face{font-family:"경기천년바탕";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/GyeonggiBatang.woff") format("woff");font-display:swap}
+:root{
+  --title:"경기천년제목","Pretendard",system-ui,sans-serif; --body:"경기천년바탕","Pretendard",system-ui,sans-serif;
+  --ease:cubic-bezier(.2,0,0,1);
+  --red:#e7000b; --blue:#155dfc; --amber:#bb4d00;
+  --nav:#f5f5f5; --bg:#ffffff; --panel:#f5f5f5; --panel2:#e5e5e5; --hover:#ebebeb;
+  --ink:#0a0a0a; --text:#262626; --sub:#525252; --shade:rgba(0,0,0,.6);
+}
+[data-theme="dark"]{
+  --red:#ff6467; --blue:#51a2ff; --amber:#ffb900;
+  --nav:#1c1c1c; --bg:#262626; --panel:#333333; --panel2:#404040; --hover:#3a3a3a;
+  --ink:#fafafa; --text:#d4d4d4; --sub:#a3a3a3;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.43;word-break:keep-all;font-variant-numeric:tabular-nums}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+figure{margin:0}
+svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+nav{background:var(--nav);position:sticky;top:0;height:100vh;padding:12px 10px;display:flex;flex-direction:column}
+.logo{font-family:var(--title);font-size:21px;color:var(--ink);padding:4px 8px 14px}
+.search{display:flex;align-items:center;gap:8px;background:var(--panel2);border-radius:8px;padding:8px 10px;color:var(--sub);font-size:13px;margin-bottom:12px}
+.grp{display:flex;justify-content:space-between;align-items:center;font-family:var(--title);font-size:12px;color:var(--sub);padding:16px 10px 6px}
+nav a{display:flex;align-items:center;gap:10px;font-family:var(--title);font-size:13px;color:var(--text);padding:7px 10px;border-radius:8px;transition:background .12s var(--ease)}
+nav a:hover{background:var(--hover)}
+nav a.on{background:var(--panel2);color:var(--ink)}
+nav a .live-dot{margin-left:auto;font-size:10px;color:var(--sub)}
+.navfoot{margin-top:auto;display:flex;gap:4px;padding:8px 4px 0}
+.navfoot button{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;color:var(--text);transition:background .12s var(--ease)}
+.navfoot button:hover{background:var(--hover)}
+
+main{padding:24px 32px 64px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;max-width:1536px;align-items:start}
+.head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}
+h1{font-family:var(--title);font-size:24px;font-weight:400;color:var(--ink)}
+.head a{display:flex;align-items:center;gap:6px;font-family:var(--title);font-size:13px;color:var(--text)}
+h2{font-family:var(--title);font-size:20px;font-weight:400;color:var(--ink);margin:28px 0 12px}
+.col>section:first-child h2,.side>section:first-child h2{margin-top:0}
+
+.live{display:inline-flex;align-items:center;gap:6px;font-family:var(--title);font-size:12px;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.7);color:#fff}
+.live i{width:6px;height:6px;border-radius:50%;background:#ff6467}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--title);font-size:12px;padding:3px 9px;border-radius:999px;background:var(--panel2);color:var(--text)}
+.chip i{width:6px;height:6px;border-radius:50%;background:var(--red)}
+.chip.soon i{background:var(--sub)}
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--title);font-size:13px;padding:7px 12px;border-radius:8px;background:var(--shade);color:#fff;transition:background .12s var(--ease)}
+.btn:hover{background:rgba(0,0,0,.8)}
+
+.event{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:2/1;background:linear-gradient(120deg,#21713a 0%,#64c3c1 55%,#1e3872 100%)}
+.event .stage{position:absolute;right:4%;bottom:0;height:96%;display:flex;align-items:flex-end}
+.event .stage img{height:100%;width:auto}
+.event .stage img+img{margin-left:-14%}
+.event .live{position:absolute;top:12px;right:12px}
+.event .over{position:absolute;inset:auto 0 0 0;padding:56px 16px 14px;background:linear-gradient(to top,rgba(0,0,0,.8),rgba(0,0,0,0));display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.event .kind{font-family:var(--title);font-size:12px;color:#e5e5e5}
+.event .name{font-family:var(--title);font-size:22px;color:#fff;line-height:1.3}
+.event .btns{display:flex;gap:6px;flex:none}
+
+.box{background:var(--panel);border-radius:10px;padding:14px 16px}
+.box .bh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.box .bh b{font-family:var(--title);font-weight:400;font-size:13px;color:var(--text)}
+.cards{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}
+.ch{width:112px;flex:none}
+.ch .art{position:relative;height:127px;border-radius:8px;overflow:hidden;background:var(--panel2)}
+.ch .art img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.ch .tag{position:absolute;top:5px;right:5px;font-family:var(--title);font-size:11px;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff}
+.ch .tag.new{color:#ffb900}
+.ch small{display:block;margin-top:6px;font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch b{display:block;font-family:var(--title);font-weight:400;font-size:15px;color:var(--ink)}
+.ch .tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.ch .tags span{font-size:11px;padding:1px 6px;border-radius:4px;background:var(--panel2);color:var(--text)}
+.ch .tags .t{color:var(--red)}
+.ch .tags .s{color:var(--blue)}
+.ch .stat{display:block;margin-top:6px;text-align:center;font-family:var(--title);font-size:12px;padding:5px 0;border-radius:8px;background:var(--panel2);color:var(--text)}
+.box .foot{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--panel2)}
+.box .foot span{font-size:12px;color:var(--sub)}
+.box .foot b{font-family:var(--title);font-weight:400;font-size:14px;color:var(--ink)}
+.box .foot img{width:32px;height:32px;border-radius:8px;object-fit:cover;object-position:top;background:var(--panel2)}
+
+.raid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rc{background:var(--panel);border-radius:10px;padding:14px 16px;display:flex;gap:14px}
+.rc img{width:76px;height:76px;border-radius:8px;object-fit:cover;object-position:top;background:var(--panel2);flex:none}
+.rc .k{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rc .k b{font-family:var(--title);font-weight:400;font-size:13px;color:var(--text)}
+.rc .n{font-family:var(--title);font-size:17px;color:var(--ink);margin:4px 0}
+.rc .tags{display:flex;gap:4px;flex-wrap:wrap}
+.rc .tags span{font-size:11px;padding:1px 6px;border-radius:4px;background:var(--panel2);color:var(--text)}
+
+.etc{background:var(--panel);border-radius:10px;padding:4px 16px}
+.etc .row{display:flex;align-items:center;gap:12px;padding:12px 0}
+.etc .row+.row{border-top:1px solid var(--panel2)}
+.etc .row b{font-family:var(--title);font-weight:400;font-size:13px;color:var(--sub);width:96px;flex:none}
+.etc .row .n{font-family:var(--title);font-size:15px;color:var(--ink)}
+.etc .row .d{font-size:12px;color:var(--sub)}
+.etc .row .chip{margin-left:auto}
+
+.side .box{padding:6px 8px}
+.bd{display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px}
+.bd img{width:40px;height:40px;border-radius:50%;background:var(--panel2)}
+.bd b{display:block;font-family:var(--title);font-weight:400;font-size:14px;color:var(--ink)}
+.bd span{font-size:12px;color:var(--sub)}
+.bd .chip{margin-left:auto}
+.jw{padding:10px 8px}
+.jw dl{display:grid;grid-template-columns:1fr 1fr;gap:12px 8px}
+.jw dt{font-size:12px;color:var(--sub)}
+.jw dd{font-family:var(--title);font-size:18px;color:var(--ink)}
+.jw .goal{grid-column:1/-1;padding-top:12px;border-top:1px solid var(--panel2)}
+.jw .goal dd{font-size:24px}
+.more{display:flex;justify-content:center;align-items:center;gap:4px;font-family:var(--title);font-size:13px;color:var(--text);padding:10px 0 6px}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+  <div class="logo">우마노트</div>
+  <div class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>검색</div>
+  <a class="on" href="#"><svg class="i" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>홈</a>
+  <div class="grp">게임 정보<svg class="i" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
+  <a href="#"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>미래시</a>
+  <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>이벤트<span class="live-dot">진행중</span></a>
+  <a href="#"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>캐릭터</a>
+  <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M4 21V11h16v10zM12 11V7M4 15c2.7 0 2.7 1.5 5.3 1.5S12 15 14.7 15s2.6 1.5 5.3 1.5"/></svg>생일달력</a>
+  <div class="grp">플래너·계산기<svg class="i" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
+  <a href="#"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 12h2M13 12h2M9 16h2M13 16h2"/></svg>사료계산기</a>
+  <a href="#"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M9 21h9a2 2 0 0 0 2-2V8"/></svg>뽑기 시뮬레이터</a>
+  <div class="navfoot">
+    <button type="button" aria-label="테마 바꾸기" onclick="const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    <button type="button" aria-label="메뉴 접기"><svg class="i" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/></svg></button>
+  </div>
+</nav>
+<main>
+  <div class="head"><h1>진행 중인 컨텐츠</h1><a href="#"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>전체 일정 (미래시)<svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a></div>
+
+  <div class="col">
+    <section>
+      <h2>이벤트</h2>
+      <div class="event">
+        <div class="stage"><img src="https://gametora.com/images/umamusume/characters/thumb/chara_stand_1088_108802.png" alt=""><img src="https://gametora.com/images/umamusume/characters/thumb/chara_stand_1089_108902.png" alt=""></div>
+        <span class="live"><i></i>10일 남음</span>
+        <div class="over"><div><div class="kind">스토리 이벤트 · 11/19 ~ 12/3</div><div class="name">서머 데이즈 『You』 그라피티</div></div><div class="btns"><a class="btn" href="#"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 12h2M13 12h2M9 16h2M13 16h2"/></svg>사료 계산기</a><a class="btn" href="#"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M9 21h9a2 2 0 0 0 2-2V8"/></svg>뽑기 시뮬레이션</a></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>픽업 가챠</h2>
+      <div class="box">
+        <div class="bh"><b>픽업 가챠</b><span class="chip"><i></i>10일 남음</span></div>
+        <div class="cards">
+          <figure class="ch"><div class="art"><img src="https://gametora.com/images/umamusume/characters/thumb/chara_stand_1088_108802.png" alt=""><span class="tag new">신규</span></div><small>맑은 섬에 핀 아름다운 꽃</small><b>사토노 크라운</b><div class="tags"><span class="t">육성</span><span>0.75%</span></div><a class="stat" href="#">시뮬레이션</a></figure>
+          <figure class="ch"><div class="art"><img src="https://gametora.com/images/umamusume/characters/thumb/chara_stand_1089_108902.png" alt=""><span class="tag new">신규</span></div><small>잔잔한 여름의 네이비 드롭</small><b>슈발 그랑</b><div class="tags"><span class="t">육성</span><span>0.75%</span></div><a class="stat" href="#">시뮬레이션</a></figure>
+          <figure class="ch"><div class="art"><img src="https://gametora.com/images/umamusume/supports/tex_support_card_30261.png" alt=""><span class="tag">SSR</span></div><small>수면의 프린시펄</small><b>윈 바리아시옹</b><div class="tags"><span class="s">서포트</span><span>0.75%</span></div><a class="stat" href="#">시뮬레이션</a></figure>
+          <figure class="ch"><div class="art"><img src="https://gametora.com/images/umamusume/supports/tex_support_card_30262.png" alt=""><span class="tag">SSR</span></div><small>Tranquillo</small><b>두라멘테</b><div class="tags"><span class="s">서포트</span><span>0.75%</span></div><a class="stat" href="#">시뮬레이션</a></figure>
+        </div>
+        <div class="foot"><span>다음 픽업 · 12/3 시작</span><img src="https://gametora.com/images/umamusume/characters/thumb/chara_stand_1091_109102.png" alt=""><b>비블로스</b></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>경기</h2>
+      <div class="raid">
+        <div class="rc"><div style="flex:1"><div class="k"><b>레전드 레이스</b><span class="chip soon"><i></i>3일 후 시작</span></div><div class="n">スプリンターズステークス</div><div class="tags"><span>11/26 ~ 12/2</span><span>잔디</span><span>1200m</span></div></div></div>
+        <div class="rc"><div style="flex:1"><div class="k"><b>리그 오브 히어로즈 #12</b><span class="chip soon"><i></i>11일 후 시작</span></div><div class="n">잔디 2600m</div><div class="tags"><span>12/4 ~ 12/13</span></div></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>그 외 컨텐츠</h2>
+      <div class="etc">
+        <div class="row"><b>이벤트 보상</b><div><div class="n">비블로스 (서포트 카드)</div><div class="d">서머 데이즈 『You』 그라피티 보상</div></div><span class="chip"><i></i>12/3까지</span></div>
+        <div class="row"><b>다음 이벤트</b><div><div class="n">말・마음・울려라</div><div class="d">스토리 이벤트 · 12/18 ~ 12/29</div></div><span class="chip soon"><i></i>25일 후 시작</span></div>
+      </div>
+    </section>
+  </div>
+
+  <aside class="side">
+    <section>
+      <h2>다가오는 생일</h2>
+      <div class="box">
+        <div class="bd"><img src="https://gametora.com/images/umamusume/characters/icons/chr_icon_1083.png" alt=""><div><b>심볼리 크리스 에스</b><span>1/21</span></div><span class="chip soon"><i></i>59일 후</span></div>
+        <div class="bd"><img src="https://gametora.com/images/umamusume/characters/icons/chr_icon_1131.png" alt=""><div><b>그란 알레그리아</b><span>1/24</span></div><span class="chip soon"><i></i>62일 후</span></div>
+        <div class="bd"><img src="https://gametora.com/images/umamusume/characters/icons/chr_icon_1022.png" alt=""><div><b>파인 모션</b><span>1/27</span></div><span class="chip soon"><i></i>65일 후</span></div>
+        <div class="bd"><img src="https://gametora.com/images/umamusume/characters/icons/chr_icon_1067.png" alt=""><div><b>사토노 다이아몬드</b><span>1/30</span></div><span class="chip soon"><i></i>68일 후</span></div>
+        <div class="bd"><img src="https://gametora.com/images/umamusume/characters/icons/chr_icon_1048.png" alt=""><div><b>토센 조던</b><span>2/4</span></div><span class="chip soon"><i></i>73일 후</span></div>
+        <a class="more" href="#">생일달력<svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a>
+      </div>
+    </section>
+    <section>
+      <h2>내 쥬얼</h2>
+      <div class="box jw">
+        <dl><div><dt>무료 쥬얼</dt><dd>12,450</dd></div><div><dt>유료 쥬얼</dt><dd>1,200</dd></div><div><dt>육성 티켓</dt><dd>8장</dd></div><div><dt>서포트 티켓</dt><dd>5장</dd></div><div class="goal"><dt>비블로스 픽업(12/3)까지</dt><dd>16,830 쥬얼</dd></div></dl>
+        <a class="more" href="#">사료계산기<svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a>
+      </div>
+    </section>
+  </aside>
+</main>
+</div>
+</body>
+</html>
