@@ -15,12 +15,6 @@ export const charIcon = (charId: number) => `${GAMETORA_IMG}/characters/icons/ch
 /** 한국서버 게임 내 가챠 배너 */
 export const bannerArt = (bannerId: number) => `${GAMETORA_IMG}/ko/gacha/img_bnr_gacha_${bannerId}.png`;
 
-// 나무위키 스토리 이벤트/4~6년차의 해당 이벤트 항목에서 가져온 한국어 배너.
-// 출처: https://namu.wiki/w/우마무스메%20프리티%20더비/이벤트/스토리%20이벤트/4~6년차#s-2.13
-const STORY_EVENT_BANNERS: Record<number, string> = {
-  1046: "/images/events/story-1046.webp",
-};
-
-/** 이벤트별로 확인한 한국어 배너가 있으면 우선 사용한다. */
+/** 홍보 문구가 없는 스토리 이벤트 일러스트. 이벤트 ID로 해당 그림을 불러온다. */
 export const storyEventArt = (eventId: number) =>
-  STORY_EVENT_BANNERS[eventId] ?? `https://media.gametora.com/umamusume/story_events/hero/${eventId}.png`;
+  `https://media.gametora.com/umamusume/story_events/hero/${eventId}.png`;
