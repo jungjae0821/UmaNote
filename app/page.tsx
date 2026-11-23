@@ -46,11 +46,6 @@ export default async function Home() {
     <>
       <div className="page-head">
         <h1>진행 중인 컨텐츠</h1>
-        <Link href="/futures" className="aside-link">
-          <Icon name="calendar" />
-          전체 일정 (미래시)
-          <Icon name="chevronRight" />
-        </Link>
       </div>
 
       <div className="home">
