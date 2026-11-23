@@ -202,6 +202,10 @@ export type Character = {
   /** 한국서버에서 육성할 수 있는 캐릭터 */
   playableKr: boolean;
   color: string;
+  /** 바스트·웨이스트·힙 (cm) */
+  threeSizes: { b: number; w: number; h: number } | null;
+  /** 담당 성우. 한국어 이름이 없으면 일본어 */
+  voice: string | null;
 };
 
 type RawCharacter = {
@@ -212,6 +216,9 @@ type RawCharacter = {
   birth_day?: number;
   playable_ko?: boolean;
   color_main?: string;
+  three_sizes?: { b: number; w: number; h: number };
+  va_ko?: string;
+  va_ja?: string;
 };
 
 export async function getCharacters(): Promise<Character[]> {
@@ -228,6 +235,8 @@ export async function getCharacters(): Promise<Character[]> {
           birthDay: c.birth_day as number,
           playableKr: !!c.playable_ko,
           color: c.color_main ?? "#888888",
+          threeSizes: c.three_sizes ?? null,
+          voice: c.va_ko || c.va_ja || null,
         }));
     },
     [],

@@ -10,6 +10,7 @@ import { formatFull, formatMd, todayKr } from "@/lib/dates";
 import { formatRate } from "@/lib/gachaPool";
 import { krRelease, releaseState } from "@/lib/release";
 import { cardIndex, getBanners, getCards, getCharacters, getPredictedReleases, type Card } from "@/lib/gametora";
+import { getGrade } from "@/lib/umapyoi";
 import "./detail.css";
 
 export const revalidate = 3600;
@@ -213,11 +214,12 @@ export default async function CharacterDetail({ params }: { params: Promise<{ id
   if (!card) notFound();
   const today = todayKr();
   // 한국서버 일정이 끝난 뒤의 픽업도 보이도록 일본서버 배너를 +476일로 옮겨 붙인다
-  const [banners, characters, detail, predicted] = await Promise.all([
+  const [banners, characters, detail, predicted, grade] = await Promise.all([
     getBanners(cards, { jpProjection: true }),
     getCharacters(),
     getCardDetail(card.lane, card.id),
     getPredictedReleases(),
+    getGrade(card.charId),
   ]);
   const appearances = banners.filter((b) => b.lane === card.lane && b.pickups.some((p) => p.card.id === card.id));
   const character = characters.find((c) => c.charId === card.charId);
@@ -282,6 +284,26 @@ export default async function CharacterDetail({ params }: { params: Promise<{ id
               <dt>생일</dt>
               <dd>{character ? `${character.birthMonth}월 ${character.birthDay}일` : "정보 없음"}</dd>
             </div>
+            {character?.threeSizes && (
+              <div>
+                <dt>쓰리사이즈</dt>
+                <dd>
+                  B{character.threeSizes.b} · W{character.threeSizes.w} · H{character.threeSizes.h}
+                </dd>
+              </div>
+            )}
+            {grade && (
+              <div>
+                <dt>학년</dt>
+                <dd>{grade}</dd>
+              </div>
+            )}
+            {character?.voice && (
+              <div>
+                <dt>담당 성우</dt>
+                <dd>{character.voice}</dd>
+              </div>
+            )}
           </dl>
         </div>
       </div>
