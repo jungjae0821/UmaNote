@@ -57,6 +57,8 @@ for (const [table, [kind, label]] of Object.entries(names)) for (const r of tabl
   const rewards=itemRewards(items);
   // JP trial coin shop: six 150-jewel exchanges are documented by the Oct 2025 edition.
   if(kind==='exam' && r.id>=6) rewards.free=900;
+  // 마스터즈는 레이스마다 Lv1 첫 클리어 금 결정 조각 1개, Lv2 무지개 1개라서 둘이 같다 (uma.guide #9는 금을 빠뜨렸다)
+  if(kind==='masters') rewards.goldShards=Math.max(rewards.goldShards??0,rewards.rainbowShards??0);
   push(`${kind}-${r.id}`, kind, `${label} #${r.id}`, r.start_date, r.end_date, rewards, { optional: kind === 'masters' ? 'masters' : undefined });
 }
 // Gift-box anniversary distributions are separate from login rewards and missions.
@@ -115,7 +117,10 @@ for (const m of missions.values()) if(m.end_date<1_900_000_000) push(`mission-${
 for(const key of ['events/story-events-bingo','events/story-events-rewards']) {
  const data=await(await get(`https://gametora.com/data/umamusume/${key}.${manifest[key]}.json`)).json();
  for(const e of data){const row=rows.find(r=>r.id===`story-${e.id}`);if(!row)continue;
-  const items=(e.bingo??[]).flatMap(b=>b.line_rewards).concat(e.rewards??[]);
+  // 빙고 항목의 시트 번호는 그 보상표가 시작되는 시트다. 다음 항목 앞까지 같은 보상표를 쓴다
+  // (2026-03 이후 스토리 이벤트는 시트 1 항목 하나가 1~3장을 맡는다). 마지막 무한 반복 시트는 1장으로 센다
+  const sheets=[...(e.bingo??[])].sort((a,b)=>(a.sheet??a.sheet_num)-(b.sheet??b.sheet_num));
+  const items=sheets.flatMap((b,i)=>{const count=i+1<sheets.length?(sheets[i+1].sheet??sheets[i+1].sheet_num)-(b.sheet??b.sheet_num):1;return Array.from({length:count},()=>b.line_rewards).flat();}).concat(e.rewards??[]);
   if(key.endsWith('bingo')){const b=itemRewards(items.map(i=>({id:i.item_id,num:i.item_num})));row.free+=b.free;row.trainTickets+=b.trainTickets;row.supportTickets+=b.supportTickets;}
   if(key.endsWith('bingo')) row.goldShards=items.filter(i=>i.item_id===150).reduce((s,i)=>s+i.item_num,0);
  }

@@ -91,7 +91,10 @@ export function applyAdditionalSheetRewards(incomes: Income[]): Income[] {
     source: r.role === "login" ? "login" : r.role === "gift" ? "gift" : "limited",
     category: "sheet-extra", startJp: r.startJp, startKr: r.startKr, endKr: r.startKr,
     free: r.free, trainTickets: r.trainTickets, supportTickets: r.supportTickets, rainbowShards: r.rainbowShards,
-    ...sheetMissingMaterials([...(replaced.get(r.id)?.values() ?? [])]), specialTickets: r.specialTickets as Record<string, number>,
+    ...sheetMissingMaterials([...(replaced.get(r.id)?.values() ?? [])]),
+    // 시나리오 평가점 보상은 금·무지개 결정 조각이 번갈아 2개씩 나온다 (마스터 single_mode_scenario_record)
+    ...(r.role === "scenario-score" ? { goldShards: r.rainbowShards } : {}),
+    specialTickets: r.specialTickets as Record<string, number>,
     reference: `${data.reference}?range=${encodeURIComponent(`'${r.sheet}'!A${r.row}:H${r.row}`)}`,
     condition: "사용자가 지정한 시트의 해당 날짜 보상",
   }));
