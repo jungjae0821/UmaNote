@@ -149,14 +149,12 @@ export async function getCards(): Promise<Card[]> {
       });
       // 한국서버 미출시 카드도 gametora에 큰 일러스트가 먼저 올라오는 경우가 많아서, 있으면 그걸 쓴다.
       // 아직 없는 최신 카드는 나무위키 카드 이미지, 그마저 없으면 gametora 작은 그림
-      await Promise.all(
-        support
-          .filter((c) => c.releaseKr === null)
-          .map(async (c) => {
-            const big = await existing(supportArt(c.id, true));
-            c.art = big ?? namuSupportArt(c.id) ?? c.art;
-          }),
-      );
+      const unreleased = support.filter((c) => c.releaseKr === null);
+      const found = await existingImages(unreleased.map((c) => supportArt(c.id, true)));
+      for (const c of unreleased) {
+        const big = supportArt(c.id, true);
+        c.art = (found.has(big) ? big : null) ?? namuSupportArt(c.id) ?? c.art;
+      }
       return [...train, ...support];
     },
     [],
@@ -287,13 +285,27 @@ export type Banner = {
   art: string | null;
 };
 
-/** 시작 전 배너는 이미지가 아직 없을 수 있어서 있는지 확인한다 (하루 캐시) */
-async function existing(url: string): Promise<string | null> {
+// 주소마다 fetch 캐시를 두면 페이지를 그릴 때마다 캐시를 수백 번 읽어 Vercel Runtime Cache 한도를 넘긴다.
+// 확인 결과를 묶음 하나로 캐시해 한 번만 읽게 한다. 요청이 실패하면 던져서 실패한 결과는 캐시하지 않는다
+const checkImages = unstable_cache(
+  async (urls: string[]): Promise<string[]> => {
+    const found = await Promise.all(
+      urls.map(async (url) => ((await fetch(url, { method: "HEAD", cache: "no-store" })).ok ? url : null)),
+    );
+    return found.filter((u): u is string => u !== null);
+  },
+  ["image-exists-v1"],
+  { revalidate: 86_400 },
+);
+
+/** 아직 안 올라온 이미지가 있어서 있는지 확인한다 (하루 캐시). 확인이 실패하면 모두 없는 것으로 본다 */
+async function existingImages(urls: string[]): Promise<Set<string>> {
+  if (urls.length === 0) return new Set();
   try {
-    const res = await fetch(url, { method: "HEAD", next: { revalidate: 86_400 } });
-    return res.ok ? url : null;
-  } catch {
-    return null;
+    return new Set(await checkImages([...new Set(urls)].sort()));
+  } catch (e) {
+    logFailure("gametora 이미지 확인", e);
+    return new Set();
   }
 }
 
@@ -368,11 +380,9 @@ export async function getBanners(cards?: Card[], opts: { jpProjection?: boolean 
       const all = [...kr, ...projected]
         .sort((a, b) => a.startTs - b.startTs || a.id - b.id);
       const now = Date.now() / 1000;
-      await Promise.all(
-        all.filter((b) => b.startTs > now && b.art).map(async (b) => {
-          b.art = await existing(b.art as string);
-        }),
-      );
+      const upcoming = all.filter((b) => b.startTs > now && b.art);
+      const found = await existingImages(upcoming.map((b) => b.art as string));
+      for (const b of upcoming) if (!found.has(b.art as string)) b.art = null;
       return all;
     },
     [],
