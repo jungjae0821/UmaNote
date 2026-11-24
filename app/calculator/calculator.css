@@ -269,3 +269,29 @@
   line-height: 1.5;
   color: var(--sub);
 }
+
+/* 더한 보상 목록: 기본은 접고 제목을 눌러 펼친다 */
+.res-more > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+}
+.res-more > summary::-webkit-details-marker {
+  display: none;
+}
+.res-more > summary small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--sub);
+}
+.res-more > summary svg {
+  margin-left: auto;
+  width: 18px;
+  height: 18px;
+  color: var(--sub);
+  transition: transform 0.2s var(--ease);
+}
+.res-more[open] > summary svg {
+  transform: rotate(180deg);
+}

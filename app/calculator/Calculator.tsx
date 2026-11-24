@@ -18,6 +18,7 @@ import {
   type Scheduled,
   type TeamClass,
 } from "@/lib/jewelSources";
+import { Icon } from "@/components/Icon";
 import { CRYSTAL_FIELDS, CRYSTAL_NAMES } from "@/lib/rewards";
 import { currentJewels, EMPTY_CALC, readCalc, readJewels, writeCalc, writeJewels, writeSummary, type CalcInput, type Jewels, type SavedJewels } from "@/lib/jewels";
 import { DAILY_RESET_HOUR, dailyJewels } from "@/lib/dailyReset";
@@ -397,22 +398,28 @@ function Result({
         )}
       </dl>
 
-      <h3 className="res-h">더한 보상</h3>
-      <ol className="res-route">
-        {p.incomes.map((i) => (
-          <li key={i.id}>
-            <span className="rr-date">{formatMd(i.startKr)}</span>
-            <span className="rr-name">
-              {i.name}
-              <small>{SOURCE_NAME[i.source]}</small>
-            </span>
-            <span className="rr-gain">
-              {[i.free > 0 && `쥬얼 ${num(i.free)}`, i.trainTickets > 0 && `육성 ${i.trainTickets}장`, i.supportTickets > 0 && `서포트 ${i.supportTickets}장`, ...CRYSTAL_FIELDS.map((k) => (i[k] ?? 0) > 0 && `${CRYSTAL_NAMES[k]} ${i[k]}개`)].filter(Boolean).join(", ")}
-            </span>
-          </li>
-        ))}
-        {p.incomes.length === 0 && <li className="rr-none">이 기간에 시작하는 보상이 없습니다.</li>}
-      </ol>
+      {/* 목록이 길어 기본은 접어 두고, 궁금한 사람만 펼친다 */}
+      <details className="res-more">
+        <summary className="res-h">
+          더한 보상 <small>{p.incomes.length}건</small>
+          <Icon name="chevronDown" />
+        </summary>
+        <ol className="res-route">
+          {p.incomes.map((i) => (
+            <li key={i.id}>
+              <span className="rr-date">{formatMd(i.startKr)}</span>
+              <span className="rr-name">
+                {i.name}
+                <small>{SOURCE_NAME[i.source]}</small>
+              </span>
+              <span className="rr-gain">
+                {[i.free > 0 && `쥬얼 ${num(i.free)}`, i.trainTickets > 0 && `육성 ${i.trainTickets}장`, i.supportTickets > 0 && `서포트 ${i.supportTickets}장`, ...CRYSTAL_FIELDS.map((k) => (i[k] ?? 0) > 0 && `${CRYSTAL_NAMES[k]} ${i[k]}개`)].filter(Boolean).join(", ")}
+              </span>
+            </li>
+          ))}
+          {p.incomes.length === 0 && <li className="rr-none">이 기간에 시작하는 보상이 없습니다.</li>}
+        </ol>
+      </details>
       <p className="res-note">뺀 항목: 신데렐라 그레이 방영 기념 쥬얼 캠페인(한일 동시 진행). 참고용 수치이며 실제 지급량은 달라질 수 있습니다.</p>
     </>
   );
