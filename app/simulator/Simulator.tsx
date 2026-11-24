@@ -254,6 +254,27 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
               <dd>{num(pickupGot + Object.values(rec.exchanged).reduce((a, b) => a + b, 0))}</dd>
             </div>
           </dl>
+          {pickups.length > 0 && (
+            <ul className="sim-pick-got" aria-label="픽업별 획득">
+              {pickups.map((c) => {
+                const pulled = rec.got[c.id] ?? 0;
+                const swapped = rec.exchanged[c.id] ?? 0;
+                return (
+                  <li key={c.id} className={pulled + swapped === 0 ? "none" : undefined}>
+                    <img src={c.art} alt="" loading="lazy" />
+                    <b title={`${c.name} ${c.title}`}>
+                      <SupportTypeIcon type={c.supportType} />
+                      {c.name}
+                    </b>
+                    <span>
+                      {swapped > 0 && <small>교환 {num(swapped)}</small>}
+                      {num(pulled + swapped)}장
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
           {rec.log.length > 0 && (
             <ol className="sim-log">
               {rec.log.map((l) => (
