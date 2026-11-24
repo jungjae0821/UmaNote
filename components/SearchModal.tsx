@@ -31,11 +31,14 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
 
   useEffect(() => {
     if (!open || items) return;
+    // 실패했으면 다시 열 때 새로 불러온다. 그동안은 '불러오는 중'을 보인다
+    setFailed(false);
     fetch("/api/search")
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((data: SearchItem[]) => {
-        cache = data;
-        setItems(data);
+      .then((data: unknown) => {
+        if (!Array.isArray(data)) throw Error("search list");
+        cache = data as SearchItem[];
+        setItems(cache);
       })
       .catch(() => setFailed(true));
   }, [open, items]);

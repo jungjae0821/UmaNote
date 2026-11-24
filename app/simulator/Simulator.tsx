@@ -32,10 +32,42 @@ type Store = Record<string, BannerRecord>;
 
 const emptyRecord = (lane: Lane): BannerRecord => ({ lane, pulls: 0, points: 0, counts: [0, 0, 0], got: {}, exchanged: {}, log: [] });
 
+const count = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.floor(v) : 0);
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+const countMap = (v: unknown): Record<string, number> =>
+  isObject(v) ? Object.fromEntries(Object.entries(v).flatMap(([k, n]) => (count(n) > 0 ? [[k, count(n)]] : []))) : {};
+
+/** 저장된 기록이 깨졌거나 예전 모양이어도 화면이 죽지 않도록 칸마다 다시 맞춘다 */
+function toRecord(v: unknown): BannerRecord | null {
+  if (!isObject(v) || (v.lane !== "train" && v.lane !== "support")) return null;
+  const c = Array.isArray(v.counts) ? v.counts : [];
+  const log = Array.isArray(v.log)
+    ? v.log.flatMap((l) =>
+        isObject(l) && count(l.round) > 0 && (l.times === 1 || l.times === 10)
+          ? [{ round: count(l.round), times: l.times, top: Array.isArray(l.top) ? l.top.filter((t): t is string => typeof t === "string") : [] }]
+          : [],
+      )
+    : [];
+  return {
+    lane: v.lane,
+    pulls: count(v.pulls),
+    points: count(v.points),
+    counts: [count(c[0]), count(c[1]), count(c[2])],
+    got: countMap(v.got),
+    exchanged: countMap(v.exchanged),
+    log: log.filter((l, i) => log.findIndex((x) => x.round === l.round) === i).slice(0, 30),
+  };
+}
+
 function load(): Store {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Store) : {};
+    const v: unknown = raw ? JSON.parse(raw) : null;
+    if (!isObject(v)) return {};
+    return Object.fromEntries(Object.entries(v).flatMap(([id, r]) => {
+      const rec = toRecord(r);
+      return rec ? [[id, rec]] : [];
+    }));
   } catch {
     return {};
   }
@@ -72,6 +104,7 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
   }
 
   function pull(times: 1 | 10) {
+    if (pool.length === 0) return;
     const cards = Array.from({ length: times }, (_, i) => draw(times === 10 && i === 9 ? last : normal));
     const nextRound = round + 1;
     update((r) => {
@@ -146,11 +179,11 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
 
         <section className="sim-pull panel glass" aria-label="뽑기">
           <div className="sim-actions">
-            <button type="button" className="pull-btn" onClick={() => pull(1)}>
+            <button type="button" className="pull-btn" onClick={() => pull(1)} disabled={pool.length === 0}>
               단차
               <small>{num(JEWELS_PER_PULL)} 쥬얼</small>
             </button>
-            <button type="button" className="pull-btn ten" onClick={() => pull(10)}>
+            <button type="button" className="pull-btn ten" onClick={() => pull(10)} disabled={pool.length === 0}>
               10연차
               <small>
                 {num(JEWELS_PER_PULL * 10)} 쥬얼 · 10번째 {names[2]} 이상
@@ -173,7 +206,9 @@ export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: V
             </div>
           )}
           <div className="sim-results" aria-live="polite">
-            {results.length === 0 ? (
+            {pool.length === 0 ? (
+              <p className="empty">이 배너의 카드 목록을 불러오지 못해 뽑을 수 없습니다.</p>
+            ) : results.length === 0 ? (
               <p className="empty">단차나 10연차를 누르면 나온 {lane === "train" ? "우마무스메" : "카드"}가 여기에 나옵니다.</p>
             ) : shown.length === 0 ? (
               <p className="empty">고른 등급의 결과가 없습니다.</p>

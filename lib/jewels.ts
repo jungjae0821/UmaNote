@@ -15,7 +15,7 @@ export function readJewels(): Jewels | null {
     if (!raw) return null;
     const v = JSON.parse(raw) as Partial<Jewels>;
     if (typeof v.paid !== "number" || typeof v.free !== "number") return null;
-    return { paid: v.paid, free: v.free };
+    return { paid: count(v.paid), free: count(v.free) };
   } catch {
     return null;
   }
