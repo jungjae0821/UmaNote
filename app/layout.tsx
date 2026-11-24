@@ -22,7 +22,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className="wash" style={washStyle} aria-hidden />
         <div className="app">
           <Sidebar />
-          <main className="page">{children}</main>
+          <main className="page">
+            {children}
+            <footer className="site-footer">
+              우마노트는 비공식 사이트입니다. 게임 내 이미지·명칭 등 모든 저작권은 Cygames, Inc.에 있습니다.
+            </footer>
+          </main>
         </div>
       </body>
     </html>

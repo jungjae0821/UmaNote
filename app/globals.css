@@ -543,3 +543,13 @@ input:disabled {
   object-position: bottom;
   border-radius: 10px 10px 0 0;
 }
+
+/* 모든 페이지 맨 아래 저작권 안내 */
+.site-footer {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--glass-line);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--sub);
+}

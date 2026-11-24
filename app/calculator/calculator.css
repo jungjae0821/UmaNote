@@ -254,3 +254,10 @@
     line-height: 1.45;
   }
 }
+
+/* 아래에 떠 있는 결과 바가 맨 아래 저작권 문구를 가리지 않게 한다 */
+@media (max-width: 1023px) {
+  .page:has(.calc-sticky) {
+    padding-bottom: 96px;
+  }
+}
