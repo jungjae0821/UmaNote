@@ -21,7 +21,7 @@ import {
 import { Icon } from "@/components/Icon";
 import { CRYSTAL_FIELDS, CRYSTAL_NAMES } from "@/lib/rewards";
 import { currentJewels, EMPTY_CALC, readCalc, readJewels, writeCalc, writeJewels, writeSummary, type CalcInput, type Jewels, type SavedJewels } from "@/lib/jewels";
-import { DAILY_RESET_HOUR, dailyJewels } from "@/lib/dailyReset";
+import { DAILY_RESET_HOUR, dailyDoneToday, dailyJewels } from "@/lib/dailyReset";
 
 const num = (n: number) => n.toLocaleString("ko-KR");
 const LANE_NAME = { train: "육성", support: "서포트" } as const;
@@ -114,6 +114,8 @@ export function Calculator({ today: serverToday, targets: allTargets, incomes, s
   }, []);
 
   const owned = saved ? currentJewels(saved, form.monthly, now) : { paid: 0, free: 0, accrual: { days: 0, jewels: 0 } };
+  // 입력한 게임 날짜 안이면 오늘 데일리는 입력값에 들어 있으므로 앞으로 받을 몫에서 뺀다
+  const todayDailyDone = saved !== null && now > 0 && dailyDoneToday(saved.savedAt, now);
 
   const targets = useMemo(() => allTargets.filter((g) => g.start > today), [allTargets, today]);
 
@@ -149,9 +151,10 @@ export function Calculator({ today: serverToday, targets: allTargets, incomes, s
       teamClass: form.teamClass,
       shop: form.shop,
       incomes: [...incomes, ...GIFT_INCOMES, ...competitionIncomes(schedule, form)],
+      todayDailyDone,
     });
     return { p, pulls: pullsFor(p, target.lane, target.paidOnly) };
-  }, [target, today, form, owned.paid, owned.free, incomes, schedule]);
+  }, [target, today, form, owned.paid, owned.free, todayDailyDone, incomes, schedule]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -172,9 +175,10 @@ export function Calculator({ today: serverToday, targets: allTargets, incomes, s
             <NumberField id="c-gs" label="금 결정 조각" unit="개" value={form.goldShards} onChange={(goldShards) => update({ goldShards })} />
           </div>
           <p className="calc-daily" aria-live="polite">
+            무료 쥬얼은 <b>오늘 데일리까지 받은 값</b>으로 입력하세요.{" "}
             {saved && owned.accrual.days > 0
-              ? `${formatMdTime(Math.floor(saved.savedAt / 1000))}에 입력한 무료 쥬얼 ${num(saved.free)}에 일일 초기화 ${owned.accrual.days}번분 데일리 +${num(owned.accrual.jewels)}을 더했습니다. 실제와 다르면 다시 입력하세요.`
-              : `매일 ${String(DAILY_RESET_HOUR).padStart(2, "0")}:00 초기화 때 무료 쥬얼에 ${form.monthly ? `데일리 미션 ${num(DAILY_MISSION_JEWELS)}과 월정액 ${num(MONTHLY.freePerDay)}, 하루 ${num(dailyJewels(true))}` : `데일리 미션 ${num(DAILY_MISSION_JEWELS)}`}이 자동으로 더해집니다.`}
+              ? `${formatMdTime(Math.floor(saved.savedAt / 1000))}에 입력한 ${num(saved.free)}에 그 뒤 데일리 ${owned.accrual.days}일분 +${num(owned.accrual.jewels)}을 더했습니다. 실제와 다르면 다시 입력하세요.`
+              : `그 뒤로는 매일 ${String(DAILY_RESET_HOUR).padStart(2, "0")}:00 초기화 때 전날 ${form.monthly ? `데일리 미션 ${num(DAILY_MISSION_JEWELS)}과 월정액 ${num(MONTHLY.freePerDay)}, 하루 ${num(dailyJewels(true))}` : `데일리 미션 ${num(DAILY_MISSION_JEWELS)}`}이 자동으로 더해집니다.`}
           </p>
         </section>
 
@@ -303,7 +307,7 @@ function Result({
 
   const rows: { label: string; note?: string; value: number }[] = [
     { label: "지금 가진 쥬얼", value: owned },
-    { label: "데일리 미션", note: `${p.days}일 × ${DAILY_MISSION_JEWELS}`, value: p.daily },
+    { label: "데일리 미션", note: `${p.dailyDays}일 × ${DAILY_MISSION_JEWELS}`, value: p.daily },
     { label: "로그인 보너스", note: `${Math.floor(p.days / LOGIN_BONUS.days)}주 × ${LOGIN_BONUS.jewels}`, value: p.login },
     ...(p.monthlyPaid > 0 ? [{ label: "월정액", note: `무료 ${num(p.monthlyFree)} · 유료 ${num(p.monthlyPaid)}`, value: p.monthlyFree + p.monthlyPaid }] : []),
     ...(p.passPeriods > 0 ? [{ label: "시즌 패스", note: `${p.passPeriods}기간`, value: p.passFree + p.passPaid }] : []),

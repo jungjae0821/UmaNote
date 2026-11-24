@@ -102,12 +102,16 @@ export type PlanInput = Materials & {
   /** 매달 교환하는 상점 교환처 */
   shop?: ShopSource[];
   incomes: Income[];
+  /** 보유 쥬얼에 오늘 데일리(월정액 일일 지급 포함)가 이미 들어 있으면 true. 오늘 몫은 세지 않는다 */
+  todayDailyDone?: boolean;
   /** Already received or deliberately omitted rewards, by stable ID. */
   excludedIncomeIds?: string[];
 };
 
 export type Plan = Materials & {
   days: number;
+  /** 데일리 미션·월정액 일일 지급을 세는 날 수. 오늘 데일리를 이미 받았으면 days보다 하루 적다 */
+  dailyDays: number;
   daily: number;
   monthlyFree: number;
   monthlyPaid: number;
@@ -152,8 +156,9 @@ export function plan(input: PlanInput): Plan {
   const incomes = incomesBetween(input.incomes, input.today, input.target).filter(i => isEventReward(i) && !excluded.has(i.id));
   const sum = (key: "free" | "trainTickets" | "supportTickets") => incomes.reduce((a, i) => a + i[key], 0);
 
-  const daily = days * DAILY_MISSION_JEWELS;
-  const monthlyFree = input.monthly ? days * MONTHLY.freePerDay : 0;
+  const dailyDays = input.todayDailyDone ? Math.max(0, days - 1) : days;
+  const daily = dailyDays * DAILY_MISSION_JEWELS;
+  const monthlyFree = input.monthly ? dailyDays * MONTHLY.freePerDay : 0;
   const monthlyPaid = input.monthly ? Math.ceil(days / MONTHLY.days) * MONTHLY.paidOnBuy : 0;
   const freeOf = (sources: IncomeSource[]) => incomes.filter((i) => sources.includes(i.source)).reduce((a, i) => a + i.free, 0);
   const competitionFree = freeOf(COMPETITION);
@@ -191,6 +196,7 @@ export function plan(input: PlanInput): Plan {
     specialTickets: materialTotals.specialTickets,
     earnedMaterials,
     days,
+    dailyDays,
     daily,
     monthlyFree,
     monthlyPaid,

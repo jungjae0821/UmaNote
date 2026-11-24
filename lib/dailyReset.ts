@@ -25,11 +25,17 @@ export function dailyJewels(monthly: boolean): number {
 export type Accrual = { days: number; jewels: number };
 
 /**
- * savedAt에 입력한 뒤 now까지 끝난 게임 날짜 수만큼의 쥬얼.
- * 사료계산기는 오늘 데일리를 앞으로 받을 몫으로 세므로, 입력한 날의 데일리도 그날 초기화가 지나야 더한다.
+ * 입력값에는 입력한 날의 데일리까지 들어 있다고 본다("오늘 데일리까지 받은 값으로 입력" 안내).
+ * 그 다음 날부터 어제까지, 끝난 게임 날짜의 데일리만 더한다. 오늘 데일리는 사료계산기가 앞으로 받을 몫으로 센다.
+ * 데일리를 받기 전에 입력했다면 50 적게 나오지만, 많게 나와 쥬얼이 모자라는 계획이 되지는 않는다.
  * 시계가 뒤로 갔으면 더하지 않는다.
  */
 export function accrue(savedAt: number, now: number, monthly: boolean): Accrual {
-  const days = Math.max(0, gameDay(now) - gameDay(savedAt));
+  const days = Math.max(0, gameDay(now) - gameDay(savedAt) - 1);
   return { days, jewels: days * dailyJewels(monthly) };
+}
+
+/** 지금이 입력한 게임 날짜와 같으면 오늘 데일리는 이미 입력값에 들어 있다 */
+export function dailyDoneToday(savedAt: number, now: number): boolean {
+  return gameDay(now) === gameDay(savedAt);
 }

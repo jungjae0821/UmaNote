@@ -188,3 +188,11 @@ test("트레이너 메달 교환은 티켓 없이 매달 무지개·금 결정 �
   assert.equal(p.trainTickets, 0);
   assert.equal(plan({ ...base, today, target, shop: ["friend"] }).shopShards, 0);
 });
+
+test("오늘 데일리를 이미 받았으면 데일리·월정액 일일 지급을 하루 덜 센다", () => {
+  const p = plan({ ...base, monthly: true, todayDailyDone: true });
+  assert.equal(p.days, 30);
+  assert.equal(p.dailyDays, 29);
+  assert.equal(p.daily, 29 * 50);
+  assert.equal(p.monthlyFree, 29 * 50);
+});
