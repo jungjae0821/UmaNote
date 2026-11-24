@@ -2,23 +2,18 @@
 // 날짜는 모두 한국서버 예상일(일 번호)이다.
 
 import { monthOf, monthStart } from "./dates.ts";
-import { SHOP_MONTHLY, type PassPlan, type ShopSource, type TeamClass } from "./calcOptions.ts";
+import { DAILY_MISSION_JEWELS, MONTHLY, SHOP_MONTHLY, type PassPlan, type ShopSource, type TeamClass } from "./calcOptions.ts";
 import { LOGIN_BONUS, mondaysBetween, TEAM_TRIALS_WEEKLY } from "./jewelSources.ts";
 import { addRewards, type Materials, type Rewards } from "./rewards.ts";
 import { isEventReward } from "./rewardScope.ts";
 import { SHEET_REWARDS } from "./sheetRewards.ts";
 import { uniqueIncomes } from "./incomeIdentity.ts";
 
-export { SHOP_MONTHLY, SHOP_SOURCES, type PassPlan, type ShopSource } from "./calcOptions.ts";
+export { DAILY_MISSION_JEWELS, MONTHLY, SHOP_MONTHLY, SHOP_SOURCES, type PassPlan, type ShopSource } from "./calcOptions.ts";
 
 export const JEWELS_PER_PULL = 150;
 export const CEILING = 200;
 
-/** 데일리 미션 ⑤ 육성 완료 20 + 전부 클리어 30 (gametora missions/daily) */
-export const DAILY_MISSION_JEWELS = 50;
-
-/** 월정액(ウマスク): 구매할 때 유료 500, 30일 동안 매일 무료 50. 2024-12-19 일본서버 판매 시작 (gamebiz.jp/news/396105) */
-export const MONTHLY = { paidOnBuy: 500, freePerDay: 50, days: 30 } as const;
 
 /**
  * 트레이닝 패스: 육성으로 모은 포인트(최종 120,000pt)에 따라 받는 보상. 약 한 달마다 새 기간이 열린다.

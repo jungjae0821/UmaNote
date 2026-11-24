@@ -261,3 +261,11 @@
     padding-bottom: 96px;
   }
 }
+
+/* 보유 쥬얼에 데일리가 자동으로 더해진다는 안내 */
+.calc-daily {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sub);
+}
