@@ -53,7 +53,7 @@ export function passStartsBetween(today: number, target: number, dates: readonly
  * 트레이너 메달(서클) 교환에는 일반 육성·서포트 티켓이 없다 (★3·★2 이상·SR 이상 확정 티켓만 있음).
  */
 export const SHOP_MONTHLY = [
-  { id: "friend", name: "프렌드 포인트", cost: "20,000pt", perMonth: 1 },
+  { id: "friend", name: "친구 포인트", cost: "20,000pt", perMonth: 1 },
   { id: "rainbow", name: "무지개 편자", cost: "2개", perMonth: 2 },
   { id: "gold", name: "금 편자", cost: "10개", perMonth: 2 },
   { id: "silver", name: "은 편자", cost: "50개", perMonth: 2 },
