@@ -6,6 +6,7 @@ import { Icon } from "@/components/Icon";
 import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import type { Lane, SupportType } from "@/lib/gametora";
 import "./characters.css";
+import { useToday } from "@/lib/useToday";
 
 export type ListCard = {
   id: number;
@@ -96,7 +97,8 @@ function Group({ title, children, defaultOpen = false }: { title: string; childr
   );
 }
 
-export function CharactersView({ cards, today }: { cards: ListCard[]; today: number }) {
+export function CharactersView({ cards, today: serverToday }: { cards: ListCard[]; today: number }) {
+  const today = useToday(serverToday);
   const [restore] = useState(() => (poppedBack ? saved : null));
   const [f, setF] = useState<Filters>(restore?.f ?? EMPTY);
   const [query, setQuery] = useState(restore?.query ?? "");

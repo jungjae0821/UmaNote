@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatMd } from "@/lib/dates";
 import { Live } from "./Live";
+import { useToday } from "@/lib/useToday";
 
 export type HeroSlide = {
   id: string;
@@ -20,7 +21,8 @@ export type HeroSlide = {
 const INTERVAL = 3000;
 
 /** 홈 이벤트 박스. 여러 개면 가로로 넘기고, 3초마다 다음 장으로 간다 */
-export function HeroCarousel({ slides, today }: { slides: HeroSlide[]; today: number }) {
+export function HeroCarousel({ slides, today: serverToday }: { slides: HeroSlide[]; today: number }) {
+  const today = useToday(serverToday);
   const track = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);

@@ -4,7 +4,7 @@ import type { Character } from "./gametora";
 export type Birthday = { charId: number; name: string; month: number; day: number; until: number };
 
 /** 오늘(포함) 이후 가장 가까운 생일 순. 한국서버에서 육성할 수 있는 캐릭터만 */
-export function upcomingBirthdays(characters: Character[], today: number, limit: number): Birthday[] {
+export function upcomingBirthdays(characters: Pick<Character, "charId" | "name" | "birthMonth" | "birthDay" | "playableKr">[], today: number, limit: number): Birthday[] {
   const { y } = monthOf(today);
   return characters
     .filter((c) => c.playableKr)

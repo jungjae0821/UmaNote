@@ -7,6 +7,7 @@ import { Live } from "@/components/Live";
 import { SupportTypeIcon } from "@/components/SupportTypeIcon";
 import type { EventKind, Lane, SupportType } from "@/lib/gametora";
 import "./events.css";
+import { useToday } from "@/lib/useToday";
 
 type MiniCard = { id: number; name: string; art: string; lane: Lane; supportType?: SupportType };
 export type ViewEvent = {
@@ -61,7 +62,8 @@ function RaceTag({ e }: { e: ViewEvent }) {
   );
 }
 
-export function EventsView({ events, today }: { events: ViewEvent[]; today: number }) {
+export function EventsView({ events, today: serverToday }: { events: ViewEvent[]; today: number }) {
+  const today = useToday(serverToday);
   const [kinds, setKinds] = useState<EventKind[]>(KINDS.map((k) => k.kind));
   const toggle = (k: EventKind) =>
     setKinds((cur) => {

@@ -1,16 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { upcomingBirthdays } from "@/lib/birthdays";
+import { useToday } from "@/lib/useToday";
 import { dayOfMonth, formatDday, monthOf, monthStart, weekdayIndex } from "@/lib/dates";
 import "./birthdays.css";
 
 export type BdChar = { charId: number; name: string; month: number; day: number; icon: string; art: string };
-type Next = BdChar & { until: number };
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 const MONTHS = [1, 2, 3, 4, 5, 6];
 
-export function BirthdaysView({ list, next, today }: { list: BdChar[]; next: Next[]; today: number }) {
+export function BirthdaysView({ list, today: serverToday }: { list: BdChar[]; today: number }) {
+  const today = useToday(serverToday);
+  // 날짜가 바뀌면 다음 생일도 다시 고른다
+  const next = useMemo(() => {
+    const byId = new Map(list.map((c) => [c.charId, c]));
+    const chars = list.map((c) => ({ charId: c.charId, name: c.name, birthMonth: c.month, birthDay: c.day, playableKr: true }));
+    return upcomingBirthdays(chars, today, 5).map((b) => ({ ...byId.get(b.charId)!, until: b.until }));
+  }, [list, today]);
   const now = monthOf(today);
   const firstNext = next[0];
   // 다음 생일이 있는 달을 먼저 연다 (1~6월 밖이면 1월)

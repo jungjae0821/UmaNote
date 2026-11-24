@@ -9,6 +9,7 @@ import { formatMdTime, monthOf, monthStart, relative } from "@/lib/dates";
 import { formatRate } from "@/lib/gachaPool";
 import type { Lane } from "@/lib/gametora";
 import "./futures.css";
+import { useToday } from "@/lib/useToday";
 
 const KEY = "umanote:futures:v1";
 type Prefs = { lanes: Lane[] };
@@ -36,7 +37,8 @@ function ArtFallback({ b, className }: { b: ViewBanner; className?: string }) {
   );
 }
 
-export function FuturesView({ banners, today, initialBanner }: { banners: ViewBanner[]; today: number; initialBanner: number | null }) {
+export function FuturesView({ banners, today: serverToday, initialBanner }: { banners: ViewBanner[]; today: number; initialBanner: number | null }) {
+  const today = useToday(serverToday);
   const initial = banners.find((b) => b.id === initialBanner) ?? null;
   const [month, setMonth] = useState(() => monthOf(initial ? initial.start : today));
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);

@@ -74,6 +74,7 @@
 - Next.js 15 (App Router), React 19, TypeScript
 - 인증·서버 DB 없음
 - 배포: Vercel
+- 날짜 캐시: Vercel 크론(`vercel.json`)이 한국시간 0시·12시에 `/api/revalidate`를 불러 모든 페이지 캐시를 비운다. Vercel 환경 변수에 `CRON_SECRET`이 있어야 동작한다
 
 ## 개발
 

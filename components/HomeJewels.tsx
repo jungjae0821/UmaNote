@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { formatMd } from "@/lib/dates";
 import { readCalc, readJewels, readSummary, type CalcInput, type CalcSummary, type Jewels } from "@/lib/jewels";
 import { Icon } from "./Icon";
+import { useToday } from "@/lib/useToday";
 
 const n = (v: number) => v.toLocaleString("ko-KR");
 
 /** 사료계산기에 입력한 값을 이 브라우저에서 읽어 보여준다 */
-export function HomeJewels({ today }: { today: number }) {
+export function HomeJewels({ today: serverToday }: { today: number }) {
+  const today = useToday(serverToday);
   const [state, setState] = useState<{ jewels: Jewels | null; calc: CalcInput; summary: CalcSummary | null } | null>(null);
 
   useEffect(() => {

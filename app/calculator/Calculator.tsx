@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { pickupLabel, type ViewBanner } from "@/lib/bannerView";
-import { formatDday, formatFull, formatMd, todayKr, weekday } from "@/lib/dates";
+import { formatDday, formatFull, formatMd, weekday } from "@/lib/dates";
+import { useToday } from "@/lib/useToday";
 import { CEILING, DAILY_MISSION_JEWELS, JEWELS_PER_PULL, MONTHLY, plan, pullsFor, SHOP_MONTHLY, TRAINING_PASS, type Income, type PassPlan } from "@/lib/jewelPlan";
 import {
   competitionIncomes,
@@ -93,21 +94,16 @@ function SelectField({ id, label, value, options, onChange }: { id: string; labe
 
 type Props = { today: number; targets: ViewBanner[]; incomes: Income[]; schedule: Scheduled[] };
 
-/** 캐시된 페이지는 만들어진 날의 날짜를 들고 있다. 그보다 늦고 크게 어긋나지 않은 브라우저 날짜면 그쪽을 쓴다 */
-const MAX_STALE_DAYS = 30;
-
 export function Calculator({ today: serverToday, targets: allTargets, incomes, schedule }: Props) {
   const [form, setForm] = useState<Form>({ ...EMPTY_CALC, paid: 0, free: 0 });
   const [loaded, setLoaded] = useState(false);
-  const [today, setToday] = useState(serverToday);
+  const today = useToday(serverToday);
 
   useEffect(() => {
     const j = readJewels();
     setForm({ ...readCalc(), paid: j?.paid ?? 0, free: j?.free ?? 0 });
-    const local = todayKr();
-    if (local > serverToday && local - serverToday <= MAX_STALE_DAYS) setToday(local);
     setLoaded(true);
-  }, [serverToday]);
+  }, []);
 
   const targets = useMemo(() => allTargets.filter((g) => g.start > today), [allTargets, today]);
 

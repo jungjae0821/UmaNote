@@ -8,6 +8,7 @@ import { formatMdTime, relative } from "@/lib/dates";
 import { buildOdds, draw } from "@/lib/gachaDraw";
 import { formatRate, type PoolCard } from "@/lib/gachaPool";
 import type { Lane } from "@/lib/gametora";
+import { useToday } from "@/lib/useToday";
 
 const STORAGE_KEY = "umanote:sim:v2";
 const JEWELS_PER_PULL = 150;
@@ -82,7 +83,8 @@ function persist(store: Store) {
 
 const num = (n: number) => n.toLocaleString("ko-KR");
 
-export function Simulator({ lane, banner, pool, today }: { lane: Lane; banner: ViewBanner; pool: PoolCard[]; today: number }) {
+export function Simulator({ lane, banner, pool, today: serverToday }: { lane: Lane; banner: ViewBanner; pool: PoolCard[]; today: number }) {
+  const today = useToday(serverToday);
   const [store, setStore] = useState<Store>({});
   const [results, setResults] = useState<{ card: PoolCard; key: number }[]>([]);
   const [round, setRound] = useState(0);

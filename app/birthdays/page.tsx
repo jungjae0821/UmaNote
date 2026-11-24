@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { charIcon } from "@/lib/art";
-import { upcomingBirthdays } from "@/lib/birthdays";
 import { todayKr } from "@/lib/dates";
 import { getCards, getCharacters } from "@/lib/gametora";
 import { BirthdaysView, type BdChar } from "./BirthdaysView";
@@ -21,18 +20,13 @@ export default async function BirthdaysPage() {
   const list: BdChar[] = characters
     .filter((c) => c.playableKr && c.birthMonth >= 1 && c.birthMonth <= 6)
     .map((c) => ({ charId: c.charId, name: c.name, month: c.birthMonth, day: c.birthDay, icon: charIcon(c.charId), art: artOf.get(c.charId) ?? charIcon(c.charId) }));
-  const next = upcomingBirthdays(
-    characters.filter((c) => c.birthMonth <= 6),
-    today,
-    5,
-  ).map((b) => ({ ...b, art: artOf.get(b.charId) ?? charIcon(b.charId), icon: charIcon(b.charId) }));
 
   return (
     <>
       <div className="page-head">
         <h1>생일달력</h1>
       </div>
-      <BirthdaysView list={list} next={next} today={today} />
+      <BirthdaysView list={list} today={today} />
     </>
   );
 }
