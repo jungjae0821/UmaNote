@@ -17,6 +17,7 @@ import {
   type Scheduled,
   type TeamClass,
 } from "@/lib/jewelSources";
+import { CRYSTAL_FIELDS, CRYSTAL_NAMES } from "@/lib/rewards";
 import { EMPTY_CALC, readCalc, readJewels, writeCalc, writeJewels, writeSummary, type CalcInput } from "@/lib/jewels";
 
 const num = (n: number) => n.toLocaleString("ko-KR");
@@ -122,6 +123,8 @@ export function Calculator({ today, targets, incomes, schedule }: Props) {
       free: form.free,
       trainTickets: form.trainTickets,
       supportTickets: form.supportTickets,
+      rainbowShards: form.rainbowShards,
+      goldShards: form.goldShards,
       monthly: form.monthly,
       pass: form.pass,
       teamClass: form.teamClass,
@@ -146,6 +149,8 @@ export function Calculator({ today, targets, incomes, schedule }: Props) {
             <NumberField id="c-paid" label="유료 쥬얼" unit="개" value={form.paid} onChange={(paid) => update({ paid })} />
             <NumberField id="c-tt" label="육성 티켓" unit="장" value={form.trainTickets} onChange={(trainTickets) => update({ trainTickets })} />
             <NumberField id="c-st" label="서포트 티켓" unit="장" value={form.supportTickets} onChange={(supportTickets) => update({ supportTickets })} />
+            <NumberField id="c-rs" label="무지개 결정 조각" unit="개" value={form.rainbowShards} onChange={(rainbowShards) => update({ rainbowShards })} />
+            <NumberField id="c-gs" label="금 결정 조각" unit="개" value={form.goldShards} onChange={(goldShards) => update({ goldShards })} />
           </div>
         </section>
 
@@ -267,6 +272,10 @@ function Result({
   const cmLoh = p.incomes.filter((i) => i.source === "cm" || i.source === "loh");
   const gifts = p.incomes.filter((i) => i.source === "gift" || i.source === "login");
   const events = p.incomes.length - legend.length - cmLoh.length - gifts.length;
+  const earned = CRYSTAL_FIELDS.filter((k) => (p.earnedMaterials[k] ?? 0) > 0);
+  const shown = CRYSTAL_FIELDS.filter((k) => (p[k] ?? 0) > 0);
+  const shardSources = p.incomes.filter((i) => CRYSTAL_FIELDS.some((k) => (i[k] ?? 0) > 0)).length;
+  const passShards = (p.earnedMaterials.rainbowShards ?? 0) - p.incomes.reduce((a, i) => a + (i.rainbowShards ?? 0), 0);
 
   const rows: { label: string; note?: string; value: number }[] = [
     { label: "지금 가진 쥬얼", value: owned },
@@ -340,6 +349,18 @@ function Result({
             육성 {num(p.trainTickets)} · 서포트 {num(p.supportTickets)}
           </dd>
         </div>
+        {shown.length > 0 && (
+          <div>
+            <dt>
+              한계돌파 재료{" "}
+              <small>
+                받는 양 {earned.length > 0 ? earned.map((k) => `${CRYSTAL_NAMES[k]} ${num(p.earnedMaterials[k] ?? 0)}`).join(" · ") : "없음"}
+                {shardSources > 0 ? ` (보상 ${shardSources}건${passShards > 0 ? `, 프리미엄 패스 ${num(passShards)}개 포함` : ""})` : ""}
+              </small>
+            </dt>
+            <dd>{shown.map((k) => `${CRYSTAL_NAMES[k]} ${num(p[k] ?? 0)}`).join(" · ")}</dd>
+          </div>
+        )}
         {p.shopTickets > 0 && (
           <div>
             <dt>
@@ -360,7 +381,7 @@ function Result({
               <small>{SOURCE_NAME[i.source]}</small>
             </span>
             <span className="rr-gain">
-              {[i.free > 0 && `쥬얼 ${num(i.free)}`, i.trainTickets > 0 && `육성 ${i.trainTickets}장`, i.supportTickets > 0 && `서포트 ${i.supportTickets}장`].filter(Boolean).join(", ")}
+              {[i.free > 0 && `쥬얼 ${num(i.free)}`, i.trainTickets > 0 && `육성 ${i.trainTickets}장`, i.supportTickets > 0 && `서포트 ${i.supportTickets}장`, ...CRYSTAL_FIELDS.map((k) => (i[k] ?? 0) > 0 && `${CRYSTAL_NAMES[k]} ${i[k]}개`)].filter(Boolean).join(", ")}
             </span>
           </li>
         ))}

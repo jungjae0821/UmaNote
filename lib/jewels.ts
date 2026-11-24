@@ -35,6 +35,9 @@ export const CALC_KEY = "umanote:calc:v1";
 export type CalcInput = CompetitionInput & {
   trainTickets: number;
   supportTickets: number;
+  /** 지금 가진 무지개·금 결정 조각 */
+  rainbowShards: number;
+  goldShards: number;
   monthly: boolean;
   pass: PassPlan;
   /** 매달 교환하는 상점 교환처 */
@@ -47,6 +50,8 @@ export const EMPTY_CALC: CalcInput = {
   ...EMPTY_COMPETITION,
   trainTickets: 0,
   supportTickets: 0,
+  rainbowShards: 0,
+  goldShards: 0,
   monthly: false,
   pass: "none",
   shop: [],
@@ -63,6 +68,8 @@ export function readCalc(): CalcInput {
     return {
       trainTickets: count(v.trainTickets),
       supportTickets: count(v.supportTickets),
+      rainbowShards: count(v.rainbowShards),
+      goldShards: count(v.goldShards),
       monthly: v.monthly === true,
       pass: v.pass === "standard" || v.pass === "premium" ? v.pass : "none",
       shop: Array.isArray(v.shop) ? SHOP_SOURCES.filter((s) => v.shop!.includes(s)) : [],
