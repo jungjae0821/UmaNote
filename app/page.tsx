@@ -121,14 +121,14 @@ export default async function Home() {
             </section>
           )}
 
-          <section>
+          <section className="home-jw">
             <h2 className="section-title">내 쥬얼</h2>
             <HomeJewels today={today} />
           </section>
         </aside>
 
         <div className="home-main stack">
-          <section>
+          <section className="home-pickup">
             <h2 className="section-title">픽업 가챠</h2>
             <div className="panel glass">
               <div className="panel-head">
@@ -176,7 +176,7 @@ export default async function Home() {
           </section>
 
           {races.length > 0 && (
-            <section>
+            <section className="home-races">
               <h2 className="section-title">경기</h2>
               <div className="races">
                 {races.map((e) => (
@@ -212,7 +212,7 @@ export default async function Home() {
             </section>
           )}
 
-          <section>
+          <section className="home-other">
             <h2 className="section-title">그 외 컨텐츠</h2>
             <div className="panel glass rows">
               {liveStory && (liveStory.rewardSupports ?? []).length > 0 && (

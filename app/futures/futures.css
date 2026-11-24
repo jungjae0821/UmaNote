@@ -183,5 +183,25 @@
 @media (max-width: 767px) {
   .fut-item {
     grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .fut-body {
+    padding: 0 4px 4px;
+  }
+  .fut-period {
+    font-size: 13px;
+  }
+  /* 달 이동과 종류 필터를 각각 한 줄씩 꽉 채운다 */
+  .fut-bar,
+  .month-nav,
+  .fut-filters,
+  .chips {
+    width: 100%;
+  }
+  .month-nav h2 {
+    flex: 1;
+  }
+  .chips .filter-chip {
+    flex: 1;
   }
 }

@@ -239,3 +239,18 @@
 .res-route li.rr-none {
   display: block;
 }
+
+/* 폰에서는 보유 수량 네 칸을 두 칸씩 놓아 숫자와 이름이 가까이 붙게 한다 */
+@media (max-width: 767px) {
+  .calc-owned {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 10px;
+  }
+  .calc-grid2 {
+    gap: 14px;
+  }
+  .check small {
+    margin-top: 2px;
+    line-height: 1.45;
+  }
+}

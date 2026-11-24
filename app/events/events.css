@@ -120,16 +120,52 @@
   margin-top: 32px;
 }
 
+/* 폰에서는 진행 중 카드와 같은 순서로: 종류·남은 기간 → 이름·기간 → 태그 */
 @media (max-width: 767px) {
   .ev-item {
     grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    padding: 14px 0;
   }
   .ev-item .ev-kind {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .ev-item > .chip {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .ev-main {
     grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .ev-main b {
+    font-size: 16px;
+  }
+  .ev-period {
+    font-size: 13px;
   }
   .ev-extra {
     grid-column: 1 / -1;
+    grid-row: 3;
     justify-content: flex-start;
-    order: 3;
+    margin-top: 2px;
+  }
+  .ev-extra:empty {
+    display: none;
+  }
+  /* 종류 필터는 한 줄로 두고 옆으로 넘긴다 */
+  .ev-filter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-inline: -16px;
+    padding-inline: 16px;
+  }
+  .ev-filter::-webkit-scrollbar {
+    display: none;
+  }
+  .ev-filter .filter-chip {
+    flex: none;
   }
 }

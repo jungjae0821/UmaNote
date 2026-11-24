@@ -462,6 +462,11 @@ select.input option {
   .page {
     padding: 16px 16px 48px;
   }
+  /* 폰에서 11px 태그는 읽기 어렵다 */
+  .tag {
+    font-size: 12px;
+    padding: 2px 7px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

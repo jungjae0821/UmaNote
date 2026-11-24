@@ -392,23 +392,35 @@
 }
 
 @media (max-width: 1023px) {
+  /* 한 줄로 쌓일 때는 두 열 묶음을 풀어
+     이벤트 → 픽업 가챠 → 경기 → 생일 → 그 외 컨텐츠 → 유튜브 → 쥬얼 순서로 둔다 */
   .home {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
   }
-  .home-hero,
-  .home-main,
   .home-side,
-  .home:not(:has(.home-hero)) .home-main {
-    grid-column: 1;
-    grid-row: auto;
-  }
-  /* 한 줄로 쌓일 때는 묶음을 풀어 배너 → 생일 → 컨텐츠 → 유튜브 → 쥬얼 순서로 둔다 */
-  .home-side {
+  .home-main {
     display: contents;
   }
-  .home-yt,
-  .home-side > section:last-child {
+  .home-pickup {
     order: 1;
+  }
+  .home-races {
+    order: 2;
+  }
+  .home-bd {
+    order: 3;
+  }
+  .home-other {
+    order: 4;
+  }
+  .home-yt {
+    order: 5;
+  }
+  .home-jw {
+    order: 6;
   }
 }
 @media (max-width: 767px) {

@@ -63,9 +63,21 @@
 }
 
 @media (max-width: 767px) {
+  /* 제목이 폭을 다 쓰고 날짜는 그 아래로 내린다 */
   .nt-list a {
-    padding: 12px 14px;
-    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 4px 10px;
+  }
+  .nt-title {
+    flex-basis: 100%;
+    align-items: flex-start;
+  }
+  .nt-title .tag {
+    margin-top: 2px;
+  }
+  .nt-text {
+    font-size: 15px;
   }
   .nt-text {
     white-space: normal;

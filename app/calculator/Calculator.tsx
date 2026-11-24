@@ -140,7 +140,7 @@ export function Calculator({ today, targets, incomes, schedule }: Props) {
       <form className="calc-form stack" onSubmit={(e) => e.preventDefault()} aria-label="보유량과 목표">
         <section className="panel glass">
           <h2 className="calc-h">보유</h2>
-          <div className="calc-grid2">
+          <div className="calc-grid2 calc-owned">
             <NumberField id="c-free" label="무료 쥬얼" unit="개" value={form.free} onChange={(free) => update({ free })} />
             <NumberField id="c-paid" label="유료 쥬얼" unit="개" value={form.paid} onChange={(paid) => update({ paid })} />
             <NumberField id="c-tt" label="육성 티켓" unit="장" value={form.trainTickets} onChange={(trainTickets) => update({ trainTickets })} />

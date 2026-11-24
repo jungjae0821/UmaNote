@@ -81,12 +81,33 @@
   gap: 4px;
 }
 
+/* 폰에서는 일러스트를 작게 줄여 이름 옆에 두고, 정보는 두 칸씩 놓아 첫 화면에 모두 보이게 한다 */
 @media (max-width: 767px) {
   .cd {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+  }
+  .cd > .stack {
+    display: contents;
   }
   .cd-art {
-    max-width: 320px;
+    border-radius: 16px;
+  }
+  .cd-name {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .cd-tags {
+    flex-wrap: wrap;
+  }
+  .cd-facts {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 12px;
+  }
+  .cd-facts dd {
+    font-size: 16px;
   }
   .cd-banners img {
     width: 96px;
