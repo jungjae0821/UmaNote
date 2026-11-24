@@ -1,12 +1,12 @@
 // gametora 데이터를 가져와 화면에서 쓰는 모양으로 바꾼다.
 // 파일 이름에 해시가 붙어 있어서 manifest로 현재 파일을 찾는다. 날짜는 모두 한국(카카오) 서버 기준이다.
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { bannerArt, EDITION_BANNER, jpBannerArt, outfitArt, storyEventArt, supportArt } from "./art";
 import { dayFromTimestamp, noonTimestamp, SERVER_GAP_DAYS } from "./dates";
 import { fetchJson, logFailure } from "./fetchJson";
 import { fixKo, stripBrackets } from "./koName";
 import { namuCardTitle, namuCharName, namuSupportArt, realKo } from "./namuKo";
-import { unstable_cache } from "next/cache";
 import { plannerEditions, type PlannerEdition, type PlannerEditionKind } from "./plannerEventSchedule";
 import { fetchPlannerModules } from "./plannerSource";
 import sheetRewards from "./data/sheetRewards.json";
@@ -378,8 +378,7 @@ export async function getBanners(cards?: Card[], opts: { jpProjection?: boolean 
         (b) => b.startTs < FAR_FUTURE,
       );
       const projected = opts.jpProjection ? await jpProjectedBanners(kr, toBanner) : [];
-      const all = [...kr, ...projected]
-        .sort((a, b) => a.startTs - b.startTs || a.id - b.id);
+      const all = [...kr, ...projected].sort((a, b) => a.startTs - b.startTs || a.id - b.id);
       const now = Date.now() / 1000;
       const upcoming = all.filter((b) => b.startTs > now && b.art);
       const found = await existingImages(upcoming.map((b) => b.art as string));

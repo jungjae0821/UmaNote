@@ -9,7 +9,6 @@ import "./calculator.css";
 export const metadata: Metadata = { title: "사료계산기" };
 export const revalidate = 3600;
 
-
 export default async function CalculatorPage() {
   const today = todayKr();
   // 목표로 고를 수 있는 범위: 지금 일본서버에서 진행 중인 픽업까지 (한국 예상일 = 일본 날짜 + 476일)
