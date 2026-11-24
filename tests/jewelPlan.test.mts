@@ -170,6 +170,8 @@ test("상점 월간 교환은 (오늘, 목표) 사이 매달 1일마다 고른 �
   assert.equal(p.trainTickets, 9);
   assert.equal(p.supportTickets, 9);
   assert.equal(plan({ ...base, today, target }).shopTickets, 0);
-  // 목표가 1일이면 그날 교환분은 넣지 않는다
-  assert.equal(plan({ ...base, today, target: Date.UTC(2027, 0, 1) / 86_400_000, shop: ["gold"] }).shopMonths, 1);
+  // 목표가 1일이면 그날 교환분도 넣는다: 12/1, 1/1 두 번
+  assert.equal(plan({ ...base, today, target: Date.UTC(2027, 0, 1) / 86_400_000, shop: ["gold"] }).shopMonths, 2);
+  // 오늘이 1일이면 그날 교환분은 넣지 않는다
+  assert.equal(plan({ ...base, today: Date.UTC(2026, 11, 1) / 86_400_000, target: Date.UTC(2026, 11, 20) / 86_400_000, shop: ["gold"] }).shopMonths, 0);
 });

@@ -62,11 +62,14 @@ export const SHOP_MONTHLY = [
 export type ShopSource = (typeof SHOP_MONTHLY)[number]["id"];
 export const SHOP_SOURCES: ShopSource[] = SHOP_MONTHLY.map((s) => s.id);
 
-/** (오늘, 목표 시작일) 사이에 오는 매달 1일. 이번 달 남은 교환은 이미 했을 수도 있어서 넣지 않는다 */
+/**
+ * (오늘, 목표 시작일] 사이에 오는 매달 1일. 이번 달 남은 교환은 이미 했을 수도 있어서 넣지 않는다.
+ * 초기화(1일 12:00)가 픽업 시작과 같은 시각이라, 목표 시작일이 1일이면 그날 교환분도 넣는다.
+ */
 export function monthStartsBetween(today: number, target: number): number[] {
   const starts: number[] = [];
   let { y, m } = monthOf(today);
-  for (let d = monthStart(y, m + 1); d < target; d = monthStart(y, m + 1)) {
+  for (let d = monthStart(y, m + 1); d <= target; d = monthStart(y, m + 1)) {
     starts.push(d);
     ({ y, m } = monthOf(d));
   }
