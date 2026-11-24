@@ -46,13 +46,16 @@ export function passStartsBetween(today: number, target: number, dates: readonly
 }
 
 /**
- * 상점 월간 교환: 교환처마다 육성·서포트 가챠 티켓을 한 달에 정해진 횟수만큼 바꿀 수 있다. 매달 1일에 횟수가 초기화된다.
- * 횟수는 1회당 1장이며 육성·서포트가 같다 (game8.jp/umamusume/373403 ショップ一覧, 2025-11 기준)
+ * 상점 월간 교환: 교환처마다 육성·서포트 가챠 티켓을 한 달에 정해진 횟수만큼 바꿀 수 있다. 매달 1일 12:00에 횟수가 초기화된다.
+ * 횟수는 1회당 1장이며 육성·서포트가 따로 같은 횟수다. SR 이상 확정 티켓은 넣지 않는다.
+ * 일본서버 기준 wikiwiki.jp/vip_umamusu ショップ (2026-11-22 갱신). GameWith·神ゲー攻略도 같다.
+ * game8.jp/umamusume/373403은 무지개·금 편자를 월 1회로 적었지만 SR 이상 확정 티켓 횟수와 섞인 것으로 보고 따르지 않는다.
+ * 트레이너 메달(서클) 교환에는 일반 육성·서포트 티켓이 없다 (★3·★2 이상·SR 이상 확정 티켓만 있음).
  */
 export const SHOP_MONTHLY = [
   { id: "friend", name: "프렌드 포인트", cost: "20,000pt", perMonth: 1 },
-  { id: "rainbow", name: "무지개 편자", cost: "2개", perMonth: 1 },
-  { id: "gold", name: "금 편자", cost: "10개", perMonth: 1 },
+  { id: "rainbow", name: "무지개 편자", cost: "2개", perMonth: 2 },
+  { id: "gold", name: "금 편자", cost: "10개", perMonth: 2 },
   { id: "silver", name: "은 편자", cost: "50개", perMonth: 2 },
   { id: "clover", name: "클로버", cost: "200개", perMonth: 2 },
 ] as const;
