@@ -1,7 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    { "path": "/api/revalidate", "schedule": "0 15 * * *" },
-    { "path": "/api/revalidate", "schedule": "0 3 * * *" }
-  ]
+  "schedules": {
+    "revalidate-midnight": {
+      "schedule": "0 0 * * *",
+      "timezone": "Asia/Seoul",
+      "path": "/api/revalidate",
+      "requestMethod": "GET"
+    },
+    "revalidate-noon": {
+      "schedule": "0 12 * * *",
+      "timezone": "Asia/Seoul",
+      "path": "/api/revalidate",
+      "requestMethod": "GET"
+    }
+  }
 }
