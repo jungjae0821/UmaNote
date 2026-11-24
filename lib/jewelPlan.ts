@@ -2,11 +2,14 @@
 // 날짜는 모두 한국서버 예상일(일 번호)이다.
 
 import { monthOf, monthStart } from "./dates.ts";
-import { LOGIN_BONUS, mondaysBetween, TEAM_TRIALS_WEEKLY, type TeamClass } from "./jewelSources.ts";
+import { SHOP_MONTHLY, type PassPlan, type ShopSource, type TeamClass } from "./calcOptions.ts";
+import { LOGIN_BONUS, mondaysBetween, TEAM_TRIALS_WEEKLY } from "./jewelSources.ts";
 import { addRewards, type Materials, type Rewards } from "./rewards.ts";
 import { isEventReward } from "./rewardScope.ts";
 import { SHEET_REWARDS } from "./sheetRewards.ts";
 import { uniqueIncomes } from "./incomeIdentity.ts";
+
+export { SHOP_MONTHLY, SHOP_SOURCES, type PassPlan, type ShopSource } from "./calcOptions.ts";
 
 export const JEWELS_PER_PULL = 150;
 export const CEILING = 200;
@@ -45,24 +48,6 @@ export function passStartsBetween(today: number, target: number, dates: readonly
   return starts;
 }
 
-/**
- * 상점 월간 교환: 교환처마다 육성·서포트 가챠 티켓을 한 달에 정해진 횟수만큼 바꿀 수 있다. 매달 1일 12:00에 횟수가 초기화된다.
- * 횟수는 1회당 1장이며 육성·서포트가 따로 같은 횟수다. SR 이상 확정 티켓은 넣지 않는다.
- * 일본서버 기준 wikiwiki.jp/vip_umamusu ショップ (2026-11-22 갱신). GameWith·神ゲー攻略도 같다.
- * game8.jp/umamusume/373403은 무지개·금 편자를 월 1회로 적었지만 SR 이상 확정 티켓 횟수와 섞인 것으로 보고 따르지 않는다.
- * 트레이너 메달(서클) 교환에는 일반 육성·서포트 티켓이 없다 (★3·★2 이상·SR 이상 확정 티켓만 있음).
- * 대신 무지개 결정 조각(8,000메달)·금 결정 조각(2,000메달)을 월 1개씩 바꿀 수 있다 (같은 위키 ショップ, 2026-04-11 기준).
- */
-export const SHOP_MONTHLY = [
-  { id: "friend", name: "친구 포인트", cost: "20,000pt", perMonth: 1, shardsPerMonth: 0 },
-  { id: "rainbow", name: "무지개 편자", cost: "2개", perMonth: 2, shardsPerMonth: 0 },
-  { id: "gold", name: "금 편자", cost: "10개", perMonth: 2, shardsPerMonth: 0 },
-  { id: "silver", name: "은 편자", cost: "50개", perMonth: 2, shardsPerMonth: 0 },
-  { id: "clover", name: "클로버", cost: "200개", perMonth: 2, shardsPerMonth: 0 },
-  { id: "medal", name: "트레이너 메달", cost: "무지개 8,000·금 2,000메달", perMonth: 0, shardsPerMonth: 1 },
-] as const;
-export type ShopSource = (typeof SHOP_MONTHLY)[number]["id"];
-export const SHOP_SOURCES: ShopSource[] = SHOP_MONTHLY.map((s) => s.id);
 
 /**
  * (오늘, 목표 시작일] 사이에 오는 매달 1일. 이번 달 남은 교환은 이미 했을 수도 있어서 넣지 않는다.
@@ -77,9 +62,6 @@ export function monthStartsBetween(today: number, target: number): number[] {
   }
   return starts;
 }
-
-/** none: 패스 보상을 넣지 않음, standard: 무료 보상만 끝까지, premium: 프리미엄 패스를 사고 끝까지 */
-export type PassPlan = "none" | "standard" | "premium";
 
 /** limited·story: 기간 한정 미션과 스토리 이벤트, cm·legend·loh: 고른 단계에 따른 대회 보상, gift·login: 운영 선물과 특별 로그인 보너스 */
 // Keep the existing UI source groups; detailed event categories live in category.

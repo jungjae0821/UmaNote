@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   // 뽑기 시뮬레이터는 주소의 ?lane=·?banner=에 따라 화면이 달라진다.
   // 서버가 쿼리를 읽으면 매번 새로 그려야 해서, 경로로 바꿔 보내 주소별로 캐시되게 한다
   async rewrites() {

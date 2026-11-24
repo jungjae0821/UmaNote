@@ -1,6 +1,7 @@
 import data from "./data/sheetRewards.json" with { type: "json" };
 import type { Income } from "./jewelPlan.ts";
-import type { CompetitionInput, Scheduled } from "./jewelSources.ts";
+import type { CompetitionInput } from "./calcOptions.ts";
+import type { Scheduled } from "./jewelSources.ts";
 import { sheetMissingMaterials, type Rewards } from "./rewards.ts";
 import { SERVER_GAP_DAYS } from "./dates.ts";
 import { applyAdditionalSheetRewards } from "./additionalSheetRewards.ts";

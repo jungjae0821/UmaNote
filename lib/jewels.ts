@@ -1,5 +1,14 @@
-import { SHOP_SOURCES, type PassPlan, type ShopSource } from "./jewelPlan";
-import { EMPTY_COMPETITION, LOH_RANKS, type CmLeague, type CmResult, type CompetitionInput, type TeamClass } from "./jewelSources";
+import {
+  EMPTY_COMPETITION,
+  LOH_RANKS,
+  SHOP_SOURCES,
+  type CmLeague,
+  type CmResult,
+  type CompetitionInput,
+  type PassPlan,
+  type ShopSource,
+  type TeamClass,
+} from "./calcOptions";
 
 const CM_RESULTS: CmResult[] = ["none", "out", "B3", "B2", "B1", "A3", "A2", "A1"];
 
