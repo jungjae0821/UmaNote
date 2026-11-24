@@ -1,6 +1,7 @@
 import data from "./data/sheetRewards.json" with { type: "json" };
 import type { Income } from "./jewelPlan.ts";
 import { SERVER_GAP_DAYS } from "./dates.ts";
+import { sheetMissingMaterials } from "./rewards.ts";
 
 const scores = data.additionalRows.filter(r => r.role === "scenario-score").sort((a, b) => b.startJp - a.startJp);
 const score = scores[0];
@@ -21,6 +22,8 @@ export function futureScenarioRewards(incomes: Income[]): Income[] {
     else launches.push({ day, anchor: i, title });
   }
   const removed = new Set<string>(), added: Income[] = [];
+  // 시트에 없는 금 결정 조각·해방 결정은 최신 시나리오 시트 행이 이어받은 값을 쓴다
+  const carried = (id: string) => sheetMissingMaterials(incomes.filter(i => i.id === id).slice(0, 1));
   for (const launch of launches) {
     const matching = incomes.filter(i => i.source === "limited" && Math.abs(jp(i) - launch.day) <= 1 &&
       (/新育成シナリオ.*(?:公開|記念)/.test(i.name) || (launch.title && i.name.includes(launch.title))));
@@ -30,6 +33,7 @@ export function futureScenarioRewards(incomes: Income[]): Income[] {
       id: `scenario-${kind}-${launch.day}`, source: "limited", category: `scenario-${kind}`, name: `신규 시나리오 ${launch.title ?? "공개"} ${kind === "score" ? "평가점 보상" : "기념 미션"}`,
       startJp: launch.day, startKr: launch.anchor.startKr, endKr: launch.anchor.endKr,
       free: template.free, trainTickets: template.trainTickets, supportTickets: template.supportTickets, rainbowShards: template.rainbowShards,
+      ...carried(template.id),
       reference: data.reference, condition: "일본 공개 일정에 시트의 최신 시나리오 보상 적용; 평가점·미션 전부 달성",
     });
   }

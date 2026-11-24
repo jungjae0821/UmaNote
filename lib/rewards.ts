@@ -7,6 +7,16 @@ export type Materials = Partial<Record<CrystalField, number>> & { specialTickets
 export type Rewards = Materials & { free: number; trainTickets: number; supportTickets: number };
 export const ZERO_REWARDS: Rewards = { free: 0, trainTickets: 0, supportTickets: 0 };
 
+/** 사용자 시트에 열이 없는 재료. 시트 행이 원래 보상을 대신할 때 원래 보상의 값을 이어받는다 (시트에는 무지개 조각만 있다) */
+export const SHEET_MISSING_FIELDS = ["goldShards", "rainbowCrystals", "goldCrystals"] as const;
+
+/** 시트 행이 대신하는 원래 보상들의 금 결정 조각·해방 결정 합 */
+export function sheetMissingMaterials(rows: Materials[]): Materials {
+  const out: Materials = {};
+  for (const key of SHEET_MISSING_FIELDS) out[key] = rows.reduce((a, r) => a + (r[key] ?? 0), 0);
+  return out;
+}
+
 export function addRewards(rows: Rewards[]): Rewards {
   const out: Rewards = { ...ZERO_REWARDS, specialTickets: {} };
   for (const row of rows) {

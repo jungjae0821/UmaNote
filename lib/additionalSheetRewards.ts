@@ -1,6 +1,6 @@
 import data from "./data/sheetRewards.json" with { type: "json" };
 import type { Income } from "./jewelPlan.ts";
-import { hasRewards } from "./rewards.ts";
+import { hasRewards, sheetMissingMaterials } from "./rewards.ts";
 import { SERVER_GAP_DAYS } from "./dates.ts";
 
 const rows = data.additionalRows;
@@ -76,10 +76,22 @@ export function removeAdditionalSheetDuplicates(incomes: Income[]): Income[] {
 }
 
 export function applyAdditionalSheetRewards(incomes: Income[]): Income[] {
+  // 시트에 없는 금 결정 조각·해방 결정은 시트 행이 대신하는 원래 보상에서 이어받는다 (여러 행이면 날짜가 가장 가까운 행)
+  const replaced = new Map<string, Map<string, Income>>();
+  for (const i of incomes) {
+    // 이미 가져온 시트 행이면 자기 값을 그대로 이어받는다 (두 번 적용해도 같은 결과)
+    const self = rows.filter(r => r.id === i.id);
+    const matching = self.length ? self : rows.filter(r => covers(i, r));
+    if (!matching.length) continue;
+    const row = matching.reduce((a, b) => Math.abs(day(i) - a.startJp) <= Math.abs(day(i) - b.startJp) ? a : b);
+    if (!replaced.has(row.id)) replaced.set(row.id, new Map());
+    replaced.get(row.id)!.set(i.id, i);
+  }
   const imported: Income[] = rows.map(r => ({ id: r.id, name: r.name,
     source: r.role === "login" ? "login" : r.role === "gift" ? "gift" : "limited",
     category: "sheet-extra", startJp: r.startJp, startKr: r.startKr, endKr: r.startKr,
-    free: r.free, trainTickets: r.trainTickets, supportTickets: r.supportTickets, rainbowShards: r.rainbowShards, specialTickets: r.specialTickets as Record<string, number>,
+    free: r.free, trainTickets: r.trainTickets, supportTickets: r.supportTickets, rainbowShards: r.rainbowShards,
+    ...sheetMissingMaterials([...(replaced.get(r.id)?.values() ?? [])]), specialTickets: r.specialTickets as Record<string, number>,
     reference: `${data.reference}?range=${encodeURIComponent(`'${r.sheet}'!A${r.row}:H${r.row}`)}`,
     condition: "사용자가 지정한 시트의 해당 날짜 보상",
   }));
