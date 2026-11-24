@@ -7,6 +7,11 @@ export function dayFromTimestamp(ts: number): number {
   return Math.floor((ts + UTC9) / DAY);
 }
 
+/** 그 날(일 번호) 한국 시간 정오의 유닉스 타임스탬프(초). 픽업은 시작하는 날 12:00에 바뀐다 */
+export function noonTimestamp(day: number): number {
+  return day * DAY + 12 * 3600 - UTC9;
+}
+
 /** 지금 이 순간의 한국 날짜 일 번호 */
 export function todayKr(now = Date.now()): number {
   return dayFromTimestamp(Math.floor(now / 1000));

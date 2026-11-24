@@ -27,10 +27,12 @@ export default async function Home() {
   ]);
 
   const regular = banners.filter((b) => !b.paidOnly);
-  const liveBanners = regular.filter((b) => isLive(b, today));
+  // 픽업은 날짜가 아니라 시작일 12:00에 바뀌므로 시각으로 판정한다
+  const now = Date.now() / 1000;
+  const liveBanners = regular.filter((b) => b.startTs <= now && now <= b.endTs);
   const liveTrain = liveBanners.filter((b) => b.lane === "train");
   const liveSupport = liveBanners.filter((b) => b.lane === "support");
-  const nextOf = (lane: Banner["lane"]) => regular.find((b) => b.lane === lane && b.start > today);
+  const nextOf = (lane: Banner["lane"]) => regular.find((b) => b.lane === lane && b.startTs > now);
   const nextTrain = nextOf("train");
   const nextSupport = nextOf("support");
   const pickupEnd = Math.min(...liveBanners.map((b) => b.end));
@@ -166,7 +168,7 @@ export default async function Home() {
                             ))}
                           </span>
                           <b>{[...new Set(b.pickups.map((p) => p.card.name))].join(", ") || "픽업 정보 없음"}</b>
-                          <Live start={b.start} end={b.end} today={today} />
+                          {b.start === today ? <span className="chip">오늘 12:00 시작</span> : <Live start={b.start} end={b.end} today={today} />}
                         </Link>
                       ),
                   )}

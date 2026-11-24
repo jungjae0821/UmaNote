@@ -2,7 +2,7 @@
 // 파일 이름에 해시가 붙어 있어서 manifest로 현재 파일을 찾는다. 날짜는 모두 한국(카카오) 서버 기준이다.
 import "server-only";
 import { bannerArt, EDITION_BANNER, jpBannerArt, outfitArt, storyEventArt, supportArt } from "./art";
-import { dayFromTimestamp, SERVER_GAP_DAYS } from "./dates";
+import { dayFromTimestamp, noonTimestamp, SERVER_GAP_DAYS } from "./dates";
 import { fetchJson, logFailure } from "./fetchJson";
 import { fixKo, stripBrackets } from "./koName";
 import { namuCardTitle, namuCharName, namuSupportArt, realKo } from "./namuKo";
@@ -334,10 +334,11 @@ export async function getBanners(cards?: Card[], opts: { jpProjection?: boolean 
       const estimated = new Set(
         [...timeline.future_char_banners, ...timeline.future_support_banners].filter((b) => b.is_estimated).map((b) => b.id),
       );
+      // 픽업은 미래시 기준으로 시작하는 날 12:00에 바뀐다. 일본서버 배너 중에는 13:00·21:00 시작도 있어서 정오로 맞춘다
       const toBanner = (b: RawBanner, lane: Lane, paidOnly: boolean): Banner => ({
         id: b.id,
         lane,
-        startTs: b.start,
+        startTs: noonTimestamp(dayFromTimestamp(b.start)),
         endTs: b.end,
         start: dayFromTimestamp(b.start),
         end: dayFromTimestamp(b.end),
