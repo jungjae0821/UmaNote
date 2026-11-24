@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { pickupLabel, type ViewBanner } from "@/lib/bannerView";
 import { formatDday, formatFull, formatMd, weekday } from "@/lib/dates";
-import { CEILING, DAILY_MISSION_JEWELS, JEWELS_PER_PULL, MONTHLY, plan, pullsFor, TRAINING_PASS, type Income, type PassPlan } from "@/lib/jewelPlan";
+import { CEILING, DAILY_MISSION_JEWELS, JEWELS_PER_PULL, MONTHLY, plan, pullsFor, SHOP_MONTHLY, TRAINING_PASS, type Income, type PassPlan } from "@/lib/jewelPlan";
 import {
   competitionIncomes,
   giftIncomes,
@@ -125,6 +125,7 @@ export function Calculator({ today, targets, incomes, schedule }: Props) {
       monthly: form.monthly,
       pass: form.pass,
       teamClass: form.teamClass,
+      shop: form.shop,
       incomes: [...incomes, ...GIFT_INCOMES, ...competitionIncomes(schedule, form)],
     });
     return { p, pulls: pullsFor(p, target.lane, target.paidOnly) };
@@ -181,6 +182,27 @@ export function Calculator({ today, targets, incomes, schedule }: Props) {
             />
             <SelectField id="c-cmr" label="챔피언스 미팅 결승 결과 (매회 같다고 봄)" value={form.cmResult} options={CM_RESULT_OPTIONS} onChange={(v) => update({ cmResult: v as CmResult })} />
             <SelectField id="c-loh" label="리그 오브 히어로즈 최종 랭크" value={String(form.lohRank)} options={LOH_OPTIONS} onChange={(v) => update({ lohRank: Number(v) })} />
+          </div>
+        </section>
+
+        <section className="panel glass">
+          <h2 className="calc-h">상점 월간 교환 (매달 1일 초기화)</h2>
+          <div className="calc-grid2">
+            {SHOP_MONTHLY.map((s) => (
+              <label key={s.id} className="check">
+                <input
+                  type="checkbox"
+                  checked={form.shop.includes(s.id)}
+                  onChange={(e) => update({ shop: e.target.checked ? [...form.shop, s.id] : form.shop.filter((x) => x !== s.id) })}
+                />
+                <span>
+                  {s.name}
+                  <small>
+                    {s.cost}씩, 육성·서포트 티켓 매달 {s.perMonth}장씩
+                  </small>
+                </span>
+              </label>
+            ))}
           </div>
         </section>
 
@@ -318,6 +340,14 @@ function Result({
             육성 {num(p.trainTickets)} · 서포트 {num(p.supportTickets)}
           </dd>
         </div>
+        {p.shopTickets > 0 && (
+          <div>
+            <dt>
+              그중 상점 월간 교환 <small>{p.shopMonths}달 × {num(p.shopTickets / p.shopMonths)}장</small>
+            </dt>
+            <dd>각 + {num(p.shopTickets)}장</dd>
+          </div>
+        )}
       </dl>
 
       <h3 className="res-h">더한 보상</h3>

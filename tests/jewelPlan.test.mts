@@ -159,3 +159,17 @@ test("대회 보상은 고른 단계대로, 챔피언스 미팅은 끝나는 날
   assert.equal(p.eventFree, 0);
   assert.equal(competitionIncomes(schedule, EMPTY_COMPETITION).length, 0);
 });
+
+test("상점 월간 교환은 (오늘, 목표) 사이 매달 1일마다 고른 교환처 티켓을 더한다", () => {
+  // 2026-11-24 → 2027-02-10: 12/1, 1/1, 2/1 세 번
+  const today = Date.UTC(2026, 10, 24) / 86_400_000;
+  const target = Date.UTC(2027, 1, 10) / 86_400_000;
+  const p = plan({ ...base, today, target, shop: ["friend", "silver"] });
+  assert.equal(p.shopMonths, 3);
+  assert.equal(p.shopTickets, 9);
+  assert.equal(p.trainTickets, 9);
+  assert.equal(p.supportTickets, 9);
+  assert.equal(plan({ ...base, today, target }).shopTickets, 0);
+  // 목표가 1일이면 그날 교환분은 넣지 않는다
+  assert.equal(plan({ ...base, today, target: Date.UTC(2027, 0, 1) / 86_400_000, shop: ["gold"] }).shopMonths, 1);
+});

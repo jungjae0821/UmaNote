@@ -1,6 +1,7 @@
 // 사료계산기의 계산 부분. 브라우저·서버 어디서든 쓰도록 외부 호출 없이 숫자만 다룬다.
 // 날짜는 모두 한국서버 예상일(일 번호)이다.
 
+import { monthOf, monthStart } from "./dates.ts";
 import { LOGIN_BONUS, mondaysBetween, TEAM_TRIALS_WEEKLY, type TeamClass } from "./jewelSources.ts";
 import { addRewards, type Materials, type Rewards } from "./rewards.ts";
 import { isEventReward } from "./rewardScope.ts";
@@ -41,6 +42,31 @@ export function passStartsBetween(today: number, target: number, dates: readonly
   const starts = dates.filter((d) => d > today && d < target);
   const last = dates[dates.length - 1];
   if (last !== undefined) for (let d = last + TRAINING_PASS.days; d < target; d += TRAINING_PASS.days) if (d > today) starts.push(d);
+  return starts;
+}
+
+/**
+ * 상점 월간 교환: 교환처마다 육성·서포트 가챠 티켓을 한 달에 정해진 횟수만큼 바꿀 수 있다. 매달 1일에 횟수가 초기화된다.
+ * 횟수는 1회당 1장이며 육성·서포트가 같다 (game8.jp/umamusume/373403 ショップ一覧, 2025-11 기준)
+ */
+export const SHOP_MONTHLY = [
+  { id: "friend", name: "프렌드 포인트", cost: "20,000pt", perMonth: 1 },
+  { id: "rainbow", name: "무지개 편자", cost: "2개", perMonth: 1 },
+  { id: "gold", name: "금 편자", cost: "10개", perMonth: 1 },
+  { id: "silver", name: "은 편자", cost: "50개", perMonth: 2 },
+  { id: "clover", name: "클로버", cost: "200개", perMonth: 2 },
+] as const;
+export type ShopSource = (typeof SHOP_MONTHLY)[number]["id"];
+export const SHOP_SOURCES: ShopSource[] = SHOP_MONTHLY.map((s) => s.id);
+
+/** (오늘, 목표 시작일) 사이에 오는 매달 1일. 이번 달 남은 교환은 이미 했을 수도 있어서 넣지 않는다 */
+export function monthStartsBetween(today: number, target: number): number[] {
+  const starts: number[] = [];
+  let { y, m } = monthOf(today);
+  for (let d = monthStart(y, m + 1); d < target; d = monthStart(y, m + 1)) {
+    starts.push(d);
+    ({ y, m } = monthOf(d));
+  }
   return starts;
 }
 
@@ -88,6 +114,8 @@ export type PlanInput = Materials & {
   pass: PassPlan;
   /** 팀 경기장 클래스. 0이면 넣지 않음 */
   teamClass: TeamClass;
+  /** 매달 교환하는 상점 교환처 */
+  shop?: ShopSource[];
   incomes: Income[];
   /** Already received or deliberately omitted rewards, by stable ID. */
   excludedIncomeIds?: string[];
@@ -105,6 +133,9 @@ export type Plan = Materials & {
   passTrainTickets: number;
   passSupportTickets: number;
   login: number;
+  /** 상점 월간 교환: 초기화 횟수와 그동안 바꾸는 티켓 (육성·서포트 같은 수) */
+  shopMonths: number;
+  shopTickets: number;
   teamWeeks: number;
   teamTrials: number;
   /** 오늘 다음 날부터 목표 시작 전날 사이에 시작하는 보상 */
@@ -153,6 +184,10 @@ export function plan(input: PlanInput): Plan {
   const passPaid = passPeriods * pre.paidOnBuy;
   const passTrainTickets = passPeriods * (std.trainTickets + pre.trainTickets);
   const passSupportTickets = passPeriods * (std.supportTickets + pre.supportTickets);
+  const shop = new Set(input.shop ?? []);
+  const shopPerMonth = SHOP_MONTHLY.filter((s) => shop.has(s.id)).reduce((a, s) => a + s.perMonth, 0);
+  const shopMonths = shopPerMonth > 0 ? monthStartsBetween(input.today, input.target).length : 0;
+  const shopTickets = shopMonths * shopPerMonth;
   const earnedMaterials = addRewards([...incomes, { free: 0, trainTickets: 0, supportTickets: 0, rainbowShards: input.pass === "premium" ? passPeriods * TRAINING_PASS.premium.rainbowShards : 0 }]);
   const materialTotals = addRewards([earnedMaterials, { ...input, free: 0, trainTickets: 0, supportTickets: 0 }]);
 
@@ -176,13 +211,15 @@ export function plan(input: PlanInput): Plan {
     eventFree,
     competitionFree,
     login,
+    shopMonths,
+    shopTickets,
     teamWeeks,
     teamTrials,
     giftFree,
     free: input.free + daily + monthlyFree + passFree + eventFree + competitionFree + giftFree + login + teamTrials,
     paid: input.paid + monthlyPaid + passPaid,
-    trainTickets: input.trainTickets + passTrainTickets + sum("trainTickets"),
-    supportTickets: input.supportTickets + passSupportTickets + sum("supportTickets"),
+    trainTickets: input.trainTickets + passTrainTickets + shopTickets + sum("trainTickets"),
+    supportTickets: input.supportTickets + passSupportTickets + shopTickets + sum("supportTickets"),
   };
 }
 

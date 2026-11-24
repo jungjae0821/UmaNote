@@ -1,4 +1,4 @@
-import type { PassPlan } from "./jewelPlan";
+import { SHOP_SOURCES, type PassPlan, type ShopSource } from "./jewelPlan";
 import { EMPTY_COMPETITION, LOH_RANKS, type CmLeague, type CmResult, type CompetitionInput, type TeamClass } from "./jewelSources";
 
 const CM_RESULTS: CmResult[] = ["none", "out", "B3", "B2", "B1", "A3", "A2", "A1"];
@@ -37,6 +37,8 @@ export type CalcInput = CompetitionInput & {
   supportTickets: number;
   monthly: boolean;
   pass: PassPlan;
+  /** 매달 교환하는 상점 교환처 */
+  shop: ShopSource[];
   /** 목표로 고른 가챠 ID. 고르지 않았으면 null */
   targetId: number | null;
 };
@@ -47,6 +49,7 @@ export const EMPTY_CALC: CalcInput = {
   supportTickets: 0,
   monthly: false,
   pass: "none",
+  shop: [],
   targetId: null,
 };
 
@@ -62,6 +65,7 @@ export function readCalc(): CalcInput {
       supportTickets: count(v.supportTickets),
       monthly: v.monthly === true,
       pass: v.pass === "standard" || v.pass === "premium" ? v.pass : "none",
+      shop: Array.isArray(v.shop) ? SHOP_SOURCES.filter((s) => v.shop!.includes(s)) : [],
       teamClass: (count(v.teamClass) <= 6 ? count(v.teamClass) : 0) as TeamClass,
       cmLeague: (v.cmLeague === "open" ? "open" : "grade") as CmLeague,
       cmResult: CM_RESULTS.includes(v.cmResult as CmResult) ? (v.cmResult as CmResult) : "none",
