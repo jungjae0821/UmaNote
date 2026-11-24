@@ -51,13 +51,15 @@ export function passStartsBetween(today: number, target: number, dates: readonly
  * 일본서버 기준 wikiwiki.jp/vip_umamusu ショップ (2026-11-22 갱신). GameWith·神ゲー攻略도 같다.
  * game8.jp/umamusume/373403은 무지개·금 편자를 월 1회로 적었지만 SR 이상 확정 티켓 횟수와 섞인 것으로 보고 따르지 않는다.
  * 트레이너 메달(서클) 교환에는 일반 육성·서포트 티켓이 없다 (★3·★2 이상·SR 이상 확정 티켓만 있음).
+ * 대신 무지개 결정 조각(8,000메달)·금 결정 조각(2,000메달)을 월 1개씩 바꿀 수 있다 (같은 위키 ショップ, 2026-04-11 기준).
  */
 export const SHOP_MONTHLY = [
-  { id: "friend", name: "친구 포인트", cost: "20,000pt", perMonth: 1 },
-  { id: "rainbow", name: "무지개 편자", cost: "2개", perMonth: 2 },
-  { id: "gold", name: "금 편자", cost: "10개", perMonth: 2 },
-  { id: "silver", name: "은 편자", cost: "50개", perMonth: 2 },
-  { id: "clover", name: "클로버", cost: "200개", perMonth: 2 },
+  { id: "friend", name: "친구 포인트", cost: "20,000pt", perMonth: 1, shardsPerMonth: 0 },
+  { id: "rainbow", name: "무지개 편자", cost: "2개", perMonth: 2, shardsPerMonth: 0 },
+  { id: "gold", name: "금 편자", cost: "10개", perMonth: 2, shardsPerMonth: 0 },
+  { id: "silver", name: "은 편자", cost: "50개", perMonth: 2, shardsPerMonth: 0 },
+  { id: "clover", name: "클로버", cost: "200개", perMonth: 2, shardsPerMonth: 0 },
+  { id: "medal", name: "트레이너 메달", cost: "무지개 8,000·금 2,000메달", perMonth: 0, shardsPerMonth: 1 },
 ] as const;
 export type ShopSource = (typeof SHOP_MONTHLY)[number]["id"];
 export const SHOP_SOURCES: ShopSource[] = SHOP_MONTHLY.map((s) => s.id);
@@ -142,6 +144,8 @@ export type Plan = Materials & {
   /** 상점 월간 교환: 초기화 횟수와 그동안 바꾸는 티켓 (육성·서포트 같은 수) */
   shopMonths: number;
   shopTickets: number;
+  /** 트레이너 메달 교환으로 바꾸는 무지개·금 결정 조각 (각각 같은 수) */
+  shopShards: number;
   teamWeeks: number;
   teamTrials: number;
   /** 오늘 다음 날부터 목표 시작 전날 사이에 시작하는 보상 */
@@ -191,10 +195,15 @@ export function plan(input: PlanInput): Plan {
   const passTrainTickets = passPeriods * (std.trainTickets + pre.trainTickets);
   const passSupportTickets = passPeriods * (std.supportTickets + pre.supportTickets);
   const shop = new Set(input.shop ?? []);
-  const shopPerMonth = SHOP_MONTHLY.filter((s) => shop.has(s.id)).reduce((a, s) => a + s.perMonth, 0);
-  const shopMonths = shopPerMonth > 0 ? monthStartsBetween(input.today, input.target).length : 0;
+  const chosenShops = SHOP_MONTHLY.filter((s) => shop.has(s.id));
+  const shopPerMonth = chosenShops.reduce((a, s) => a + s.perMonth, 0);
+  const shopShardsPerMonth = chosenShops.reduce((a, s) => a + s.shardsPerMonth, 0);
+  const shopMonths = chosenShops.length > 0 ? monthStartsBetween(input.today, input.target).length : 0;
   const shopTickets = shopMonths * shopPerMonth;
-  const earnedMaterials = addRewards([...incomes, { free: 0, trainTickets: 0, supportTickets: 0, rainbowShards: input.pass === "premium" ? passPeriods * TRAINING_PASS.premium.rainbowShards : 0 }]);
+  const shopShards = shopMonths * shopShardsPerMonth;
+  const earnedMaterials = addRewards([...incomes,
+    { free: 0, trainTickets: 0, supportTickets: 0, rainbowShards: input.pass === "premium" ? passPeriods * TRAINING_PASS.premium.rainbowShards : 0 },
+    { free: 0, trainTickets: 0, supportTickets: 0, rainbowShards: shopShards, goldShards: shopShards }]);
   const materialTotals = addRewards([earnedMaterials, { ...input, free: 0, trainTickets: 0, supportTickets: 0 }]);
 
   return {
@@ -219,6 +228,7 @@ export function plan(input: PlanInput): Plan {
     login,
     shopMonths,
     shopTickets,
+    shopShards,
     teamWeeks,
     teamTrials,
     giftFree,

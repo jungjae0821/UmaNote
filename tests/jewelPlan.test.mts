@@ -175,3 +175,16 @@ test("상점 월간 교환은 (오늘, 목표) 사이 매달 1일마다 고른 �
   // 오늘이 1일이면 그날 교환분은 넣지 않는다
   assert.equal(plan({ ...base, today: Date.UTC(2026, 11, 1) / 86_400_000, target: Date.UTC(2026, 11, 20) / 86_400_000, shop: ["gold"] }).shopMonths, 0);
 });
+
+test("트레이너 메달 교환은 티켓 없이 매달 무지개·금 결정 조각을 1개씩 더한다", () => {
+  const today = Date.UTC(2026, 10, 24) / 86_400_000;
+  const target = Date.UTC(2027, 1, 10) / 86_400_000;
+  const p = plan({ ...base, today, target, shop: ["medal"] });
+  assert.equal(p.shopMonths, 3);
+  assert.equal(p.shopTickets, 0);
+  assert.equal(p.shopShards, 3);
+  assert.equal(p.earnedMaterials.rainbowShards, 3);
+  assert.equal(p.earnedMaterials.goldShards, 3);
+  assert.equal(p.trainTickets, 0);
+  assert.equal(plan({ ...base, today, target, shop: ["friend"] }).shopShards, 0);
+});

@@ -203,7 +203,7 @@ export function Calculator({ today, targets, incomes, schedule }: Props) {
                 <span>
                   {s.name}
                   <small>
-                    {s.cost}씩, 육성·서포트 티켓 매달 {s.perMonth}장씩
+                    {s.perMonth > 0 ? `${s.cost}씩, 육성·서포트 티켓 매달 ${s.perMonth}장씩` : `${s.cost}, 무지개·금 결정 조각 매달 ${s.shardsPerMonth}개씩`}
                   </small>
                 </span>
               </label>
@@ -275,7 +275,7 @@ function Result({
   const earned = CRYSTAL_FIELDS.filter((k) => (p.earnedMaterials[k] ?? 0) > 0);
   const shown = CRYSTAL_FIELDS.filter((k) => (p[k] ?? 0) > 0);
   const shardSources = p.incomes.filter((i) => CRYSTAL_FIELDS.some((k) => (i[k] ?? 0) > 0)).length;
-  const passShards = (p.earnedMaterials.rainbowShards ?? 0) - p.incomes.reduce((a, i) => a + (i.rainbowShards ?? 0), 0);
+  const passShards = (p.earnedMaterials.rainbowShards ?? 0) - p.incomes.reduce((a, i) => a + (i.rainbowShards ?? 0), 0) - p.shopShards;
 
   const rows: { label: string; note?: string; value: number }[] = [
     { label: "지금 가진 쥬얼", value: owned },
@@ -355,7 +355,10 @@ function Result({
               한계돌파 재료{" "}
               <small>
                 받는 양 {earned.length > 0 ? earned.map((k) => `${CRYSTAL_NAMES[k]} ${num(p.earnedMaterials[k] ?? 0)}`).join(" · ") : "없음"}
-                {shardSources > 0 ? ` (보상 ${shardSources}건${passShards > 0 ? `, 프리미엄 패스 ${num(passShards)}개 포함` : ""})` : ""}
+                {(() => {
+                  const parts = [shardSources > 0 && `보상 ${shardSources}건`, passShards > 0 && `프리미엄 패스 ${num(passShards)}개`, p.shopShards > 0 && `메달 교환 ${p.shopMonths}달 무지개·금 각 ${num(p.shopShards)}개`].filter(Boolean);
+                  return parts.length ? ` (${parts.join(", ")} 포함)` : "";
+                })()}
               </small>
             </dt>
             <dd>{shown.map((k) => `${CRYSTAL_NAMES[k]} ${num(p[k] ?? 0)}`).join(" · ")}</dd>
