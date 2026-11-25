@@ -39,24 +39,54 @@ const APTITUDE_GROUPS = [
   { title: "각질", items: [[6, "도주"], [7, "선행"], [8, "선입"], [9, "추입"]] },
 ] as const;
 
-function SkillList({ skills, label }: { skills: Skill[]; label?: (i: number) => string }) {
+function SkillCard({ s, tag, evolved }: { s: Skill; tag?: string; evolved?: boolean }) {
+  const tone = evolved ? "sk-evo" : s.rarity >= 3 ? "sk-unique" : s.rarity === 2 ? "sk-gold" : "";
+  return (
+    <div className={`sk ${tone}`}>
+      <img src={s.icon} alt="" width={36} height={36} loading="lazy" />
+      <div className="sk-main">
+        <p className="sk-name">
+          {tag && <span className="tag">{tag}</span>}
+          <b lang={s.untranslated ? "ja" : undefined}>{s.name}</b>
+        </p>
+        <p className="sk-desc" lang={s.untranslated ? "ja" : undefined}>
+          {s.desc}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SkillList({
+  skills,
+  label,
+  evolutions,
+}: {
+  skills: Skill[];
+  label?: (i: number) => string;
+  /** 진화 전 스킬 ID → 진화 스킬. 있으면 진화 전 스킬 바로 아래에 붙인다 */
+  evolutions?: Record<number, Skill[]>;
+}) {
   if (skills.length === 0) return <p className="sk-none">없음</p>;
   return (
     <ul className="sk-list">
-      {skills.map((s, i) => (
-        <li key={`${s.id}-${i}`} className={`sk ${s.rarity >= 3 ? "sk-unique" : s.rarity === 2 ? "sk-gold" : ""}`}>
-          <img src={s.icon} alt="" width={36} height={36} loading="lazy" />
-          <div className="sk-main">
-            <p className="sk-name">
-              {label && <span className="tag">{label(i)}</span>}
-              <b lang={s.untranslated ? "ja" : undefined}>{s.name}</b>
-            </p>
-            <p className="sk-desc" lang={s.untranslated ? "ja" : undefined}>
-              {s.desc}
-            </p>
-          </div>
-        </li>
-      ))}
+      {skills.map((s, i) => {
+        const evos = evolutions?.[s.id] ?? [];
+        return (
+          <li key={`${s.id}-${i}`} className="sk-item">
+            <SkillCard s={s} tag={label?.(i)} />
+            {evos.length > 0 && (
+              <ul className="sk-evos" aria-label={`${s.name} 진화 스킬`}>
+                {evos.map((e) => (
+                  <li key={e.id}>
+                    <SkillCard s={e} tag="진화" evolved />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -142,13 +172,13 @@ function TrainSections({ d }: { d: TrainDetail }) {
             <SkillList skills={d.unique} label={hasUpgrade ? (i) => (i === 0 ? "★1~2" : "★3 이상") : undefined} />
           </SkillGroup>
           <SkillGroup title="초기 스킬">
-            <SkillList skills={d.innate} />
+            <SkillList skills={d.innate} evolutions={d.evolutions} />
           </SkillGroup>
           <SkillGroup title="각성 스킬">
-            <SkillList skills={d.awakening} label={(i) => `Lv${i + 2}`} />
+            <SkillList skills={d.awakening} label={(i) => `Lv${i + 2}`} evolutions={d.evolutions} />
           </SkillGroup>
           <SkillGroup title="이벤트에서 얻는 스킬">
-            <SkillList skills={d.event} />
+            <SkillList skills={d.event} evolutions={d.evolutions} />
           </SkillGroup>
         </div>
       </section>

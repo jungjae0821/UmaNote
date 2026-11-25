@@ -224,6 +224,20 @@
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 8px;
 }
+.sk-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* 진화 스킬은 진화 전 스킬 아래에 들여 쓰고 왼쪽 선으로 이어 준다 */
+.sk-evos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 14px;
+  padding-left: 10px;
+  border-left: 1px dashed var(--glass-line);
+}
 .sk {
   display: flex;
   gap: 10px;
@@ -236,7 +250,8 @@
 .sk-gold {
   border-left-color: #e3b341;
 }
-.sk-unique {
+.sk-unique,
+.sk-evo {
   border-left-color: #c58cff;
 }
 .sk img {
