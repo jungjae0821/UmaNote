@@ -501,26 +501,40 @@ input:disabled {
   transform: scale(0.97);
 }
 
-/* 불러오는 중 */
-.loading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 24px 16px;
-  color: var(--text);
+/* 페이지 전환: 본문이 살짝 떠오르며 나타난다 */
+.page-enter {
+  animation: page-in 0.28s var(--ease) both;
 }
-.loading i {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid var(--glass-line);
-  border-top-color: var(--ink);
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 다음 페이지를 불러오는 동안 화면 맨 위의 얇은 막대 */
+.nav-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 2px;
+  z-index: 1000;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--support), var(--train));
+  transform-origin: left;
+  transform: scaleX(0);
+  opacity: 0;
+  /* 끝나면 그 자리에서 사라지고, 다 사라진 뒤에 길이를 되돌린다 */
+  transition: opacity 0.25s var(--ease), transform 0s 0.25s;
+}
+.nav-progress.on {
+  opacity: 1;
+  transform: scaleX(0.85);
+  /* 처음엔 빨리, 점점 느리게 차오른다. 끝까지 차지는 않는다 */
+  transition: opacity 0.15s var(--ease) 0.15s, transform 8s cubic-bezier(0.1, 0.6, 0.2, 1) 0.15s;
 }
 
 /* 배너 이미지가 아직 없을 때 */

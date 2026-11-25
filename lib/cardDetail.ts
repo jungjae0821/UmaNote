@@ -102,7 +102,11 @@ type RawCharacterCard = {
   skills_innate: number[];
   skills_awakening: number[];
   skills_event: number[];
+  release_ko?: string;
 };
+
+type RawEvolution = { old: number; new: number; servers?: string[] };
+type RawCardEvolutions = { card_id?: number; evolutions: RawEvolution[] };
 
 export type TrainDetail = {
   lane: "train";
@@ -118,6 +122,8 @@ export type TrainDetail = {
   /** 각성 Lv2부터 차례대로 */
   awakening: Skill[];
   event: Skill[];
+  /** 진화 전 스킬 ID → 진화 스킬. 한 스킬이 둘로 갈라져 진화하기도 한다 */
+  evolutions: Record<number, Skill[]>;
 };
 
 // ── 서포트 카드 ───────────────────────────────────────
@@ -162,9 +168,24 @@ export type CardDetail = TrainDetail | SupportDetail;
 export async function getCardDetail(lane: Lane, id: number): Promise<CardDetail | null> {
   try {
     if (lane === "train") {
-      const [cards, skills] = await Promise.all([load<RawCharacterCard[]>("character-cards"), getSkills()]);
+      const [cards, skills, evoList] = await Promise.all([
+        load<RawCharacterCard[]>("character-cards"),
+        getSkills(),
+        // 진화 정보가 없어도 나머지 상세는 보여 준다
+        load<RawCardEvolutions[]>("evolutions").catch((err) => {
+          logFailure("gametora 스킬 진화", err);
+          return [];
+        }),
+      ]);
       const c = cards.find((x) => x.card_id === id);
       if (!c) return null;
+      // 한국서버에 나온 카드는 한국서버에 열린 진화만. 일본서버에만 먼저 추가된 진화가 섞이지 않게 한다
+      const evolutions: Record<number, Skill[]> = {};
+      for (const e of evoList.find((x) => x.card_id === id)?.evolutions ?? []) {
+        if (c.release_ko && e.servers && !e.servers.includes("ko")) continue;
+        const evolved = skills.get(e.new);
+        if (evolved) (evolutions[e.old] ??= []).push(evolved);
+      }
       const byStar: [number, number[] | undefined][] = [
         [c.rarity, c.base_stats],
         [2, c.two_star_stats],
@@ -184,6 +205,7 @@ export async function getCardDetail(lane: Lane, id: number): Promise<CardDetail 
         innate: pick(skills, c.skills_innate),
         awakening: pick(skills, c.skills_awakening),
         event: pick(skills, c.skills_event),
+        evolutions,
       };
     }
     const [cards, skills, effectDefs] = await Promise.all([

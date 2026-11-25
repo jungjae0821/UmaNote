@@ -163,9 +163,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     <>
       <div className="page-head">
         <h1>{e.name}</h1>
-        <Link href={`/events#${e.id}`} className="aside-link">
-          이벤트 목록
-        </Link>
       </div>
       <div className="stack">
         <section className="evd-top">

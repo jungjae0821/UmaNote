@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { NavProgress } from "@/components/NavProgress";
 import { Sidebar } from "@/components/Sidebar";
 import { todayKr } from "@/lib/dates";
 import { getBanners } from "@/lib/gametora";
@@ -19,6 +21,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="ko">
       <body>
+        <Suspense>
+          <NavProgress />
+        </Suspense>
         <div className="wash" style={washStyle} aria-hidden />
         <div className="app">
           <Sidebar />
