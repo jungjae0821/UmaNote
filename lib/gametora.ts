@@ -421,8 +421,8 @@ export type GameEvent = {
   end: number;
   startTs: number;
   endTs: number;
-  /** 경기 조건 (잔디 2400m, 도쿄) */
-  race?: { ground: "잔디" | "더트"; distance: number; track?: string };
+  /** 경기 조건 (잔디 2400m, 도쿄). 챔미·리오히는 코스와 날씨 같은 세부 조건까지 */
+  race?: { ground: "잔디" | "더트"; distance: number; track?: string } & Partial<RaceConditions>;
   /** 스토리 이벤트: 보너스 육성 카드, 보상 서포트 카드 */
   bonusCards?: Card[];
   rewardSupports?: Card[];
@@ -443,6 +443,11 @@ export const EVENT_KIND_NAME: Record<EventKind, string> = {
   exam: "트레이너 기능시험",
   masters: "마스터즈 챌린지",
 };
+
+/** 상세 페이지(/events/[id])가 있는 종류 */
+export function hasEventDetail(kind: EventKind): boolean {
+  return kind === "cm" || kind === "loh";
+}
 
 const EDITION_NAME: Record<PlannerEditionKind, string> = {
   research: "아그네스 타키온의 인자연구",
@@ -473,7 +478,30 @@ const TRACK_NAME: Record<number, string> = {
   10101: "오이", 10103: "가와사키", 10104: "후나바시", 10105: "모리오카", 10201: "롱샹", 10202: "산타아니타",
 };
 
-type RawRace = { ground: number; distance: number; track: number };
+type RawRace = {
+  ground: number;
+  distance: number;
+  track: number;
+  course_set?: number;
+  season?: number;
+  weather?: number;
+  condition?: number;
+  time?: number;
+};
+
+/** 챔미·리오히 경기의 세부 조건. 날씨·마장 상태가 0이면 고정되지 않은 것 */
+export type RaceConditions = {
+  courseSet: number;
+  season: number;
+  weather: number;
+  condition: number;
+  time: number;
+};
+
+const conditions = (r: RawRace): Partial<RaceConditions> =>
+  r.course_set
+    ? { courseSet: r.course_set, season: r.season ?? 0, weather: r.weather ?? 0, condition: r.condition ?? 0, time: r.time ?? 0 }
+    : {};
 type RawCm = { id: number; name: string; start: number; end: number; race: RawRace };
 type RawLoh = { id: number; start: number; end: number; race: RawRace };
 type RawLegend = {
@@ -541,7 +569,7 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
         id: `cm-${e.id}`,
         name: e.name,
         ...base(e.start, e.end, e.estimated),
-        race: { ground: ground(e.race.ground), distance: e.race.distance, track: TRACK_NAME[e.race.track] },
+        race: { ground: ground(e.race.ground), distance: e.race.distance, track: TRACK_NAME[e.race.track], ...conditions(e.race) },
       }),
     ),
     ...loh.map(
@@ -550,7 +578,7 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
         id: `loh-${e.id}`,
         name: `리그 오브 히어로즈 #${e.id}`,
         ...base(e.start, e.end, e.estimated),
-        race: { ground: ground(e.race.ground), distance: e.race.distance, track: TRACK_NAME[e.race.track] },
+        race: { ground: ground(e.race.ground), distance: e.race.distance, track: TRACK_NAME[e.race.track], ...conditions(e.race) },
       }),
     ),
     ...legend.map(
@@ -610,4 +638,62 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
       return banner ? { ...e, banner } : e;
     })
     .sort((a, b) => a.startTs - b.startTs);
+}
+
+// ── 코스 ─────────────────────────────────────────────
+
+type Span = { start: number; end: number };
+
+/** gametora racetracks의 코스 하나. 거리는 모두 출발점에서 잰 미터 */
+export type Course = {
+  id: number;
+  length: number;
+  /** 1 단거리, 2 마일, 3 중거리, 4 장거리 */
+  distance: number;
+  /** 1 우회전, 2 좌회전, 4 직선 */
+  turn: number;
+  /** 1 구분 없음, 2 내회전, 3 외회전, 4 외→내 */
+  inout: number;
+  /** 기준 스탯. 1 스피드 … 5 지능 */
+  statThresholds: number[];
+  corners: (Span & { number: number })[];
+  /** frontType 1 홈 직선, 2 백 직선 */
+  straights: (Span & { frontType: number })[];
+  /** slope는 1/10000 % 단위. 양수가 오르막 */
+  slopes: (Span & { slope: number })[];
+  /** 0 초반, 1 중반, 2 종반, 3 라스트 스퍼트 */
+  phases: (Span & { id: number })[];
+  laps: (Span & { lap: number })[];
+  positionKeepEnd: number;
+  spurtStart?: { meters: number };
+};
+
+const getCourses = unstable_cache(
+  () =>
+    safe("gametora 경기장 코스", async () => {
+      const tracks = await load<{ id: number; courses: Course[] }[]>("racetracks");
+      return tracks.flatMap((t) =>
+        t.courses.map((c) => ({
+          id: c.id,
+          length: c.length,
+          distance: c.distance,
+          turn: c.turn,
+          inout: c.inout,
+          statThresholds: c.statThresholds ?? [],
+          corners: c.corners ?? [],
+          straights: c.straights ?? [],
+          slopes: c.slopes ?? [],
+          phases: c.phases ?? [],
+          laps: c.laps ?? [],
+          positionKeepEnd: c.positionKeepEnd,
+          spurtStart: c.spurtStart ? { meters: c.spurtStart.meters } : undefined,
+        })),
+      );
+    }, [] as Course[]),
+  ["racetracks-v1"],
+  { revalidate: REVALIDATE },
+);
+
+export async function getCourse(id: number): Promise<Course | undefined> {
+  return (await getCourses()).find((c) => c.id === id);
 }

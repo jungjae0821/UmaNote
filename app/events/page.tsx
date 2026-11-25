@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { todayKr } from "@/lib/dates";
-import { getEvents } from "@/lib/gametora";
+import { getEvents, hasEventDetail } from "@/lib/gametora";
 import { EventsView, type ViewEvent } from "./EventsView";
 
 export const metadata: Metadata = { title: "이벤트" };
@@ -21,6 +21,7 @@ export default async function EventsPage() {
     rewards: (e.rewardSupports ?? []).map((c) => ({ id: c.id, name: c.name, art: c.art, lane: c.lane, supportType: c.supportType })),
     rivals: (e.rivals ?? []).map((c) => ({ id: c.id, name: c.name, art: c.art, lane: c.lane })),
     estimated: e.estimated,
+    detail: hasEventDetail(e.kind),
   }));
   return (
     <>

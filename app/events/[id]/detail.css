@@ -1,0 +1,215 @@
+.evd-top {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.evd-banner {
+  width: 100%;
+  max-width: 936px;
+  aspect-ratio: 936 / 228;
+  object-fit: cover;
+  border-radius: 18px;
+}
+.evd-period {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-family: var(--title);
+  font-size: 15px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.evd-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px 16px;
+}
+.evd-facts dt {
+  font-size: 12px;
+  color: var(--sub);
+}
+.evd-facts dd {
+  font-family: var(--title);
+  font-size: 17px;
+  color: var(--ink);
+}
+.evd-course {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 코스 그림 */
+.evd-map {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.evd-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.evd-row-name {
+  font-family: var(--title);
+  font-size: 12px;
+  color: var(--sub);
+}
+.evd-bar {
+  position: relative;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--glass-strong);
+  overflow: hidden;
+}
+.evd-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--ink);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.35);
+}
+.evd-seg.phase-0 {
+  background: color-mix(in srgb, var(--support) 22%, transparent);
+}
+.evd-seg.phase-1 {
+  background: color-mix(in srgb, var(--support) 38%, transparent);
+}
+.evd-seg.phase-2 {
+  background: color-mix(in srgb, var(--train) 38%, transparent);
+}
+.evd-seg.phase-3 {
+  background: color-mix(in srgb, var(--train) 60%, transparent);
+}
+.evd-seg.straight {
+  background: color-mix(in srgb, var(--sub) 22%, transparent);
+}
+.evd-seg.corner {
+  background: color-mix(in srgb, var(--new) 40%, transparent);
+}
+.evd-seg.up {
+  background: color-mix(in srgb, var(--train) 45%, transparent);
+}
+.evd-seg.down {
+  background: color-mix(in srgb, var(--support) 45%, transparent);
+}
+.evd-flat {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-size: 11px;
+  color: var(--sub);
+}
+.evd-axis {
+  position: relative;
+  height: 54px;
+}
+.evd-tick {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--sub);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.evd-tick.start {
+  transform: none;
+}
+.evd-tick.end {
+  transform: translateX(-100%);
+}
+.evd-mark {
+  position: absolute;
+  top: 16px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--ink);
+}
+/* 두 표시가 가까워도 글자가 겹치지 않게 한 줄 내린다 */
+.evd-mark + .evd-mark {
+  top: 34px;
+}
+.evd-mark + .evd-mark i {
+  height: 138px;
+}
+.evd-mark i {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 1px;
+  height: 120px;
+  background: var(--ink);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.evd-sections {
+  width: 100%;
+  max-width: 480px;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.evd-sections th,
+.evd-sections td {
+  text-align: left;
+  padding: 6px 8px 6px 0;
+}
+.evd-sections thead th {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--sub);
+}
+.evd-sections tbody tr + tr {
+  border-top: 1px solid var(--glass-line);
+}
+.evd-sections tbody th {
+  font-weight: 400;
+  color: var(--ink);
+}
+.evd-note {
+  color: var(--sub);
+}
+
+.evd-same + .evd-same {
+  border-top: 1px solid var(--glass-line);
+}
+.evd-same a {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+}
+.evd-same b {
+  font-family: var(--title);
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+@media (max-width: 767px) {
+  .evd-same a {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .evd-seg {
+    font-size: 10px;
+  }
+  .evd-tick.minor {
+    display: none;
+  }
+}

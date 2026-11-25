@@ -23,6 +23,8 @@ export type ViewEvent = {
   rewards: MiniCard[];
   rivals: MiniCard[];
   estimated?: boolean;
+  /** 상세 페이지가 있는지 */
+  detail?: boolean;
 };
 
 const KINDS: { kind: EventKind; name: string }[] = [
@@ -94,7 +96,13 @@ export function EventsView({ events, today: serverToday }: { events: ViewEvent[]
       <li key={e.id} id={e.id} className="ev-item">
         <span className={`ev-kind k-${e.kind}`}>{KIND_NAME[e.kind]}</span>
         <div className="ev-main">
-          <b>{e.name}</b>
+          {e.detail ? (
+            <Link href={`/events/${e.id}`} className="ev-link">
+              <b>{e.name}</b>
+            </Link>
+          ) : (
+            <b>{e.name}</b>
+          )}
           <span className="ev-period">
             {formatMd(e.start)} ~ {formatMd(e.end)}
           </span>
@@ -135,7 +143,7 @@ export function EventsView({ events, today: serverToday }: { events: ViewEvent[]
                   <span className={`ev-kind k-${e.kind}`}>{KIND_NAME[e.kind]}</span>
                   <Live start={e.start} end={e.end} today={today} />
                 </div>
-                <h3>{e.name}</h3>
+                <h3>{e.detail ? <Link href={`/events/${e.id}`} className="ev-link">{e.name}</Link> : e.name}</h3>
                 <p className="ev-period">
                   {formatMdTime(e.startTs)} ~ {formatMdTime(e.endTs)}
                 </p>

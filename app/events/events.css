@@ -102,6 +102,11 @@
   font-size: 15px;
   color: var(--ink);
 }
+.ev-link:hover b,
+.ev-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .ev-extra {
   display: flex;
   gap: 4px;
