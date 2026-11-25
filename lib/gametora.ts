@@ -560,10 +560,11 @@ export async function getEvents(cards?: Card[]): Promise<GameEvent[]> {
         name: fixKo(raceKo.get(e.name_ja)) || e.name_ja,
         ...base(e.start, e.end, e.estimated),
         race: { ground: ground(e.ground), distance: e.distance },
-        // 레전드 전용 의상(104150 등)은 카드 목록에 없어서 같은 캐릭터의 기본 카드로 대신한다
+        // 레전드 전용 의상 ID(104150 등)는 카드 목록에 없다. 그림을 대조해 보면 모두 첫 이격(…02) 의상이라 그 카드로 대신한다
         rivals: e.races.flatMap((r) => {
           const charId = Math.floor(r.card_id / 100);
-          const c = idx.train.get(r.card_id) ?? idx.train.get(charId * 100 + 1) ?? list.find((x) => x.lane === "train" && x.charId === charId);
+          const alt = r.card_id % 100 !== 1 ? idx.train.get(charId * 100 + 2) : undefined;
+          const c = idx.train.get(r.card_id) ?? alt ?? idx.train.get(charId * 100 + 1) ?? list.find((x) => x.lane === "train" && x.charId === charId);
           return c ? [c] : [];
         }),
         raceStarts: e.races.map((r) => dayFromTimestamp(r.start)),
