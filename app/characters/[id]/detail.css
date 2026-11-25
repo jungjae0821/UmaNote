@@ -229,15 +229,14 @@
   flex-direction: column;
   gap: 6px;
 }
-/* 진화 스킬은 진화 전 스킬 아래에 들여 쓰고 왼쪽 선으로 이어 준다 */
+/* 진화 스킬은 진화 전 스킬 바로 아래에 조금 들여 쓴다. 무엇이 진화한 것인지는 '진화' 태그가 알려 준다 */
 .sk-evos {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-left: 14px;
-  padding-left: 10px;
-  border-left: 1px dashed var(--glass-line);
+  margin-left: 20px;
 }
+/* 등급은 띠 대신 게임 스킬 칸처럼 카드 바탕색으로 구분한다. 일반은 무색, 레어는 금빛, 고유·진화는 보랏빛 */
 .sk {
   display: flex;
   gap: 10px;
@@ -245,14 +244,13 @@
   padding: 10px;
   border-radius: 14px;
   background: var(--glass-strong);
-  border-left: 3px solid transparent;
 }
 .sk-gold {
-  border-left-color: #e3b341;
+  background: linear-gradient(120deg, rgba(227, 179, 65, 0.22), rgba(227, 179, 65, 0.05) 70%), var(--glass-strong);
 }
 .sk-unique,
 .sk-evo {
-  border-left-color: #c58cff;
+  background: linear-gradient(120deg, rgba(197, 140, 255, 0.24), rgba(255, 138, 196, 0.06) 70%), var(--glass-strong);
 }
 .sk img {
   flex: none;
