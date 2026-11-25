@@ -2,6 +2,12 @@
 // 홈의 '내 쥬얼'도 저장값을 읽을 때 이 목록으로 검사한다. 보상 시트(JSON)를 끌어오지 않게
 // 다른 모듈을 가져오지 않는다. 그래야 홈 브라우저 번들에 시트 데이터가 실리지 않는다.
 
+/** 데일리 미션 ⑤ 육성 완료 20 + 전부 클리어 30 (gametora missions/daily) */
+export const DAILY_MISSION_JEWELS = 50;
+
+/** 월정액(ウマスク): 구매할 때 유료 500, 30일 동안 매일 무료 50. 2024-12-19 일본서버 판매 시작 (gamebiz.jp/news/396105) */
+export const MONTHLY = { paidOnBuy: 500, freePerDay: 50, days: 30 } as const;
+
 /** 팀 경기장 클래스 (1~6, 0은 넣지 않음) */
 export type TeamClass = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 

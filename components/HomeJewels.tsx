@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatMd } from "@/lib/dates";
-import { readCalc, readJewels, readSummary, type CalcInput, type CalcSummary, type Jewels } from "@/lib/jewels";
+import { currentJewels, readCalc, readJewels, readSummary, type CalcInput, type CalcSummary, type Jewels } from "@/lib/jewels";
 import { Icon } from "./Icon";
 import { useToday } from "@/lib/useToday";
 
@@ -15,7 +15,10 @@ export function HomeJewels({ today: serverToday }: { today: number }) {
   const [state, setState] = useState<{ jewels: Jewels | null; calc: CalcInput; summary: CalcSummary | null } | null>(null);
 
   useEffect(() => {
-    setState({ jewels: readJewels(), calc: readCalc(), summary: readSummary() });
+    // 입력 이후 지나간 일일 초기화만큼 데일리를 더한 값을 보여준다
+    const calc = readCalc();
+    const saved = readJewels();
+    setState({ jewels: saved && currentJewels(saved, calc.monthly), calc, summary: readSummary() });
   }, []);
 
   if (!state) return <div className="panel glass jw" aria-busy="true" style={{ minHeight: 180 }} />;

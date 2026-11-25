@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { pickupLabel, type ViewBanner } from "@/lib/bannerView";
-import { formatDday, formatFull, formatMd, weekday } from "@/lib/dates";
+import { formatDday, formatFull, formatMd, formatMdTime, weekday } from "@/lib/dates";
 import { useToday } from "@/lib/useToday";
 import { CEILING, DAILY_MISSION_JEWELS, JEWELS_PER_PULL, MONTHLY, plan, pullsFor, SHOP_MONTHLY, TRAINING_PASS, type Income, type PassPlan } from "@/lib/jewelPlan";
 import {
@@ -18,12 +18,13 @@ import {
   type Scheduled,
   type TeamClass,
 } from "@/lib/jewelSources";
+import { Icon } from "@/components/Icon";
 import { CRYSTAL_FIELDS, CRYSTAL_NAMES } from "@/lib/rewards";
-import { EMPTY_CALC, readCalc, readJewels, writeCalc, writeJewels, writeSummary, type CalcInput } from "@/lib/jewels";
+import { currentJewels, EMPTY_CALC, readCalc, readJewels, writeCalc, writeJewels, writeSummary, type CalcInput, type Jewels, type SavedJewels } from "@/lib/jewels";
+import { DAILY_RESET_HOUR, dailyDoneToday, dailyJewels } from "@/lib/dailyReset";
 
 const num = (n: number) => n.toLocaleString("ko-KR");
 const LANE_NAME = { train: "육성", support: "서포트" } as const;
-type Form = CalcInput & { paid: number; free: number };
 
 const { standard: PASS_STD, premium: PASS_PRE } = TRAINING_PASS;
 const PASS_OPTIONS: { value: PassPlan; label: string }[] = [
@@ -95,26 +96,41 @@ function SelectField({ id, label, value, options, onChange }: { id: string; labe
 type Props = { today: number; targets: ViewBanner[]; incomes: Income[]; schedule: Scheduled[] };
 
 export function Calculator({ today: serverToday, targets: allTargets, incomes, schedule }: Props) {
-  const [form, setForm] = useState<Form>({ ...EMPTY_CALC, paid: 0, free: 0 });
+  const [form, setForm] = useState<CalcInput>(EMPTY_CALC);
+  // 보유 쥬얼은 입력한 값과 입력 시각으로 저장하고, 화면에는 그 뒤 일일 초기화만큼 데일리를 더한 값을 보여준다
+  const [saved, setSaved] = useState<SavedJewels | null>(null);
+  const [now, setNow] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const today = useToday(serverToday);
 
   useEffect(() => {
-    const j = readJewels();
-    setForm({ ...readCalc(), paid: j?.paid ?? 0, free: j?.free ?? 0 });
+    setForm(readCalc());
+    setSaved(readJewels());
+    setNow(Date.now());
     setLoaded(true);
+    // 열어 둔 채 05:00을 넘겨도 데일리가 더해지게 1분마다 시각을 갱신한다
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
   }, []);
+
+  const owned = saved ? currentJewels(saved, form.monthly, now) : { paid: 0, free: 0, accrual: { days: 0, jewels: 0 } };
+  // 입력한 게임 날짜 안이면 오늘 데일리는 입력값에 들어 있으므로 앞으로 받을 몫에서 뺀다
+  const todayDailyDone = saved !== null && now > 0 && dailyDoneToday(saved.savedAt, now);
 
   const targets = useMemo(() => allTargets.filter((g) => g.start > today), [allTargets, today]);
 
-  function update(patch: Partial<Form>) {
+  function update(patch: Partial<CalcInput>) {
+    // 월정액을 바꾸면 하루에 더하는 양이 달라지므로, 지금까지 더한 값을 먼저 확정해 둔다
+    if ("monthly" in patch && saved && patch.monthly !== form.monthly) setSaved(writeJewels(owned));
     setForm((prev) => {
       const next = { ...prev, ...patch };
-      const { paid, free, ...calc } = next;
-      writeJewels({ paid, free });
-      writeCalc(calc);
+      writeCalc(next);
       return next;
     });
+  }
+
+  function updateJewels(patch: Partial<Jewels>) {
+    setSaved(writeJewels({ paid: owned.paid, free: owned.free, ...patch }));
   }
 
   const target = targets.find((g) => g.id === form.targetId) ?? null;
@@ -124,8 +140,8 @@ export function Calculator({ today: serverToday, targets: allTargets, incomes, s
     const p = plan({
       today,
       target: target.start,
-      paid: form.paid,
-      free: form.free,
+      paid: owned.paid,
+      free: owned.free,
       trainTickets: form.trainTickets,
       supportTickets: form.supportTickets,
       rainbowShards: form.rainbowShards,
@@ -135,9 +151,10 @@ export function Calculator({ today: serverToday, targets: allTargets, incomes, s
       teamClass: form.teamClass,
       shop: form.shop,
       incomes: [...incomes, ...GIFT_INCOMES, ...competitionIncomes(schedule, form)],
+      todayDailyDone,
     });
     return { p, pulls: pullsFor(p, target.lane, target.paidOnly) };
-  }, [target, today, form, incomes, schedule]);
+  }, [target, today, form, owned.paid, owned.free, todayDailyDone, incomes, schedule]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -150,13 +167,19 @@ export function Calculator({ today: serverToday, targets: allTargets, incomes, s
         <section className="panel glass">
           <h2 className="calc-h">보유</h2>
           <div className="calc-grid2 calc-owned">
-            <NumberField id="c-free" label="무료 쥬얼" unit="개" value={form.free} onChange={(free) => update({ free })} />
-            <NumberField id="c-paid" label="유료 쥬얼" unit="개" value={form.paid} onChange={(paid) => update({ paid })} />
+            <NumberField id="c-free" label="무료 쥬얼" unit="개" value={owned.free} onChange={(free) => updateJewels({ free })} />
+            <NumberField id="c-paid" label="유료 쥬얼" unit="개" value={owned.paid} onChange={(paid) => updateJewels({ paid })} />
             <NumberField id="c-tt" label="육성 티켓" unit="장" value={form.trainTickets} onChange={(trainTickets) => update({ trainTickets })} />
             <NumberField id="c-st" label="서포트 티켓" unit="장" value={form.supportTickets} onChange={(supportTickets) => update({ supportTickets })} />
             <NumberField id="c-rs" label="무지개 결정 조각" unit="개" value={form.rainbowShards} onChange={(rainbowShards) => update({ rainbowShards })} />
             <NumberField id="c-gs" label="금 결정 조각" unit="개" value={form.goldShards} onChange={(goldShards) => update({ goldShards })} />
           </div>
+          <p className="calc-daily" aria-live="polite">
+            무료 쥬얼은 <b>오늘 데일리까지 받은 값</b>으로 입력하세요.{" "}
+            {saved && owned.accrual.days > 0
+              ? `${formatMdTime(Math.floor(saved.savedAt / 1000))}에 입력한 ${num(saved.free)}에 그 뒤 데일리 ${owned.accrual.days}일분 +${num(owned.accrual.jewels)}을 더했습니다. 실제와 다르면 다시 입력하세요.`
+              : `그 뒤로는 매일 ${String(DAILY_RESET_HOUR).padStart(2, "0")}:00 초기화 때 전날 ${form.monthly ? `데일리 미션 ${num(DAILY_MISSION_JEWELS)}과 월정액 ${num(MONTHLY.freePerDay)}, 하루 ${num(dailyJewels(true))}` : `데일리 미션 ${num(DAILY_MISSION_JEWELS)}`}이 자동으로 더해집니다.`}
+          </p>
         </section>
 
         <section className="panel glass">
@@ -238,7 +261,7 @@ export function Calculator({ today: serverToday, targets: allTargets, incomes, s
         {!target || !result ? (
           <p className="empty">목표 픽업을 고르면 그날까지 모이는 쥬얼과 뽑기 횟수를 계산합니다.</p>
         ) : (
-          <Result target={target} today={today} owned={form.free + form.paid} teamClass={form.teamClass} {...result} />
+          <Result target={target} today={today} owned={owned.free + owned.paid} teamClass={form.teamClass} {...result} />
         )}
       </section>
 
@@ -284,7 +307,7 @@ function Result({
 
   const rows: { label: string; note?: string; value: number }[] = [
     { label: "지금 가진 쥬얼", value: owned },
-    { label: "데일리 미션", note: `${p.days}일 × ${DAILY_MISSION_JEWELS}`, value: p.daily },
+    { label: "데일리 미션", note: `${p.dailyDays}일 × ${DAILY_MISSION_JEWELS}`, value: p.daily },
     { label: "로그인 보너스", note: `${Math.floor(p.days / LOGIN_BONUS.days)}주 × ${LOGIN_BONUS.jewels}`, value: p.login },
     ...(p.monthlyPaid > 0 ? [{ label: "월정액", note: `무료 ${num(p.monthlyFree)} · 유료 ${num(p.monthlyPaid)}`, value: p.monthlyFree + p.monthlyPaid }] : []),
     ...(p.passPeriods > 0 ? [{ label: "시즌 패스", note: `${p.passPeriods}기간`, value: p.passFree + p.passPaid }] : []),
@@ -379,22 +402,28 @@ function Result({
         )}
       </dl>
 
-      <h3 className="res-h">더한 보상</h3>
-      <ol className="res-route">
-        {p.incomes.map((i) => (
-          <li key={i.id}>
-            <span className="rr-date">{formatMd(i.startKr)}</span>
-            <span className="rr-name">
-              {i.name}
-              <small>{SOURCE_NAME[i.source]}</small>
-            </span>
-            <span className="rr-gain">
-              {[i.free > 0 && `쥬얼 ${num(i.free)}`, i.trainTickets > 0 && `육성 ${i.trainTickets}장`, i.supportTickets > 0 && `서포트 ${i.supportTickets}장`, ...CRYSTAL_FIELDS.map((k) => (i[k] ?? 0) > 0 && `${CRYSTAL_NAMES[k]} ${i[k]}개`)].filter(Boolean).join(", ")}
-            </span>
-          </li>
-        ))}
-        {p.incomes.length === 0 && <li className="rr-none">이 기간에 시작하는 보상이 없습니다.</li>}
-      </ol>
+      {/* 목록이 길어 기본은 접어 두고, 궁금한 사람만 펼친다 */}
+      <details className="res-more">
+        <summary className="res-h">
+          더한 보상 <small>{p.incomes.length}건</small>
+          <Icon name="chevronDown" />
+        </summary>
+        <ol className="res-route">
+          {p.incomes.map((i) => (
+            <li key={i.id}>
+              <span className="rr-date">{formatMd(i.startKr)}</span>
+              <span className="rr-name">
+                {i.name}
+                <small>{SOURCE_NAME[i.source]}</small>
+              </span>
+              <span className="rr-gain">
+                {[i.free > 0 && `쥬얼 ${num(i.free)}`, i.trainTickets > 0 && `육성 ${i.trainTickets}장`, i.supportTickets > 0 && `서포트 ${i.supportTickets}장`, ...CRYSTAL_FIELDS.map((k) => (i[k] ?? 0) > 0 && `${CRYSTAL_NAMES[k]} ${i[k]}개`)].filter(Boolean).join(", ")}
+              </span>
+            </li>
+          ))}
+          {p.incomes.length === 0 && <li className="rr-none">이 기간에 시작하는 보상이 없습니다.</li>}
+        </ol>
+      </details>
       <p className="res-note">뺀 항목: 신데렐라 그레이 방영 기념 쥬얼 캠페인(한일 동시 진행). 참고용 수치이며 실제 지급량은 달라질 수 있습니다.</p>
     </>
   );
