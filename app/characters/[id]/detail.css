@@ -250,11 +250,9 @@
 .sk-gold {
   border-left-color: #e3b341;
 }
-.sk-unique {
-  border-left-color: #c58cff;
-}
+.sk-unique,
 .sk-evo {
-  border-left-color: #6fd3a8;
+  border-left-color: #c58cff;
 }
 .sk img {
   flex: none;
