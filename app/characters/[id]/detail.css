@@ -236,7 +236,7 @@
   gap: 6px;
   margin-left: 20px;
 }
-/* 등급은 띠 대신 게임 스킬 칸처럼 카드 바탕색으로 구분한다. 일반은 무색, 레어는 금빛, 고유·진화는 보랏빛 */
+/* 등급은 띠 대신 카드 바탕을 한 가지 색으로 옅게 물들여 구분한다. 일반 무색, 레어 금색, 고유 보라, 진화 분홍 */
 .sk {
   display: flex;
   gap: 10px;
@@ -246,11 +246,13 @@
   background: var(--glass-strong);
 }
 .sk-gold {
-  background: linear-gradient(120deg, rgba(227, 179, 65, 0.22), rgba(227, 179, 65, 0.05) 70%), var(--glass-strong);
+  background: rgba(227, 179, 65, 0.16);
 }
-.sk-unique,
+.sk-unique {
+  background: rgba(197, 140, 255, 0.18);
+}
 .sk-evo {
-  background: linear-gradient(120deg, rgba(197, 140, 255, 0.24), rgba(255, 138, 196, 0.06) 70%), var(--glass-strong);
+  background: rgba(255, 128, 180, 0.16);
 }
 .sk img {
   flex: none;
