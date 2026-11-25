@@ -446,7 +446,7 @@ export const EVENT_KIND_NAME: Record<EventKind, string> = {
 
 /** 상세 페이지(/events/[id])가 있는 종류 */
 export function hasEventDetail(kind: EventKind): boolean {
-  return kind === "cm" || kind === "loh";
+  return kind === "cm" || kind === "loh" || kind === "legend";
 }
 
 const EDITION_NAME: Record<PlannerEditionKind, string> = {
@@ -671,7 +671,7 @@ export type Course = {
 const getCourses = unstable_cache(
   () =>
     safe("gametora 경기장 코스", async () => {
-      const tracks = await load<{ id: number; courses: Course[] }[]>("racetracks");
+      const tracks = await load<{ courses: Course[] }[]>("racetracks");
       return tracks.flatMap((t) =>
         t.courses.map((c) => ({
           id: c.id,
@@ -690,10 +690,41 @@ const getCourses = unstable_cache(
         })),
       );
     }, [] as Course[]),
-  ["racetracks-v1"],
+  ["racetracks-v4"],
   { revalidate: REVALIDATE },
 );
 
 export async function getCourse(id: number): Promise<Course | undefined> {
   return (await getCourses()).find((c) => c.id === id);
+}
+
+// ── 레전드 레이스 상세 ────────────────────────────────
+
+export type LegendRival = { card?: Card; startTs: number; endTs: number; start: number; end: number; /** 스피드·스태미나·파워·근성·지능 */ stats: number[] };
+
+type RawLegendFull = Omit<RawLegend, "races"> & {
+  races: { id: number; card_id: number; start: number; end: number; boss_stats?: number[] }[];
+};
+
+/** 레전드 레이스 상대별 기간과 능력치. id는 첫 상대의 레이스 ID */
+export async function getLegendRivals(raceId: number): Promise<LegendRival[] | undefined> {
+  const [ko, jp, cards] = await Promise.all([
+    safe("gametora 레전드 레이스", () => load<RawLegendFull[]>("ko/events/legend-race"), []),
+    safe("gametora 레전드 레이스(일본)", () => load<RawLegendFull[]>("events/legend-race"), []),
+    getCards(),
+  ]);
+  const koEvent = ko.find((e) => e.races[0]?.id === raceId);
+  const jpEvent = jp.find((e) => e.races.some((r) => r.id === raceId));
+  const event = koEvent ?? jpEvent;
+  if (!event) return undefined;
+  // 한국 파일에 아직 없으면 일본서버 날짜 +476일
+  const gap = koEvent ? 0 : SERVER_GAP_DAYS * 86_400;
+  const idx = cardIndex(cards);
+  return event.races.map((r) => {
+    const charId = Math.floor(r.card_id / 100);
+    const card = idx.train.get(r.card_id) ?? (r.card_id % 100 !== 1 ? idx.train.get(charId * 100 + 2) : undefined) ?? idx.train.get(charId * 100 + 1);
+    const startTs = r.start + gap;
+    const endTs = r.end + gap;
+    return { card, startTs, endTs, start: dayFromTimestamp(startTs), end: dayFromTimestamp(endTs), stats: r.boss_stats ?? jpEvent?.races.find((x) => x.id === r.id)?.boss_stats ?? [] };
+  });
 }
