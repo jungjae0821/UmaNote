@@ -446,7 +446,7 @@ export const EVENT_KIND_NAME: Record<EventKind, string> = {
 
 /** 상세 페이지(/events/[id])가 있는 종류 */
 export function hasEventDetail(kind: EventKind): boolean {
-  return kind === "cm" || kind === "loh" || kind === "legend";
+  return kind === "cm" || kind === "loh" || kind === "legend" || kind === "masters";
 }
 
 const EDITION_NAME: Record<PlannerEditionKind, string> = {

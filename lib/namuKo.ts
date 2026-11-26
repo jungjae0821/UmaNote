@@ -7,7 +7,7 @@ const skills = data.skills as unknown as Record<string, [string, string]>;
 const cards = new Map((data.cards as unknown as [string, string, string, string][]).map(([name, kind, jpDate, title]) => [`${name}|${kind}|${jpDate}`, title]));
 
 /** gametora의 ○와 나무위키의 ◯처럼 모양만 다른 글자를 맞춘다 */
-const norm = (s: string) => s.normalize("NFKC").replace(/[◯〇]/g, "○").replace(/\s/g, "");
+export const norm = (s: string) => s.normalize("NFKC").replace(/[◯〇]/g, "○").replace(/\s/g, "");
 const skillsByNorm = new Map(Object.entries(skills).map(([jp, v]) => [norm(jp), v]));
 
 /** 히라가나·가타카나 (가운뎃점 ・ 은 한국어에도 쓰여서 뺀다) */

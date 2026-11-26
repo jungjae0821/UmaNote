@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { Live } from "@/components/Live";
+import { SkillCard } from "@/components/SkillCard";
 import { SUPPORT_TYPE_LABEL, SupportTypeIcon } from "@/components/SupportTypeIcon";
 import { statArt } from "@/lib/art";
 import { getCardDetail, type Effect, type Skill, type SupportDetail, type TrainDetail } from "@/lib/cardDetail";
@@ -38,24 +39,6 @@ const APTITUDE_GROUPS = [
   { title: "거리", items: [[2, "단거리"], [3, "마일"], [4, "중거리"], [5, "장거리"]] },
   { title: "각질", items: [[6, "도주"], [7, "선행"], [8, "선입"], [9, "추입"]] },
 ] as const;
-
-function SkillCard({ s, tag, evolved }: { s: Skill; tag?: string; evolved?: boolean }) {
-  const tone = evolved ? "sk-evo" : s.rarity >= 3 ? "sk-unique" : s.rarity === 2 ? "sk-gold" : "";
-  return (
-    <div className={`sk ${tone}`}>
-      <img src={s.icon} alt="" width={36} height={36} loading="lazy" />
-      <div className="sk-main">
-        <p className="sk-name">
-          {tag && <span className="tag">{tag}</span>}
-          <b lang={s.untranslated ? "ja" : undefined}>{s.name}</b>
-        </p>
-        <p className="sk-desc" lang={s.untranslated ? "ja" : undefined}>
-          {s.desc}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function SkillList({
   skills,

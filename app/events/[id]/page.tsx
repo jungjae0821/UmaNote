@@ -16,6 +16,7 @@ import {
 import { CONDITION, CourseSection, RaceSection, WEATHER } from "./CourseView";
 import { CmPicks, cmPicksOf } from "./CmPicks";
 import { LegendRivals } from "./LegendRivals";
+import { MastersRaces, mastersEdition } from "./MastersRaces";
 import "../events.css";
 import "./detail.css";
 
@@ -79,6 +80,13 @@ async function LegendBody({ e, today }: { e: GameEvent; today: number }) {
   return rivals ? <LegendRivals rivals={rivals} today={today} /> : null;
 }
 
+async function MastersBody({ e }: { e: GameEvent }) {
+  const edition = mastersEdition(numId(e));
+  if (!edition) return null;
+  const train = (await getCards()).filter((c) => c.lane === "train");
+  return <MastersRaces edition={edition} train={train} />;
+}
+
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const e = await findEvent((await params).id);
   if (!e) notFound();
@@ -106,6 +114,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
         {(e.kind === "cm" || e.kind === "loh") && <RaceEventBody e={e} />}
         {e.kind === "legend" && <LegendBody e={e} today={today} />}
+        {e.kind === "masters" && <MastersBody e={e} />}
       </div>
     </>
   );

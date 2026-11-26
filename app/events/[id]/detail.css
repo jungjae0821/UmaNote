@@ -303,3 +303,200 @@
 .evd-stat-name {
   display: block;
 }
+
+/* ── 마스터즈 챌린지 ────────────── */
+.mc-rules ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 18px;
+  list-style: disc;
+  color: var(--text);
+  word-break: keep-all;
+}
+.mc-sub {
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--sub);
+}
+.mc-rewards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px 16px;
+  margin-top: 6px;
+}
+.mc-rewards dt {
+  font-family: var(--title);
+  font-size: 12px;
+  color: var(--sub);
+}
+.mc-rewards dd {
+  color: var(--ink);
+}
+.mc-scenario {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--sub);
+}
+.mc-races {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.mc-race {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mc-race-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mc-race-head h3 {
+  font-family: var(--title);
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--ink);
+}
+.mc-ex {
+  color: var(--new);
+}
+.mc-year {
+  font-size: 12px;
+  color: var(--sub);
+}
+.mc-cond {
+  margin-top: -8px;
+  font-size: 13px;
+  color: var(--text);
+}
+.mc-unlock {
+  margin-top: -6px;
+  font-size: 12px;
+  color: var(--new);
+}
+.mc-rivals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+.mc-rivals li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mc-rival-name {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: var(--text);
+}
+.mc-role {
+  font-size: 11px;
+  color: var(--new);
+}
+.mc-boss {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--glass-line);
+}
+.mc-boss-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mc-boss-title b {
+  font-family: var(--title);
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--ink);
+}
+.mc-rank {
+  font-family: var(--title);
+  font-size: 13px;
+  color: var(--new);
+}
+.mc-boss .evd-boss {
+  margin-top: 0;
+}
+.mc-grade {
+  display: block;
+  font-size: 11px;
+  color: var(--sub);
+}
+.mc-apts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mc-apt-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mc-apt-row dt {
+  flex: none;
+  width: 40px;
+  font-family: var(--title);
+  font-size: 12px;
+  color: var(--sub);
+}
+.mc-apt-row dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.mc-apt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 5px 2px 8px;
+  border-radius: 8px;
+  background: var(--glass-strong);
+  font-size: 12px;
+  color: var(--text);
+}
+.mc-apt .grade {
+  min-width: 14px;
+  text-align: center;
+  font-family: var(--title);
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--sub);
+}
+.mc-apt .grade-s,
+.mc-apt .grade-a {
+  color: var(--new);
+}
+.mc-apt .grade-b,
+.mc-apt .grade-c {
+  color: var(--ink);
+}
+.mc-skills summary {
+  cursor: pointer;
+  font-family: var(--title);
+  font-size: 13px;
+  color: var(--ink);
+}
+.mc-skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+@media (max-width: 767px) {
+  .mc-races {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mc-apt-row {
+    align-items: flex-start;
+  }
+}

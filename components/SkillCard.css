@@ -1,0 +1,52 @@
+/* 등급은 띠 대신 카드 바탕을 한 가지 색으로 옅게 물들여 구분한다. 일반 무색, 레어 금색, 고유 보라, 진화 분홍 */
+.sk {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--glass-strong);
+}
+.sk-gold {
+  background: rgba(227, 179, 65, 0.16);
+}
+.sk-unique {
+  background: rgba(197, 140, 255, 0.18);
+}
+.sk-evo {
+  background: rgba(255, 128, 180, 0.16);
+}
+.sk img {
+  flex: none;
+  width: 36px;
+  height: 36px;
+}
+.sk-main {
+  min-width: 0;
+}
+.sk-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sk-name b {
+  font-family: var(--title);
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--ink);
+}
+.sk-desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--sub);
+  word-break: keep-all;
+}
+.sk-noicon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--glass-strong);
+}

@@ -5,7 +5,7 @@ import { unstable_cache } from "next/cache";
 import { skillArt } from "./art";
 import { logFailure } from "./fetchJson";
 import { fixKo } from "./koName";
-import { KANA, namuSkill, realKo } from "./namuKo";
+import { KANA, namuSkill, norm, realKo } from "./namuKo";
 import { dataUrl, load, type Lane } from "./gametora";
 
 // ── 스킬 ──────────────────────────────────────────────
@@ -78,6 +78,19 @@ function getSkills(): Promise<Map<number, Skill>> {
     skillsCache = null;
   });
   return data;
+}
+
+/** 일본어 스킬 이름(모양만 다른 글자는 맞춰서) → 스킬. 같은 이름이 여럿이면 등급이 높은 쪽 */
+export async function getSkillsByJpName(): Promise<Map<string, Skill>> {
+  const [raw, skills] = await Promise.all([rawSkills(), getSkills()]);
+  const byName = new Map<string, Skill>();
+  for (const r of raw) {
+    const s = skills.get(r.id);
+    const key = norm(r.jpname);
+    const prev = byName.get(key);
+    if (s && (!prev || s.rarity > prev.rarity)) byName.set(key, s);
+  }
+  return byName;
 }
 
 const pick = (skills: Map<number, Skill>, ids: number[] = []) =>
