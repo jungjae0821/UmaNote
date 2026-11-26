@@ -89,11 +89,21 @@
 .ev-item + .ev-item {
   border-top: 1px solid var(--glass-line);
 }
-.ev-item:target {
-  background: var(--glass-strong);
-  border-radius: 10px;
-  padding-left: 8px;
-  padding-right: 8px;
+/* 홈에서 바로 온 줄(EventsView의 flash)은 잠깐 강조했다가 지운다. 바탕을 그림자로 양옆에 늘려 글자 위치는 그대로 둔다 */
+.ev-item.flash {
+  border-radius: 2px;
+  animation: ev-flash 2.4s ease-out forwards;
+}
+@keyframes ev-flash {
+  0%,
+  50% {
+    background: var(--glass-strong);
+    box-shadow: 0 0 0 8px var(--glass-strong);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 8px transparent;
+  }
 }
 .ev-main b {
   display: block;

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatMd, formatMdTime, monthOf, relative } from "@/lib/dates";
 import { Live } from "@/components/Live";
 import { SupportTypeIcon } from "@/components/SupportTypeIcon";
@@ -67,6 +67,16 @@ function RaceTag({ e }: { e: ViewEvent }) {
 export function EventsView({ events, today: serverToday }: { events: ViewEvent[]; today: number }) {
   const today = useToday(serverToday);
   const [kinds, setKinds] = useState<EventKind[]>(KINDS.map((k) => k.kind));
+  // 홈에서 /events#이벤트ID로 들어오면 그 줄을 잠깐 강조한다. 강조한 히스토리 항목에는 표시를 남겨
+  // 상세 페이지에 갔다가 뒤로 왔을 때는 다시 강조하지 않는다. 주소는 그대로 둬야 Next 라우터와 어긋나지 않는다
+  const [flashId, setFlashId] = useState<string | null>(null);
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    const state = window.history.state as Record<string, unknown> | null;
+    if (!id || state?.evFlashed) return;
+    setFlashId(id);
+    window.history.replaceState({ ...state, evFlashed: true }, "", window.location.href);
+  }, []);
   const toggle = (k: EventKind) =>
     setKinds((cur) => {
       const next = cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k];
@@ -93,7 +103,7 @@ export function EventsView({ events, today: serverToday }: { events: ViewEvent[]
   const renderItem = (e: ViewEvent) => {
     const r = relative(e.start, e.end, today);
     return (
-      <li key={e.id} id={e.id} className="ev-item">
+      <li key={e.id} id={e.id} className={`ev-item${e.id === flashId ? " flash" : ""}`}>
         <span className={`ev-kind k-${e.kind}`}>{KIND_NAME[e.kind]}</span>
         <div className="ev-main">
           {e.detail ? (
