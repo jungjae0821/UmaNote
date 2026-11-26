@@ -21,9 +21,9 @@ export function CmPicks({ entry, train }: { entry: Entry; train: Map<number, Car
   return (
     <section>
       <h2 className="section-title">추천 우마무스메</h2>
-      <div className="evd-picks">
+      <div className="panel glass evd-picks">
         {picks.map(({ card, style }) => (
-          <Link key={card.id} href={cardHref(card)} className="panel glass evd-pick">
+          <Link key={card.id} href={cardHref(card)} className="evd-pick">
             <span className="evd-face">
               <img src={card.art} alt="" loading="lazy" />
             </span>

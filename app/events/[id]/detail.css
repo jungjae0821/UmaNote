@@ -244,7 +244,7 @@
 .evd-picks {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
+  gap: 14px 24px;
 }
 .evd-pick {
   display: grid;
