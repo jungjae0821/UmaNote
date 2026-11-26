@@ -131,88 +131,88 @@ export default async function Home() {
 
         <div className="home-main stack">
           <section className="home-pickup">
-            <h2 className="section-title">픽업 가챠</h2>
-            <div className="panel glass">
-              <div className="panel-head">
-                <b>진행 중 픽업</b>
-                {liveBanners.length > 0 && <Live start={today} end={pickupEnd} today={today} />}
-              </div>
-              {liveBanners.length === 0 ? (
-                <p className="empty">지금 진행 중인 픽업이 없습니다.</p>
-              ) : (
-                <div className="ccards">
-                  {[...liveTrain, ...liveSupport].flatMap((b) =>
-                    b.pickups.map((p) => (
-                      <PickupCard
-                        key={`${b.id}-${p.card.id}`}
-                        card={p.card}
-                        rate={p.rate}
-                        isNew={p.isNew}
-                      />
-                    )),
-                  )}
+            <h2 className="section-title">{races.length > 0 ? "픽업 가챠 · 경기" : "픽업 가챠"}</h2>
+            <div className={`panel glass${races.length > 0 ? " pk-split" : ""}`}>
+              <div className="pk-main">
+                <div className="panel-head">
+                  <b>진행 중 픽업</b>
+                  {liveBanners.length > 0 && <Live start={today} end={pickupEnd} today={today} />}
                 </div>
-              )}
-              {(nextTrain || nextSupport) && (
-                <div className="next-rows">
-                  {[nextTrain, nextSupport].map(
-                    (b) =>
-                      b && (
-                        <Link key={b.id} href={`/futures?banner=${b.id}`} className="next-row">
-                          <span className="next-when">
-                            다음 {b.lane === "train" ? "육성" : "서포트"} 픽업 · {formatMd(b.start)} 시작
+                {liveBanners.length === 0 ? (
+                  <p className="empty">지금 진행 중인 픽업이 없습니다.</p>
+                ) : (
+                  <div className="ccards">
+                    {[...liveTrain, ...liveSupport].flatMap((b) =>
+                      b.pickups.map((p) => (
+                        <PickupCard
+                          key={`${b.id}-${p.card.id}`}
+                          card={p.card}
+                          rate={p.rate}
+                          isNew={p.isNew}
+                        />
+                      )),
+                    )}
+                  </div>
+                )}
+                {(nextTrain || nextSupport) && (
+                  <div className="next-rows">
+                    {[nextTrain, nextSupport].map(
+                      (b) =>
+                        b && (
+                          <Link key={b.id} href={`/futures?banner=${b.id}`} className="next-row">
+                            <span className="next-when">
+                              다음 {b.lane === "train" ? "육성" : "서포트"} 픽업 · {formatMd(b.start)} 시작
+                            </span>
+                            <span className="next-faces">
+                              {b.pickups.slice(0, 3).map((p) => (
+                                <img key={p.card.id} src={p.card.art} alt="" />
+                              ))}
+                            </span>
+                            <b>{[...new Set(b.pickups.map((p) => p.card.name))].join(", ") || "픽업 정보 없음"}</b>
+                            {b.start === today ? <span className="chip">오늘 12:00 시작</span> : <Live start={b.start} end={b.end} today={today} />}
+                          </Link>
+                        ),
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {races.length > 0 && (
+                <div className="pk-races">
+                  <div className="panel-head">
+                    <b>경기</b>
+                  </div>
+                  {races.map((e) => (
+                    <Link key={e.id} href={`/events#${e.id}`} className="race">
+                      <div className="race-body">
+                        <b className="race-kind">{EVENT_KIND_NAME[e.kind]}</b>
+                        <p className="race-name">{e.name}</p>
+                        <div className="tags-row">
+                          <span className="tag">
+                            {formatMd(e.start)} ~ {formatMd(e.end)}
                           </span>
-                          <span className="next-faces">
-                            {b.pickups.slice(0, 3).map((p) => (
-                              <img key={p.card.id} src={p.card.art} alt="" />
-                            ))}
-                          </span>
-                          <b>{[...new Set(b.pickups.map((p) => p.card.name))].join(", ") || "픽업 정보 없음"}</b>
-                          {b.start === today ? <span className="chip">오늘 12:00 시작</span> : <Live start={b.start} end={b.end} today={today} />}
-                        </Link>
-                      ),
-                  )}
+                          {e.race && (
+                            <span className="tag">
+                              {e.race.track ? `${e.race.track} ` : ""}
+                              {e.race.ground} {e.race.distance}m
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {e.rivals && e.rivals.length > 0 && (
+                        <span className="race-rivals">
+                          {e.rivals.map((c) => (
+                            <img key={c.id} src={c.art} alt={c.name} title={c.name} />
+                          ))}
+                        </span>
+                      )}
+                      <Live start={e.start} end={e.end} today={today} />
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
           </section>
-
-          {races.length > 0 && (
-            <section className="home-races">
-              <h2 className="section-title">경기</h2>
-              <div className="races">
-                {races.map((e) => (
-                  <Link key={e.id} href={`/events#${e.id}`} className="race panel glass">
-                    {e.rivals && e.rivals.length > 0 && (
-                      <span className="race-rivals">
-                        {e.rivals.map((c) => (
-                          <img key={c.id} src={c.art} alt={c.name} title={c.name} />
-                        ))}
-                      </span>
-                    )}
-                    <div>
-                      <div className="race-top">
-                        <b>{EVENT_KIND_NAME[e.kind]}</b>
-                        <Live start={e.start} end={e.end} today={today} />
-                      </div>
-                      <p className="race-name">{e.name}</p>
-                      <div className="tags-row">
-                        <span className="tag">
-                          {formatMd(e.start)} ~ {formatMd(e.end)}
-                        </span>
-                        {e.race && (
-                          <span className="tag">
-                            {e.race.track ? `${e.race.track} ` : ""}
-                            {e.race.ground} {e.race.distance}m
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
 
           <section className="home-other">
             <h2 className="section-title">그 외 컨텐츠</h2>

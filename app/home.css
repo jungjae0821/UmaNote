@@ -188,43 +188,94 @@
   justify-self: end;
 }
 
-.races {
+/* 픽업과 경기를 한 패널에 좌우로 둔다. 패널이 좁으면 위아래로 쌓는다 */
+.pk-split {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 20px;
 }
+.home-pickup {
+  container: pickup / inline-size;
+}
+.pk-main {
+  min-width: 0;
+  container-type: inline-size;
+}
+/* 카드 수가 많아도 가로 스크롤 없이 패널 폭에 맞춰 줄어든다 */
+.pk-main .ccards {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 112px);
+  overflow: visible;
+  padding-bottom: 0;
+}
+.pk-main .ccard {
+  width: auto;
+  min-width: 0;
+}
+.pk-main .ccard .art {
+  height: auto;
+  aspect-ratio: 112 / 127;
+}
+.pk-races {
+  min-width: 0;
+  padding-left: 20px;
+  border-left: 1px solid var(--glass-line);
+}
+@container pickup (max-width: 760px) {
+  .pk-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* 위아래로 쌓일 만큼 좁으면(휴대폰 포함) 카드를 줄이지 않고 원래처럼 옆으로 넘긴다 */
+  .pk-main .ccards {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .pk-main .ccard {
+    width: 112px;
+  }
+  .pk-main .ccard .art {
+    height: 127px;
+  }
+  .pk-races {
+    padding: 16px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--glass-line);
+  }
+}
+/* 경기 한 줄: 왼쪽 글, 오른쪽 남는 공간에 상대 일러스트 */
 .race {
   display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
 }
-/* 레전드 레이스 상대는 겹치지 않게 나란히 배치한다. */
+.race + .race {
+  border-top: 1px solid var(--glass-line);
+}
+.race-body {
+  flex: 1;
+  min-width: 0;
+}
 .race-rivals {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-width: 100%;
+  gap: 4px;
+  flex: none;
 }
 .race-rivals img {
-  flex: none;
-  width: 56px;
-  height: 76px;
-  border-radius: 14px;
+  width: 36px;
+  height: 48px;
+  border-radius: 8px;
   object-fit: cover;
   object-position: top;
   background: var(--glass-strong);
 }
-.race > div {
-  flex: 1 160px;
-  min-width: 0;
+.race > .chip {
+  flex: none;
 }
-.race-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-.race-top b {
+.race-kind {
+  display: block;
   font-family: var(--title);
   font-weight: 400;
   font-size: 13px;
@@ -232,9 +283,9 @@
 }
 .race-name {
   font-family: var(--title);
-  font-size: 17px;
+  font-size: 15px;
   color: var(--ink);
-  margin: 4px 0 6px;
+  margin: 2px 0 6px;
 }
 .tags-row {
   display: flex;
@@ -407,9 +458,6 @@
   .home-pickup {
     order: 1;
   }
-  .home-races {
-    order: 2;
-  }
   .home-bd {
     order: 3;
   }
@@ -443,9 +491,6 @@
   }
 }
 /* 픽업 패널이 좁으면(2단 홈의 왼쪽 열 포함) 다음 픽업 줄을 두 줄로 나눈다 */
-.panel:has(> .next-rows) {
-  container-type: inline-size;
-}
 @container (max-width: 560px) {
   .next-rows {
     grid-template-columns: max-content minmax(0, 1fr) auto;
