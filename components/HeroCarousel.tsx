@@ -65,7 +65,7 @@ export function HeroCarousel({ slides, today: serverToday }: { slides: HeroSlide
         {slides.map((s, i) => (
           <article
             key={s.id}
-            className={`hero${s.banner ? " is-banner" : ""}`}
+            className={`hero${s.banner ? " is-banner" : s.art ? " is-art" : ""}`}
             style={s.background ? { background: s.background } : undefined}
             aria-roledescription={many ? "slide" : undefined}
             aria-label={many ? `${i + 1} / ${slides.length}` : undefined}

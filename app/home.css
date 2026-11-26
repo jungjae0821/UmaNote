@@ -115,6 +115,28 @@
   gap: 12px;
   flex-wrap: wrap;
 }
+/* 스토리 이벤트 일러스트(4:3)는 자르지 않고 왼쪽에 통째로 두고, 오른쪽 대표색 바탕에 글을 둔다 */
+.hero.is-art {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.hero.is-art .hero-art {
+  position: static;
+  width: auto;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.hero.is-art .hero-over {
+  position: static;
+  align-items: center;
+  padding: 20px 28px;
+  background: rgba(0, 0, 0, 0.32);
+}
+.hero.is-art .hero-name {
+  font-size: 24px;
+}
 .hero-kind {
   font-family: var(--title);
   font-size: 12px;
@@ -482,6 +504,23 @@
     width: 92%;
   }
   .hero-name {
+    font-size: 19px;
+  }
+  /* 휴대폰은 좌우로 나눌 폭이 없어 일러스트 위에 글을 얹는다 */
+  .hero.is-art {
+    display: block;
+  }
+  .hero.is-art .hero-art {
+    position: absolute;
+    width: 100%;
+  }
+  .hero.is-art .hero-over {
+    position: absolute;
+    align-items: flex-end;
+    padding: 56px 16px 14px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0));
+  }
+  .hero.is-art .hero-name {
     font-size: 19px;
   }
   /* 좁은 폭에서는 항목 이름을 위로 올려 내용 칸을 넓힌다 */
