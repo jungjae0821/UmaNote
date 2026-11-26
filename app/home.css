@@ -40,8 +40,8 @@
   position: relative;
   flex: 0 0 100%;
   scroll-snap-align: start;
-  aspect-ratio: 2 / 1;
-  max-height: 420px;
+  aspect-ratio: 3 / 1;
+  max-height: 280px;
   width: 100%;
   overflow: hidden;
   background: linear-gradient(120deg, #21713a 0%, #64c3c1 55%, #1e3872 100%);
@@ -59,8 +59,8 @@
 .hero-banner {
   position: absolute;
   left: 50%;
-  top: 14%;
-  width: min(92%, 760px);
+  top: 10%;
+  width: min(80%, 640px);
   transform: translateX(-50%);
   aspect-ratio: 936 / 228;
   border-radius: 14px;
@@ -100,7 +100,9 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  /* 낮아진 박스에 맞춰 늘리지 않고 잘라 낸다. 얼굴이 있는 윗부분을 남긴다 */
+  object-fit: cover;
+  object-position: center 30%;
 }
 .hero-over {
   position: absolute;
@@ -473,10 +475,11 @@
 }
 @media (max-width: 767px) {
   .hero {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 9;
   }
   .hero-banner {
-    top: 22%;
+    top: 12%;
+    width: 92%;
   }
   .hero-name {
     font-size: 19px;
