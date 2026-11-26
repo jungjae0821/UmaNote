@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { Live } from "@/components/Live";
 import { formatMdTime, formatFull, todayKr } from "@/lib/dates";
 import {
+  cardIndex,
   EVENT_KIND_NAME,
+  getCards,
   getCourse,
   getEvents,
   getLegendRivals,
@@ -12,6 +14,7 @@ import {
   type GameEvent,
 } from "@/lib/gametora";
 import { CONDITION, CourseSection, RaceSection, WEATHER } from "./CourseView";
+import { CmPicks, cmPicksOf } from "./CmPicks";
 import { LegendRivals } from "./LegendRivals";
 import "../events.css";
 import "./detail.css";
@@ -41,9 +44,11 @@ async function RaceEventBody({ e }: { e: GameEvent }) {
   const sameCourse = race?.courseSet
     ? (await getEvents()).filter((x) => x.id !== e.id && x.race?.courseSet === race.courseSet && (x.kind === "cm" || x.kind === "loh"))
     : [];
+  const picks = e.kind === "cm" ? cmPicksOf(numId(e)) : undefined;
   return (
     <>
       {race && <RaceSection race={race} course={course} />}
+      {picks && <CmPicks entry={picks} train={cardIndex(await getCards()).train} />}
       {course && <CourseSection c={course} />}
       {sameCourse.length > 0 && (
         <section>

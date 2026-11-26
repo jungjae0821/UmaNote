@@ -241,6 +241,33 @@
   color: var(--sub);
 }
 
+.evd-picks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.evd-pick {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.evd-pick b {
+  display: block;
+  font-family: var(--title);
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--ink);
+}
+.evd-source {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--sub);
+}
+.evd-source a {
+  text-decoration: underline;
+}
+
 .evd-rivals {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
